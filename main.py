@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import declarative_base, sessionmaker
+from passlib.context import CryptContext
 
 app = FastAPI(
     title="Envesti API",
@@ -15,6 +18,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+DATABASE_URL = "sqlite:///./investir.db"
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+Base = declarative_base()
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True)
+    email = Column(String, unique=True)
+    password = Column(String)
+    balance = Column(Integer, default=0)
+
+
+Base.metadata.create_all(bind=engine)
+
 
 messages = {
     "ht": {
@@ -31,6 +68,7 @@ messages = {
     }
 }
 
+
 @app.get("/", response_class=HTMLResponse)
 def home(lang: str = "ht"):
     data = messages.get(lang, messages["ht"])
@@ -40,63 +78,93 @@ def home(lang: str = "ht"):
     <head>
         <title>Envesti API</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            body {{
-                font-family: Arial, sans-serif;
-                background: linear-gradient(135deg, #0f172a, #2563eb);
-                color: white;
-                text-align: center;
-                padding: 60px 20px;
-            }}
-
-            .box {{
-                background: white;
-                color: #111;
-                padding: 35px;
-                border-radius: 20px;
-                max-width: 500px;
-                margin: auto;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            }}
-
-            h1 {{
-                color: #2563eb;
-            }}
-
-            button {{
-                padding: 12px 18px;
-                margin: 6px;
-                border-radius: 10px;
-                border: none;
-                cursor: pointer;
-                font-size: 15px;
-            }}
-        </style>
     </head>
 
-    <body>
-        <div class="box">
-            <h1>{data["title"]}</h1>
-            <p>{data["text"]}</p>
+    <body style="font-family:Arial;text-align:center;padding:50px">
+        <h1>{data["title"]}</h1>
+        <p>{data["text"]}</p>
 
-            <a href="/?lang=ht">
-                <button>🇭🇹 Kreyòl</button>
-            </a>
+        <a href="/?lang=ht">🇭🇹 Kreyòl</a>
+        <br>
+        <a href="/?lang=fr">🇫🇷 Français</a>
+        <br>
+        <a href="/?lang=en">🇺🇸 English</a>
 
-            <a href="/?lang=fr">
-                <button>🇫🇷 Français</button>
-            </a>
-
-            <a href="/?lang=en">
-                <button>🇺🇸 English</button>
-            </a>
-        </div>
     </body>
-    </html>
-    """
+    </html>@app.post("/register")
+def register(
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    db = SessionLocal()
+
+    existing_user = db.query(User).filter(
+        (User.username == username) | (User.email == email)
+    ).first()
+
+    if existing_user:
+        db.close()
+        return {
+            "message": "Itilizatè sa deja egziste"
+        }
+
+    hashed_password = pwd_context.hash(password)
+
+    new_user = User(
+        username=username,
+        email=email,
+        password=hashed_password,
+        balance=0
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    db.close()
+
+    return {
+        "message": "Kont kreye avèk siksè",
+        "username": username
+    }
+
+
+@app.post("/login")
+def login(
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    db = SessionLocal()
+
+    user = db.query(User).filter(
+        User.email == email
+    ).first()
+
+    if not user:
+        db.close()
+        return {
+            "message": "Kont pa jwenn"
+        }
+
+    if not pwd_context.verify(password, user.password):
+        db.close()
+        return {
+            "message": "Modpas la pa bon"
+        }
+
+    db.close()
+
+    return {
+        "message": "Koneksyon reyisi",
+        "username": user.username,
+        "balance": user.balance
+    }
+
 
 @app.get("/status")
 def status():
     return {
         "status": "API a ap mache"
     }
+    """
