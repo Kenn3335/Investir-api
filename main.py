@@ -1,25 +1,22 @@
-from fastapi import FastAPI, Form
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import declarative_base, sessionmaker
+from fastapi import FastAPI, Depends, HTTPException, Form
+from fastapi.responses import HTMLResponse
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from passlib.context import CryptContext
+from datetime import datetime
+import os
+
+# =====================
+# KONFIGIRASYON
+# =====================
 
 app = FastAPI(
-    title="Envesti API",
-    description="Platfòm envestisman ak login, depo, retrè ak balans",
+    title="Envesti USDT TRC20",
+    description="Platfòm envestisman ak depo/retrè USDT",
     version="1.0"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-DATABASE_URL = "sqlite:///./investir.db"
+DATABASE_URL = "sqlite:///./investi.db"
 
 engine = create_engine(
     DATABASE_URL,
@@ -39,99 +36,83 @@ pwd_context = CryptContext(
     deprecated="auto"
 )
 
+# Mete wallet TRC20 ou la pita
+USDT_TRON_ADDRESS = os.getenv(
+    "USDT_TRON_ADDRESS",
+    "METE_WALLET_TRON_LA"
+)
+
+
+# =====================
+# DATABASE MODELS
+# =====================
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True)
-    email = Column(String, unique=True)
     password = Column(String)
-    balance = Column(Integer, default=0)
+    balance = Column(Float, default=0)
+    is_admin = Column(Integer, default=0)
+
+
+class Deposit(Base):
+    __tablename__ = "deposits"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String)
+    amount = Column(Float)
+    txid = Column(String)
+    status = Column(String, default="pending")
+    date = Column(String, default=str(datetime.now()))
+
+
+class Withdraw(Base):
+    __tablename__ = "withdraws"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String)
+    amount = Column(Float)
+    wallet = Column(String)
+    status = Column(String, default="pending")
+    date = Column(String, default=str(datetime.now()))
 
 
 Base.metadata.create_all(bind=engine)
 
 
+# =====================
+# DATABASE CONNECTION
+# =====================
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-@app.get("/")
+# =====================
+# PASSWORD
+# =====================
+
+def hash_password(password):
+    return pwd_context.hash(password)
+
+
+def verify_password(password, hashed):
+    return pwd_context.verify(password, hashed)
+
+
+# =====================
+# HOME
+# =====================
+
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return FileResponse("index.html")
-    
-@app.post("/register")
-def register(
-    username: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...)
-):
-    db = SessionLocal()
-
-    existing_user = db.query(User).filter(
-        (User.username == username) | (User.email == email)
-    ).first()
-
-    if existing_user:
-        db.close()
-        return {
-            "message": "Itilizatè sa deja egziste"
-        }
-
-    hashed_password = pwd_context.hash(password)
-
-    new_user = User(
-        username=username,
-        email=email,
-        password=hashed_password,
-        balance=0
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    db.close()
-
-    return {
-        "message": "Kont kreye avèk siksè",
-        "username": username
-    }
-
-
-@app.post("/login")
-def login(
-    email: str = Form(...),
-    password: str = Form(...)
-):
-    db = SessionLocal()
-
-    user = db.query(User).filter(
-    User.email == email.strip()
-).first()
-
-    if not user:
-        db.close()
-        return {
-            "message": "Kont pa jwenn"
-        }
-
-    if not pwd_context.verify(password, user.password):
-        db.close()
-        return {
-            "message": "Modpas la pa bon"
-        }
-
-    db.close()
-
-    return {
-        "message": "Koneksyon reyisi",
-        "username": user.username,
-        "balance": user.balance
-    }
-
-
-@app.get("/status")
-def status():
-    return {
-        "status": "API a ap mache"
-    }
+    return """
+    <h1>Envesti USDT TRC20</h1>
+    <p>Sistèm nan ap mache.</p>
+    """
