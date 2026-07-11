@@ -6,44 +6,61 @@
     <title>VestiCore</title>
 </head>
 
-<body>
+<body style="font-family: Arial; text-align:center; padding:30px;">
 
     <h1>💎 VestiCore</h1>
 
-    <p>
-        Byenvini sou platfòm VestiCore a.
-        Envesti, swiv balans ou, epi jere finans ou an sekirite.
-    </p>
+    <p>Byenvini sou platfòm VestiCore la.</p>
 
     <hr>
 
-    <h2>Aksè kont ou</h2>
+    <h2>Kreye kont</h2>
 
-    <button>Kreye kont</button>
-    <button>Konekte</button>
+    <form action="/register" method="post">
+
+        <input 
+        type="text" 
+        name="username" 
+        placeholder="Non itilizatè"
+        required>
+        <br><br>
+
+        <input 
+        type="email" 
+        name="email" 
+        placeholder="Email"
+        required>
+        <br><br>
+
+        <input 
+        type="password" 
+        name="password" 
+        placeholder="Modpas"
+        required>
+        <br><br>
+
+        <button type="submit">
+            Kreye kont
+        </button>
+
+    </form>
 
     <hr>
 
-    <h2>Sèvis VestiCore</h2>
+    <h2>Konekte</h2>
+
+    <button>
+        Konekte
+    </button>
+
+    <hr>
+
+    <h3>Sèvis VestiCore</h3>
 
     <button>💰 Depo</button>
     <button>💸 Retrè</button>
     <button>📊 Balans</button>
-    <button>👥 Invite yon moun</button>
-
-    <hr>
-
-    <h2>Chwazi lang</h2>
-
-    <button>Kreyòl</button>
-    <button>Français</button>
-    <button>English</button>
-
-    <hr>
-
-    <p>
-        © 2026 VestiCore - Tout dwa rezève
-    </p>
+    <button>👥 Invite</button>
 
 </body>
 </html>
