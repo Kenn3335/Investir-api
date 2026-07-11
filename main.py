@@ -91,7 +91,8 @@ def home(lang: str = "ht"):
         <a href="/?lang=en">🇺🇸 English</a>
 
     </body>
-    </html>@app.post("/register")
+    </html>
+    """@app.post("/register")
 def register(
     username: str = Form(...),
     email: str = Form(...),
@@ -167,4 +168,3 @@ def status():
     return {
         "status": "API a ap mache"
     }
-    """
