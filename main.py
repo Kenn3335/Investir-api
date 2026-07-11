@@ -282,3 +282,140 @@ def get_deposits(
     ).all()
 
     return deposits
+# =====================
+# RETRÈ USDT TRC20
+# =====================
+
+@app.post("/withdraw")
+def create_withdraw(
+    username: str = Form(...),
+    amount: float = Form(...),
+    wallet: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+    if amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Montan pa valab"
+        )
+
+    if user.balance < amount:
+        raise HTTPException(
+            status_code=400,
+            detail="Balans pa ase"
+        )
+
+    withdraw = Withdraw(
+        username=username,
+        amount=amount,
+        wallet=wallet,
+        status="pending"
+    )
+
+    db.add(withdraw)
+    db.commit()
+    db.refresh(withdraw)
+
+    return {
+        "message": "Demann retrè voye bay admin",
+        "amount": amount,
+        "wallet": wallet,
+        "status": "pending"
+    }
+
+
+# =====================
+# ADMIN WÈ RETRÈ YO
+# =====================
+
+@app.get("/admin/withdraws")
+def admin_withdraws(
+    db: Session = Depends(get_db)
+):
+
+    withdraws = db.query(Withdraw).filter(
+        Withdraw.status == "pending"
+    ).all()
+
+    return withdraws
+
+
+# =====================
+# ADMIN APWOUVE RETRÈ
+# =====================
+
+@app.post("/admin/approve-withdraw/{withdraw_id}")
+def approve_withdraw(
+    withdraw_id: int,
+    db: Session = Depends(get_db)
+):
+
+    withdraw = db.query(Withdraw).filter(
+        Withdraw.id == withdraw_id
+    ).first()
+
+    if not withdraw:
+        raise HTTPException(
+            status_code=404,
+            detail="Retrè pa jwenn"
+        )
+
+    user = db.query(User).filter(
+        User.username == withdraw.username
+    ).first()
+
+    if user.balance < withdraw.amount:
+        raise HTTPException(
+            status_code=400,
+            detail="Balans itilizatè a pa ase"
+        )
+
+    user.balance -= withdraw.amount
+    withdraw.status = "approved"
+
+    db.commit()
+
+    return {
+        "message": "Retrè apwouve",
+        "amount": withdraw.amount
+    }
+
+
+# =====================
+# ADMIN REFIZE RETRÈ
+# =====================
+
+@app.post("/admin/reject-withdraw/{withdraw_id}")
+def reject_withdraw(
+    withdraw_id: int,
+    db: Session = Depends(get_db)
+):
+
+    withdraw = db.query(Withdraw).filter(
+        Withdraw.id == withdraw_id
+    ).first()
+
+    if not withdraw:
+        raise HTTPException(
+            status_code=404,
+            detail="Retrè pa jwenn"
+        )
+
+    withdraw.status = "rejected"
+
+    db.commit()
+
+    return {
+        "message": "Retrè refize"
+    }
