@@ -53,20 +53,6 @@ class User(Base):
 Base.metadata.create_all(bind=engine)
 
 
-messages = {
-    "ht": {
-        "title": "Byenveni sou Envesti API",
-        "text": "Platfòm envestisman ou a pare pou itilize."
-    },
-    "fr": {
-        "title": "Bienvenue sur Envesti API",
-        "text": "Votre plateforme d'investissement est prête."
-    },
-    "en": {
-        "title": "Welcome to Envesti API",
-        "text": "Your investment platform is ready."
-    }
-}
 
 
 @app.get("/")
