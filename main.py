@@ -69,12 +69,9 @@ messages = {
 }
 
 
-@app.get("/", response_class=HTMLResponse)
-def home(lang: str = "ht"):
-    data = messages.get(lang, messages["ht"])
-
-    return f"""
-    <html>
+@app.get("/")
+def home():
+    return FileResponse("index.html")
     <head>
         <title>Envesti API</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
