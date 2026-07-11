@@ -116,3 +116,97 @@ def home():
     <h1>Envesti USDT TRC20</h1>
     <p>Sistèm nan ap mache.</p>
     """
+# =====================
+# REGISTER
+# =====================
+
+@app.post("/register")
+def register(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user_exist = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if user_exist:
+        raise HTTPException(
+            status_code=400,
+            detail="Non itilizatè sa deja egziste"
+        )
+
+    new_user = User(
+        username=username,
+        password=hash_password(password),
+        balance=0
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "message": "Kont kreye avèk siksè",
+        "username": username
+    }
+
+
+# =====================
+# LOGIN
+# =====================
+
+@app.post("/login")
+def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Itilizatè pa jwenn"
+        )
+
+    if not verify_password(password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Modpas pa bon"
+        )
+
+    return {
+        "message": "Login reyisi",
+        "username": user.username,
+        "balance": user.balance
+    }
+
+
+# =====================
+# BALANCE
+# =====================
+
+@app.get("/balance/{username}")
+def get_balance(
+    username: str,
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+    return {
+        "username": user.username,
+        "balance_usdt": user.balance
+    }
