@@ -106,8 +106,8 @@ def login(
     db = SessionLocal()
 
     user = db.query(User).filter(
-        User.email == email
-    ).first()
+    User.email == email.strip()
+).first()
 
     if not user:
         db.close()
