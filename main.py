@@ -210,3 +210,75 @@ def get_balance(
         "username": user.username,
         "balance_usdt": user.balance
     }
+# =====================
+# DEPO USDT TRC20
+# =====================
+
+@app.get("/deposit-info")
+def deposit_info():
+    return {
+        "network": "TRC20 (TRON)",
+        "currency": "USDT",
+        "wallet_address": USDT_TRON_ADDRESS,
+        "instruction": "Voye USDT TRC20 sou adrès sa a epi mete TXID tranzaksyon an."
+    }
+
+
+@app.post("/deposit")
+def create_deposit(
+    username: str = Form(...),
+    amount: float = Form(...),
+    txid: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+    if amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Montan an pa valab"
+        )
+
+    deposit = Deposit(
+        username=username,
+        amount=amount,
+        txid=txid,
+        status="pending"
+    )
+
+    db.add(deposit)
+    db.commit()
+    db.refresh(deposit)
+
+    return {
+        "message": "Depo resevwa, li sou verifikasyon",
+        "amount": amount,
+        "txid": txid,
+        "status": "pending"
+    }
+
+
+# =====================
+# LISTE DEPO ITILIZATE A
+# =====================
+
+@app.get("/deposits/{username}")
+def get_deposits(
+    username: str,
+    db: Session = Depends(get_db)
+):
+
+    deposits = db.query(Deposit).filter(
+        Deposit.username == username
+    ).all()
+
+    return deposits
