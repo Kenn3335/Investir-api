@@ -419,3 +419,106 @@ def reject_withdraw(
     return {
         "message": "Retrè refize"
     }
+# =====================
+# CREATE ADMIN (PREMYE FWA)
+# =====================
+
+@app.post("/create-admin")
+def create_admin(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    admin_exist = db.query(User).filter(
+        User.is_admin == 1
+    ).first()
+
+    if admin_exist:
+        raise HTTPException(
+            status_code=400,
+            detail="Gen yon admin deja"
+        )
+
+    admin = User(
+        username=username,
+        password=hash_password(password),
+        balance=0,
+        is_admin=1
+    )
+
+    db.add(admin)
+    db.commit()
+
+    return {
+        "message": "Admin kreye avèk siksè"
+    }
+
+
+# =====================
+# ADMIN WÈ DEPO PENDING YO
+# =====================
+
+@app.get("/admin/deposits")
+def admin_deposits(
+    db: Session = Depends(get_db)
+):
+
+    deposits = db.query(Deposit).filter(
+        Deposit.status == "pending"
+    ).all()
+
+    return deposits
+
+
+# =====================
+# ADMIN VALIDE DEPO
+# =====================
+
+@app.post("/admin/approve-deposit/{deposit_id}")
+def approve_deposit(
+    deposit_id: int,
+    db: Session = Depends(get_db)
+):
+
+    deposit = db.query(Deposit).filter(
+        Deposit.id == deposit_id
+    ).first()
+
+    if not deposit:
+        raise HTTPException(
+            status_code=404,
+            detail="Depo pa jwenn"
+        )
+
+    user = db.query(User).filter(
+        User.username == deposit.username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Itilizatè pa jwenn"
+        )
+
+    user.balance += deposit.amount
+    deposit.status = "approved"
+
+    db.commit()
+
+    return {
+        "message": "Depo apwouve",
+        "amount_added": deposit.amount
+    }
+
+
+# =====================
+# API STATUS
+# =====================
+
+@app.get("/status")
+def status():
+    return {
+        "status": "online",
+        "platform": "Envesti USDT TRC20"
+    }
