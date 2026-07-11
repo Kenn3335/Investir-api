@@ -92,7 +92,8 @@ def home(lang: str = "ht"):
 
     </body>
     </html>
-    """@app.post("/register")
+    """
+    @app.post("/register")
 def register(
     username: str = Form(...),
     email: str = Form(...),
