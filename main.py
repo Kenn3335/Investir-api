@@ -72,24 +72,6 @@ messages = {
 @app.get("/")
 def home():
     return FileResponse("index.html")
-    <head>
-        <title>Envesti API</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-
-    <body style="font-family:Arial;text-align:center;padding:50px">
-        <h1>{data["title"]}</h1>
-        <p>{data["text"]}</p>
-
-        <a href="/?lang=ht">🇭🇹 Kreyòl</a>
-        <br>
-        <a href="/?lang=fr">🇫🇷 Français</a>
-        <br>
-        <a href="/?lang=en">🇺🇸 English</a>
-
-    </body>
-    </html>
-    """
     
 @app.post("/register")
 def register(
