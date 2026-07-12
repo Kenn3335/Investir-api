@@ -114,7 +114,9 @@ def verify_password(password, hashed):
 def home():
     with open("index.html", "r", encoding="utf-8") as file:
         return file.read()
-        # =====================
+
+
+# =====================
 # DASHBOARD
 # =====================
 
