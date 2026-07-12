@@ -112,10 +112,8 @@ def verify_password(password, hashed):
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    return """
-    <h1>Envesti USDT TRC20</h1>
-    <p>Sistèm nan ap mache.</p>
-    """
+    with open("index.html", "r", encoding="utf-8") as file:
+        return file.read()
 # =====================
 # REGISTER
 # =====================
