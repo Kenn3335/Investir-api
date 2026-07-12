@@ -724,3 +724,171 @@ def dashboard(
     </html>
 
     """
+from starlette.middleware.sessions import SessionMiddleware
+
+
+# =====================
+# SESSION SECURITY
+# =====================
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="vesticore-secret-key-change-later"
+)
+
+
+
+# =====================
+# DEPOSIT INFO
+# =====================
+
+@app.get("/deposit-info")
+def deposit_info(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    return {
+        "network": "TRC20",
+        "currency": "USDT",
+        "wallet": USDT_TRON_ADDRESS,
+        "fee": "3%"
+    }
+
+
+
+# =====================
+# CREATE DEPOSIT
+# =====================
+
+@app.post("/deposit")
+def deposit(
+    request: Request,
+    amount: float = Form(...),
+    txid: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    if amount <= 0:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Montan pa valab"
+        )
+
+
+    fee = amount * DEPOSIT_FEE / 100
+
+
+    deposit = Deposit(
+        username=user.username,
+        amount=amount,
+        txid=txid,
+        status="pending"
+    )
+
+
+    db.add(deposit)
+
+
+    create_log(
+        db,
+        user.username,
+        "Depo voye pou verifikasyon"
+    )
+
+
+    db.commit()
+
+
+    return {
+        "message": "Depo resevwa",
+        "fee": fee,
+        "status": "pending"
+    }
+
+
+
+# =====================
+# CREATE WITHDRAW
+# =====================
+
+@app.post("/withdraw")
+def withdraw(
+    request: Request,
+    amount: float = Form(...),
+    wallet: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    if amount < MIN_WITHDRAW:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Minimum retrè se 10 USDT"
+        )
+
+
+    if amount > STARTER_MAX_WITHDRAW:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Limit retrè depase"
+        )
+
+
+    if user.balance < amount:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Balans pa ase"
+        )
+
+
+    fee = amount * WITHDRAW_FEE / 100
+
+
+    withdraw = Withdraw(
+        username=user.username,
+        amount=amount,
+        wallet=wallet,
+        status="pending"
+    )
+
+
+    db.add(withdraw)
+
+
+    create_log(
+        db,
+        user.username,
+        "Demann retrè voye"
+    )
+
+
+    db.commit()
+
+
+    return {
+        "message": "Retrè voye pou verifikasyon",
+        "fee": fee,
+        "status": "pending"
+    }
