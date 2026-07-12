@@ -642,3 +642,85 @@ def current_user(
 
 
     return user
+# =====================
+# USER DASHBOARD
+# =====================
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    plans = db.query(Plan).all()
+
+
+    plan_html = ""
+
+
+    for plan in plans:
+
+        plan_html += f"""
+        <div>
+            <h3>{plan.name}</h3>
+            <p>{plan.description}</p>
+            <p>Dire: {plan.duration} jou</p>
+        </div>
+        <hr>
+        """
+
+
+
+    return f"""
+
+    <html>
+
+    <head>
+        <title>VestiCore Dashboard</title>
+    </head>
+
+
+    <body>
+
+    <h1>Byenveni {user.username}</h1>
+
+
+    <h3>Balans</h3>
+
+    <p>
+    {user.balance} USDT
+    </p>
+
+
+    <h2>Sèvis nou yo</h2>
+
+    <p>
+    💰 Depo USDT
+    </p>
+
+    <p>
+    💸 Retrè
+    </p>
+
+    <p>
+    👥 Referral
+    </p>
+
+
+    <h2>Plan VestiCore</h2>
+
+
+    {plan_html}
+
+
+    </body>
+
+    </html>
+
+    """
