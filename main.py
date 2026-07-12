@@ -892,3 +892,99 @@ def withdraw(
         "fee": fee,
         "status": "pending"
     }
+# =====================
+# ADMIN CHECK
+# =====================
+
+def admin_user(
+    request: Request,
+    db: Session
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+    if user.is_admin != 1:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Aksè admin sèlman"
+        )
+
+    return user
+
+
+
+# =====================
+# ADMIN DASHBOARD
+# =====================
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_dashboard(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    admin_user(
+        request,
+        db
+    )
+
+
+    users = db.query(User).all()
+
+    deposits = db.query(Deposit).all()
+
+    withdraws = db.query(Withdraw).all()
+
+    logs = db.query(ActivityLog).all()
+
+
+    return f"""
+
+    <html>
+
+    <head>
+        <title>VestiCore Admin</title>
+    </head>
+
+    <body>
+
+    <h1>Admin Dashboard</h1>
+
+
+    <h2>Itilizatè yo</h2>
+
+    <p>
+    Total: {len(users)}
+    </p>
+
+
+    <h2>Depo</h2>
+
+    <p>
+    Total demann: {len(deposits)}
+    </p>
+
+
+    <h2>Retrè</h2>
+
+    <p>
+    Total demann: {len(withdraws)}
+    </p>
+
+
+    <h2>Activity Logs</h2>
+
+    <p>
+    Total aktivite: {len(logs)}
+    </p>
+
+
+    </body>
+
+    </html>
+
+    """
