@@ -351,3 +351,160 @@ def create_default_plans():
 
 
 create_default_plans()
+# =====================
+# HOME PAGE
+# =====================
+
+@app.get("/", response_class=HTMLResponse)
+def home():
+
+    return """
+    <html>
+    <head>
+        <title>VestiCore</title>
+    </head>
+
+    <body>
+
+        <h1>VestiCore</h1>
+
+        <h2>Platfòm dijital nou an</h2>
+
+        <p>
+        Kreye kont oswa konekte pou jwenn aksè ak espas ou.
+        </p>
+
+        <a href="/register">
+            Kreye kont
+        </a>
+
+        <br><br>
+
+        <a href="/login">
+            Konekte
+        </a>
+
+    </body>
+    </html>
+    """
+
+
+
+# =====================
+# REGISTER PAGE
+# =====================
+
+@app.get("/register", response_class=HTMLResponse)
+def register_page():
+
+    return """
+    <html>
+    <body>
+
+    <h2>Kreye kont</h2>
+
+    <form method="post">
+
+        <input name="username"
+        placeholder="Non itilizatè">
+
+        <br><br>
+
+        <input
+        type="password"
+        name="password"
+        placeholder="Modpas">
+
+        <br><br>
+
+        <input
+        name="ref"
+        placeholder="Kòd referral (opsyonèl)">
+
+        <br><br>
+
+        <button>
+        Kreye kont
+        </button>
+
+    </form>
+
+    </body>
+    </html>
+    """
+
+
+
+@app.post("/register")
+def register(
+
+    username: str = Form(...),
+
+    password: str = Form(...),
+
+    ref: str = Form(None),
+
+    db: Session = Depends(get_db)
+
+):
+
+    user_exist = db.query(User).filter(
+        User.username == username
+    ).first()
+
+
+    if user_exist:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Kont sa deja egziste"
+        )
+
+
+    new_user = User(
+
+        username=username,
+
+        password=hash_password(password),
+
+        referral_code=generate_referral_code(),
+
+        referred_by=ref
+
+    )
+
+
+    db.add(new_user)
+
+
+    if ref:
+
+        referral = Referral(
+
+            owner=ref,
+
+            invited_user=username
+
+        )
+
+        db.add(referral)
+
+
+    log = ActivityLog(
+
+        username=username,
+
+        action="Kreye nouvo kont"
+
+    )
+
+    db.add(log)
+
+
+    db.commit()
+
+
+    return RedirectResponse(
+        url="/login",
+        status_code=303
+    )
