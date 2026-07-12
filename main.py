@@ -1099,3 +1099,108 @@ def profile(
         "referral_code": user.referral_code
 
     }
+# =====================
+# PLANS API
+# =====================
+
+@app.get("/plans")
+def get_plans(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    current_user(
+        request,
+        db
+    )
+
+
+    plans = db.query(Plan).all()
+
+
+    return [
+
+        {
+            "name": plan.name,
+            "price": plan.price,
+            "duration": plan.duration,
+            "description": plan.description
+        }
+
+        for plan in plans
+
+    ]
+
+
+
+# =====================
+# CREATE DEFAULT PLANS
+# =====================
+
+@app.on_event("startup")
+def startup_plans():
+
+    db = next(get_db())
+
+
+    total = db.query(Plan).count()
+
+
+    if total == 0:
+
+        plans = [
+
+            Plan(
+                name="Starter",
+                price=10,
+                duration=30,
+                description="Plan debaz"
+            ),
+
+            Plan(
+                name="Standard",
+                price=50,
+                duration=60,
+                description="Plan entèmedyè"
+            ),
+
+            Plan(
+                name="Premium",
+                price=100,
+                duration=90,
+                description="Plan avanse"
+            ),
+
+            Plan(
+                name="VIP",
+                price=500,
+                duration=120,
+                description="Plan VIP"
+            )
+
+        ]
+
+
+        db.add_all(plans)
+
+        db.commit()
+
+
+    db.close()
+
+
+
+# =====================
+# HEALTH CHECK
+# =====================
+
+@app.get("/status")
+def status():
+
+    return {
+
+        "platform": "VestiCore",
+
+        "status": "online"
+
+    }
