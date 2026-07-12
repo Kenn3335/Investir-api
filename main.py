@@ -262,3 +262,189 @@ def get_balance(
         "balance_usdt": user.balance
 
     }
+# =====================
+# DEPO USDT TRC20
+# =====================
+
+@app.get("/deposit-info")
+def deposit_info():
+
+    return {
+
+        "network": "TRC20 (TRON)",
+
+        "currency": "USDT",
+
+        "wallet_address": USDT_TRON_ADDRESS,
+
+        "instruction": "Voye USDT TRC20 sou adrès la epi mete TXID tranzaksyon an."
+
+    }
+
+
+
+@app.post("/deposit")
+def create_deposit(
+
+    username: str = Form(...),
+
+    amount: float = Form(...),
+
+    txid: str = Form(...),
+
+    db: Session = Depends(get_db)
+
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+
+    if amount <= 0:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Montan pa valab"
+        )
+
+
+    deposit = Deposit(
+
+        username=username,
+
+        amount=amount,
+
+        txid=txid,
+
+        status="pending"
+
+    )
+
+
+    db.add(deposit)
+
+    db.commit()
+
+    db.refresh(deposit)
+
+
+    return {
+
+        "message": "Depo voye pou verifikasyon",
+
+        "amount": amount,
+
+        "status": "pending"
+
+    }
+
+
+
+# =====================
+# LISTE DEPO USER
+# =====================
+
+@app.get("/deposits/{username}")
+def get_deposits(
+
+    username: str,
+
+    db: Session = Depends(get_db)
+
+):
+
+    deposits = db.query(Deposit).filter(
+
+        Deposit.username == username
+
+    ).all()
+
+
+    return deposits
+
+
+
+# =====================
+# RETRÈ USDT
+# =====================
+
+@app.post("/withdraw")
+def create_withdraw(
+
+    username: str = Form(...),
+
+    amount: float = Form(...),
+
+    wallet: str = Form(...),
+
+    db: Session = Depends(get_db)
+
+):
+
+    user = db.query(User).filter(
+
+        User.username == username
+
+    ).first()
+
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+
+    if amount <= 0:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Montan pa valab"
+        )
+
+
+    if user.balance < amount:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Balans pa ase"
+        )
+
+
+    withdraw = Withdraw(
+
+        username=username,
+
+        amount=amount,
+
+        wallet=wallet,
+
+        status="pending"
+
+    )
+
+
+    db.add(withdraw)
+
+    db.commit()
+
+    db.refresh(withdraw)
+
+
+    return {
+
+        "message": "Demann retrè voye",
+
+        "status": "pending"
+
+    }
