@@ -236,3 +236,118 @@ class ActivityLog(Base):
 
 
 Base.metadata.create_all(bind=engine)
+# =====================
+# DATABASE SESSION
+# =====================
+
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+        yield db
+
+    finally:
+        db.close()
+
+
+
+# =====================
+# PASSWORD SECURITY
+# =====================
+
+def hash_password(password):
+
+    return pwd_context.hash(password)
+
+
+
+def verify_password(password, hashed):
+
+    return pwd_context.verify(password, hashed)
+
+
+
+# =====================
+# REFERRAL CODE
+# =====================
+
+def create_referral_code(username):
+
+    code = username.upper()[:5]
+
+    return code + str(datetime.now().timestamp())[-5:]
+
+
+
+# =====================
+# ACTIVITY LOG
+# =====================
+
+def add_log(db, username, action):
+
+    log = ActivityLog(
+        username=username,
+        action=action
+    )
+
+    db.add(log)
+    db.commit()
+
+
+
+# =====================
+# INITIAL PLANS
+# =====================
+
+def create_default_plans():
+
+    db = SessionLocal()
+
+    plans = db.query(Plan).all()
+
+    if len(plans) == 0:
+
+        starter = Plan(
+            name="Starter",
+            duration=30,
+            description="Plan debaz VestiCore"
+        )
+
+
+        standard = Plan(
+            name="Standard",
+            duration=60,
+            description="Plan entèmedyè VestiCore"
+        )
+
+
+        premium = Plan(
+            name="Premium",
+            duration=90,
+            description="Plan avanse VestiCore"
+        )
+
+
+        vip = Plan(
+            name="VIP",
+            duration=120,
+            description="Plan VIP VestiCore"
+        )
+
+
+        db.add_all([
+            starter,
+            standard,
+            premium,
+            vip
+        ])
+
+        db.commit()
+
+
+    db.close()
+
+
+
+create_default_plans()
