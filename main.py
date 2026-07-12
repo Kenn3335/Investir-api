@@ -164,6 +164,37 @@ def register(
 # LOGIN
 # =====================
 
+from fastapi.responses import RedirectResponse
+
+
+@app.post("/login")
+def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Itilizatè pa jwenn"
+        )
+
+    if not verify_password(password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Modpas pa bon"
+        )
+
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=303
+    )
+
 @app.post("/login")
 def login(
     username: str = Form(...),
