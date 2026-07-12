@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, Form
+from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from passlib.context import CryptContext
 from datetime import datetime
@@ -8,17 +8,17 @@ import os
 
 
 # =====================
-# KONFIGIRASYON
+# KONFIGIRASYON APP
 # =====================
 
 app = FastAPI(
     title="VestiCore",
-    description="Platfòm envestisman USDT TRC20",
-    version="1.0"
+    description="Platfòm VestiCore",
+    version="2.0"
 )
 
 
-DATABASE_URL = "sqlite:///./investi.db"
+DATABASE_URL = "sqlite:///./vesticore.db"
 
 
 engine = create_engine(
@@ -53,15 +53,92 @@ USDT_TRON_ADDRESS = os.getenv(
 # DATABASE MODELS
 # =====================
 
+
 class User(Base):
 
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
-    password = Column(String)
-    balance = Column(Float, default=0)
-    is_admin = Column(Integer, default=0)
+
+    username = Column(
+        String,
+        unique=True,
+        nullable=False
+    )
+
+    password = Column(
+        String,
+        nullable=False
+    )
+
+    balance = Column(
+        Float,
+        default=0
+    )
+
+    is_admin = Column(
+        Integer,
+        default=0
+    )
+
+    referral_code = Column(
+        String,
+        unique=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.now
+    )
+
+
+class Plan(Base):
+
+    __tablename__ = "plans"
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    name = Column(String)
+
+    duration = Column(Integer)
+
+    description = Column(String)
+
+
+
+class UserPlan(Base):
+
+    __tablename__ = "user_plans"
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    user_id = Column(
+        Integer
+    )
+
+    plan_id = Column(
+        Integer
+    )
+
+    amount = Column(
+        Float
+    )
+
+    status = Column(
+        String,
+        default="active"
+    )
+
+    start_date = Column(
+        DateTime,
+        default=datetime.now
+    )
 
 
 
@@ -69,12 +146,26 @@ class Deposit(Base):
 
     __tablename__ = "deposits"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
     username = Column(String)
+
     amount = Column(Float)
+
     txid = Column(String)
-    status = Column(String, default="pending")
-    date = Column(String, default=str(datetime.now()))
+
+    status = Column(
+        String,
+        default="pending"
+    )
+
+    date = Column(
+        DateTime,
+        default=datetime.now
+    )
 
 
 
@@ -82,369 +173,66 @@ class Withdraw(Base):
 
     __tablename__ = "withdraws"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
     username = Column(String)
+
     amount = Column(Float)
+
     wallet = Column(String)
-    status = Column(String, default="pending")
-    date = Column(String, default=str(datetime.now()))
+
+    status = Column(
+        String,
+        default="pending"
+    )
+
+    date = Column(
+        DateTime,
+        default=datetime.now
+    )
+
+
+
+class Referral(Base):
+
+    __tablename__ = "referrals"
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    referrer = Column(String)
+
+    invited_user = Column(String)
+
+    status = Column(
+        String,
+        default="pending"
+    )
+
+
+class ActivityLog(Base):
+
+    __tablename__ = "activity_logs"
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    username = Column(String)
+
+    action = Column(String)
+
+    date = Column(
+        DateTime,
+        default=datetime.now
+    )
 
 
 
 Base.metadata.create_all(bind=engine)
-
-
-
-# =====================
-# DATABASE
-# =====================
-
-def get_db():
-
-    db = SessionLocal()
-
-    try:
-        yield db
-
-    finally:
-        db.close()
-
-
-
-# =====================
-# PASSWORD
-# =====================
-
-def hash_password(password):
-
-    return pwd_context.hash(password)
-
-
-
-def verify_password(password, hashed):
-
-    return pwd_context.verify(password, hashed)
-
-
-
-# =====================
-# HOME
-# =====================
-
-@app.get("/", response_class=HTMLResponse)
-def home():
-
-    with open("index.html","r",encoding="utf-8") as file:
-
-        return file.read()
-
-
-
-# =====================
-# DASHBOARD
-# =====================
-
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard():
-
-    with open("dashboard.html","r",encoding="utf-8") as file:
-
-        return file.read()
-# =====================
-# REGISTER
-# =====================
-
-@app.post("/register")
-def register(
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
-):
-
-    user_exist = db.query(User).filter(
-        User.username == username
-    ).first()
-
-
-    if user_exist:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Non itilizatè sa deja egziste"
-        )
-
-
-    new_user = User(
-        username=username,
-        password=hash_password(password),
-        balance=0
-    )
-
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-
-    return RedirectResponse(
-        url="/dashboard",
-        status_code=303
-    )
-
-
-
-# =====================
-# LOGIN
-# =====================
-
-@app.post("/login")
-def login(
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
-):
-
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
-
-
-    if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Itilizatè pa jwenn"
-        )
-
-
-    if not verify_password(password, user.password):
-
-        raise HTTPException(
-            status_code=401,
-            detail="Modpas pa bon"
-        )
-
-
-    return RedirectResponse(
-        url="/dashboard",
-        status_code=303
-    )
-
-
-
-# =====================
-# BALANCE
-# =====================
-
-@app.get("/balance/{username}")
-def get_balance(
-    username: str,
-    db: Session = Depends(get_db)
-):
-
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
-
-
-    if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Kont pa jwenn"
-        )
-
-
-    return {
-
-        "username": user.username,
-
-        "balance_usdt": user.balance
-
-    }
-# =====================
-# DEPO USDT TRC20
-# =====================
-
-@app.get("/deposit-info")
-def deposit_info():
-
-    return {
-
-        "network": "TRC20 (TRON)",
-
-        "currency": "USDT",
-
-        "wallet_address": USDT_TRON_ADDRESS,
-
-        "instruction": "Voye USDT TRC20 sou adrès la epi mete TXID tranzaksyon an."
-
-    }
-
-
-
-@app.post("/deposit")
-def create_deposit(
-
-    username: str = Form(...),
-
-    amount: float = Form(...),
-
-    txid: str = Form(...),
-
-    db: Session = Depends(get_db)
-
-):
-
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
-
-
-    if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Kont pa jwenn"
-        )
-
-
-    if amount <= 0:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Montan pa valab"
-        )
-
-
-    deposit = Deposit(
-
-        username=username,
-
-        amount=amount,
-
-        txid=txid,
-
-        status="pending"
-
-    )
-
-
-    db.add(deposit)
-
-    db.commit()
-
-    db.refresh(deposit)
-
-
-    return {
-
-        "message": "Depo voye pou verifikasyon",
-
-        "amount": amount,
-
-        "status": "pending"
-
-    }
-
-
-
-# =====================
-# LISTE DEPO USER
-# =====================
-
-@app.get("/deposits/{username}")
-def get_deposits(
-
-    username: str,
-
-    db: Session = Depends(get_db)
-
-):
-
-    deposits = db.query(Deposit).filter(
-
-        Deposit.username == username
-
-    ).all()
-
-
-    return deposits
-
-
-
-# =====================
-# RETRÈ USDT
-# =====================
-
-@app.post("/withdraw")
-def create_withdraw(
-
-    username: str = Form(...),
-
-    amount: float = Form(...),
-
-    wallet: str = Form(...),
-
-    db: Session = Depends(get_db)
-
-):
-
-    user = db.query(User).filter(
-
-        User.username == username
-
-    ).first()
-
-
-    if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Kont pa jwenn"
-        )
-
-
-    if amount <= 0:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Montan pa valab"
-        )
-
-
-    if user.balance < amount:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Balans pa ase"
-        )
-
-
-    withdraw = Withdraw(
-
-        username=username,
-
-        amount=amount,
-
-        wallet=wallet,
-
-        status="pending"
-
-    )
-
-
-    db.add(withdraw)
-
-    db.commit()
-
-    db.refresh(withdraw)
-
-
-    return {
-
-        "message": "Demann retrè voye",
-
-        "status": "pending"
-
-    }
