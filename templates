@@ -1,0 +1,6 @@
+templates/
+ ├── index.html
+ ├── login.html
+ ├── register.html
+ ├── dashboard.html
+ └── admin.html
