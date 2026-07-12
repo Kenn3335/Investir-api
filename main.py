@@ -508,3 +508,137 @@ def register(
         url="/login",
         status_code=303
     )
+# =====================
+# LOGIN PAGE
+# =====================
+
+@app.get("/login", response_class=HTMLResponse)
+def login_page():
+
+    return """
+    <html>
+    <body>
+
+    <h2>Konekte</h2>
+
+    <form method="post">
+
+        <input
+        name="username"
+        placeholder="Non itilizatè">
+
+        <br><br>
+
+        <input
+        type="password"
+        name="password"
+        placeholder="Modpas">
+
+        <br><br>
+
+        <button>
+        Konekte
+        </button>
+
+    </form>
+
+    </body>
+    </html>
+    """
+
+
+
+# =====================
+# LOGIN ACTION
+# =====================
+
+@app.post("/login")
+def login(
+
+    request: Request,
+
+    username: str = Form(...),
+
+    password: str = Form(...),
+
+    db: Session = Depends(get_db)
+
+):
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Itilizatè pa jwenn"
+        )
+
+
+    if not verify_password(
+        password,
+        user.password
+    ):
+
+        raise HTTPException(
+            status_code=401,
+            detail="Modpas pa bon"
+        )
+
+
+    request.session["username"] = username
+
+
+    create_log(
+        db,
+        username,
+        "Koneksyon fèt"
+    )
+
+
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=303
+    )
+
+
+
+# =====================
+# CHECK LOGIN
+# =====================
+
+def current_user(
+    request: Request,
+    db: Session
+):
+
+    username = request.session.get(
+        "username"
+    )
+
+
+    if not username:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Ou dwe konekte"
+        )
+
+
+    user = db.query(User).filter(
+        User.username == username
+    ).first()
+
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Kont pa jwenn"
+        )
+
+
+    return user
