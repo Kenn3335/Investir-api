@@ -988,3 +988,114 @@ def admin_dashboard(
     </html>
 
     """
+# =====================
+# LOGOUT
+# =====================
+
+@app.get("/logout")
+def logout(
+    request: Request
+):
+
+    request.session.clear()
+
+
+    return RedirectResponse(
+        url="/",
+        status_code=303
+    )
+
+
+
+# =====================
+# REFERRAL PAGE
+# =====================
+
+@app.get("/referral", response_class=HTMLResponse)
+def referral_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    referrals = db.query(Referral).filter(
+        Referral.owner == user.referral_code
+    ).all()
+
+
+
+    return f"""
+
+    <html>
+
+    <head>
+        <title>Referral</title>
+    </head>
+
+
+    <body>
+
+    <h1>Referral VestiCore</h1>
+
+
+    <p>
+    Kòd pa ou:
+    {user.referral_code}
+    </p>
+
+
+    <p>
+    Lyen envitasyon:
+    /register?ref={user.referral_code}
+    </p>
+
+
+    <h3>
+    Moun ou envite:
+    {len(referrals)}
+    </h3>
+
+
+    <a href="/dashboard">
+    Retounen Dashboard
+    </a>
+
+
+    </body>
+
+    </html>
+
+    """
+
+
+
+# =====================
+# PROFILE
+# =====================
+
+@app.get("/profile")
+def profile(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    user = current_user(
+        request,
+        db
+    )
+
+
+    return {
+
+        "username": user.username,
+
+        "balance": user.balance,
+
+        "referral_code": user.referral_code
+
+    }
