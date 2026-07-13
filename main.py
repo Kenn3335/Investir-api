@@ -1029,7 +1029,7 @@ def referral_page(
 
 
     referrals = db.query(Referral).filter(
-        Referral.owner == user.referral_code
+        Referral.referrer == user.referral_code
     ).all()
 
 
