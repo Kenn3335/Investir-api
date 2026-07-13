@@ -48,6 +48,14 @@ USDT_TRON_ADDRESS = os.getenv(
     "METE_WALLET_TRON_LA"
 )
 
+DEPOSIT_FEE = 3
+
+WITHDRAW_FEE = 5
+
+MIN_WITHDRAW = 10
+
+STARTER_MAX_WITHDRAW = 200
+
 
 # =====================
 # DATABASE MODELS
