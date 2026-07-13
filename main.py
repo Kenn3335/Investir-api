@@ -597,7 +597,7 @@ def login(
     request.session["username"] = username
 
 
-    create_log(
+    add_log(
         db,
         username,
         "Koneksyon fèt"
@@ -808,7 +808,7 @@ def deposit(
     db.add(deposit)
 
 
-    create_log(
+    add_log(
         db,
         user.username,
         "Depo voye pou verifikasyon"
@@ -882,7 +882,7 @@ def withdraw(
     db.add(withdraw)
 
 
-    create_log(
+    add_log(
         db,
         user.username,
         "Demann retrè voye"
