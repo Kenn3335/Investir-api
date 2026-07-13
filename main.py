@@ -1168,35 +1168,77 @@ def startup_plans():
 
         plans = [
 
-            Plan(
-                name="Starter",
-                price=10,
-                duration=30,
-                description="Plan debaz"
-            ),
+    Plan(
+        name="Starter Basic",
+        price=10,
+        duration=30,
+        description="Plan Starter debaz - 30 jou"
+    ),
 
-            Plan(
-                name="Standard",
-                price=50,
-                duration=60,
-                description="Plan entèmedyè"
-            ),
+    Plan(
+        name="Starter Plus",
+        price=25,
+        duration=30,
+        description="Plan Starter Plus - 30 jou"
+    ),
 
-            Plan(
-                name="Premium",
-                price=100,
-                duration=90,
-                description="Plan avanse"
-            ),
+    Plan(
+        name="Standard Basic",
+        price=50,
+        duration=60,
+        description="Plan Standard debaz - 60 jou"
+    ),
 
-            Plan(
-                name="VIP",
-                price=500,
-                duration=120,
-                description="Plan VIP"
-            )
+    Plan(
+        name="Standard Plus",
+        price=100,
+        duration=60,
+        description="Plan Standard Plus - 60 jou"
+    ),
 
-        ]
+    Plan(
+        name="Premium Basic",
+        price=200,
+        duration=90,
+        description="Plan Premium debaz - 90 jou"
+    ),
+
+    Plan(
+        name="Premium Plus",
+        price=350,
+        duration=90,
+        description="Plan Premium Plus - 90 jou"
+    ),
+
+    Plan(
+        name="Premium Pro",
+        price=500,
+        duration=90,
+        description="Plan Premium Pro - 90 jou"
+    ),
+
+    Plan(
+        name="VIP Basic",
+        price=750,
+        duration=120,
+        description="Plan VIP debaz - 120 jou"
+    ),
+
+    Plan(
+        name="VIP Plus",
+        price=1000,
+        duration=120,
+        description="Plan VIP Plus - 120 jou"
+    ),
+
+    Plan(
+        name="VIP Pro",
+        price=2000,
+        duration=120,
+        description="Plan VIP Pro - 120 jou"
+    )
+
+]
 
 
         db.add_all(plans)
