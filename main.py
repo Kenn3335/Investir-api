@@ -116,6 +116,11 @@ class Plan(Base):
 
     name = Column(String)
 
+    price = Column(
+        Float,
+        default=0
+    )
+
     duration = Column(Integer)
 
     description = Column(String)
