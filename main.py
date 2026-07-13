@@ -468,15 +468,15 @@ def register(
 
     new_user = User(
 
-        username=username,
+    username=username,
 
-        password=hash_password(password),
+    password=hash_password(password),
 
-        referral_code=generate_referral_code(),
+    referral_code=create_referral_code(username),
 
-        referred_by=ref
+    referred_by=ref
 
-    )
+)
 
 
     db.add(new_user)
