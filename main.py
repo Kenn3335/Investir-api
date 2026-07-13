@@ -486,7 +486,7 @@ def register(
 
         referral = Referral(
 
-            owner=ref,
+            referrer=ref,
 
             invited_user=username
 
