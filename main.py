@@ -86,6 +86,11 @@ class User(Base):
         unique=True
     )
 
+    referred_by = Column(
+        String,
+        nullable=True
+    )
+
     created_at = Column(
         DateTime,
         default=datetime.now
