@@ -282,7 +282,7 @@ def t(request: Request, key: str):
     return LANG[lang].get(key, key)
 
 # =====================
-# STIL CSS (AK SELÈKSYON LANG)
+# STIL CSS
 # =====================
 
 STYLE = """
@@ -470,6 +470,7 @@ STYLE = """
         .logo-icon { width: 55px; height: 55px; font-size: 28px; }
         .lang-selector a { font-size: 10px; padding: 3px 8px; }
     }
+</style>
 """
 # =====================
 # DATABASE MODELS
@@ -800,7 +801,7 @@ def login(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD
+# DASHBOARD (AK ADMIN KACHE)
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -849,6 +850,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         </div>
         """
     
+    # Admin link la kache si se pa admin
+    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:11px;">Admin</a>' if user.is_admin == 1 else ''
+    
     return f"""
     <html>
     <head>
@@ -889,7 +893,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <h3 style="color:#ffffff;font-size:15px;margin-top:20px;">{LANG[lang].get('dashboard_plans', 'VestiCore Plans')}</h3>
             {plan_html}
             <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
-                <a href="/admin" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:11px;">Admin</a>
+                {admin_link}
             </div>
         </div>
     </body>
