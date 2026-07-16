@@ -60,7 +60,7 @@ DEPOSIT_FEE = int(os.getenv("DEPOSIT_FEE", "3"))
 WITHDRAW_FEE = int(os.getenv("WITHDRAW_FEE", "5"))
 
 # =====================
-# KLE SEKRE POU ADMIN (SOLISYON 3)
+# KLE SEKRE POU ADMIN
 # =====================
 
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
@@ -282,10 +282,6 @@ def get_lang(request: Request):
     if lang not in LANG:
         lang = "fr"
     return lang
-
-def t(request: Request, key: str):
-    lang = get_lang(request)
-    return LANG[lang].get(key, key)
 
 # =====================
 # STIL CSS
@@ -729,6 +725,10 @@ def register_page(request: Request):
     </html>
     """
 
+# =====================
+# REGISTER ACTION (KORIJE)
+# =====================
+
 @app.post("/register")
 def register(
     username: str = Form(...),
@@ -736,37 +736,40 @@ def register(
     ref: str = Form(None),
     db: Session = Depends(get_db)
 ):
+    # Verifye si kont deja egziste
     user_exist = db.query(User).filter(User.username == username).first()
     if user_exist:
         raise HTTPException(status_code=400, detail="Kont sa deja egziste")
     
-    # ========================================
-    # SOLISYON 3: SÈLMAN KLE SEKRE A KA FÈ ADMIN
-    # ========================================
+    # Tcheke si ref la se kle admin an
     admin_key = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
     
     # Si ref la egal ak kle admin an, li vin admin
     if ref and ref.strip() == admin_key.strip():
         is_admin = 1
+        referred_by = ""  # Pa gen referral
     else:
         is_admin = 0
+        referred_by = ref if ref else ""  # Referral normal oswa vid
     
+    # Kreye nouvo itilizatè
     new_user = User(
         username=username,
         password=hash_password(password),
         referral_code=create_referral_code(username),
-        referred_by=ref,
+        referred_by=referred_by,
         is_admin=is_admin
     )
     db.add(new_user)
     
-    # Si ref la se yon referral normal (pa kle admin an)
-    if ref and ref != admin_key:
+    # Si se yon referral normal (pa kle admin an)
+    if ref and ref.strip() != admin_key.strip():
         referral = Referral(referrer=ref, invited_user=username)
         db.add(referral)
     
     add_log(db, username, "Kreye nouvo kont")
     db.commit()
+    
     return RedirectResponse(url="/login", status_code=303)
 
 # =====================
@@ -824,7 +827,7 @@ def login(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD (AK ADMIN KACHE)
+# DASHBOARD
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
