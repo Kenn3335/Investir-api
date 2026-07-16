@@ -17,10 +17,6 @@ app = FastAPI(
     version="2.0"
 )
 
-# =====================
-# SESSION MIDDLEWARE
-# =====================
-
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY", "vesticore-secret-key-change-later")
@@ -58,11 +54,6 @@ USDT_TRON_ADDRESS = "TUNtoPGB3sBwbbX81t6ca4fK2exJNFLRiu"
 USDT_CONTRACT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 DEPOSIT_FEE = int(os.getenv("DEPOSIT_FEE", "3"))
 WITHDRAW_FEE = int(os.getenv("WITHDRAW_FEE", "5"))
-
-# =====================
-# KLE SEKRE POU ADMIN
-# =====================
-
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
 
 # =====================
@@ -134,8 +125,7 @@ LANG = {
         "admin_reject": "Rejeter",
         "admin_recent": "Activités récentes",
         "admin_back": "← Retour",
-        "footer": "© 2026 VestiCore. Tous droits réservés.",
-        "select_lang": "🌐 Langue"
+        "footer": "© 2026 VestiCore. Tous droits réservés."
     },
     "en": {
         "title": "VestiCore - Investment Platform",
@@ -201,8 +191,7 @@ LANG = {
         "admin_reject": "Reject",
         "admin_recent": "Recent activities",
         "admin_back": "← Back",
-        "footer": "© 2026 VestiCore. All rights reserved.",
-        "select_lang": "🌐 Language"
+        "footer": "© 2026 VestiCore. All rights reserved."
     },
     "es": {
         "title": "VestiCore - Plataforma de Inversión",
@@ -268,8 +257,7 @@ LANG = {
         "admin_reject": "Rechazar",
         "admin_recent": "Actividades recientes",
         "admin_back": "← Volver",
-        "footer": "© 2026 VestiCore. Todos los derechos reservados.",
-        "select_lang": "🌐 Idioma"
+        "footer": "© 2026 VestiCore. Todos los derechos reservados."
     }
 }
 
@@ -289,11 +277,7 @@ def get_lang(request: Request):
 
 STYLE = """
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #0a0e27 0%, #1a1a4e 50%, #0d1b3e 100%);
@@ -304,23 +288,19 @@ STYLE = """
         padding: 20px;
     }
     .container {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255,255,255,0.05);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 215, 0, 0.2);
+        border: 1px solid rgba(255,215,0,0.2);
         border-radius: 24px;
         padding: 50px 40px;
         max-width: 520px;
         width: 100%;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.05);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
     }
-    .logo {
-        text-align: center;
-        margin-bottom: 25px;
-    }
+    .logo { text-align: center; margin-bottom: 25px; }
     .logo-icon {
-        width: 70px;
-        height: 70px;
+        width: 70px; height: 70px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         border-radius: 18px;
         display: inline-flex;
@@ -329,24 +309,12 @@ STYLE = """
         font-size: 36px;
         font-weight: 900;
         color: #0a0e27;
-        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        box-shadow: 0 10px 30px rgba(255,215,0,0.3);
         margin-bottom: 12px;
     }
-    .logo h1 {
-        color: #ffffff;
-        font-size: 28px;
-        font-weight: 700;
-        letter-spacing: 2px;
-    }
-    .logo h1 span {
-        color: #ffd700;
-    }
-    .logo p {
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 11px;
-        margin-top: 4px;
-        letter-spacing: 3px;
-    }
+    .logo h1 { color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+    .logo h1 span { color: #ffd700; }
+    .logo p { color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px; letter-spacing: 3px; }
     .lang-selector {
         display: flex;
         justify-content: flex-end;
@@ -354,7 +322,7 @@ STYLE = """
         margin-bottom: 15px;
     }
     .lang-selector a {
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(255,255,255,0.3);
         text-decoration: none;
         font-size: 12px;
         font-weight: 600;
@@ -362,33 +330,14 @@ STYLE = """
         border-radius: 6px;
         transition: all 0.3s;
     }
-    .lang-selector a:hover {
-        color: #ffd700;
-        background: rgba(255, 215, 0, 0.1);
-    }
-    .lang-selector a.active {
-        color: #ffd700;
-        background: rgba(255, 215, 0, 0.15);
-    }
-    .title {
-        color: #ffffff;
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 6px;
-        text-align: center;
-    }
-    .subtitle {
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 13px;
-        text-align: center;
-        margin-bottom: 22px;
-    }
-    .form-group {
-        margin-bottom: 16px;
-    }
+    .lang-selector a:hover { color: #ffd700; background: rgba(255,215,0,0.1); }
+    .lang-selector a.active { color: #ffd700; background: rgba(255,215,0,0.15); }
+    .title { color: #ffffff; font-size: 22px; font-weight: 600; margin-bottom: 6px; text-align: center; }
+    .subtitle { color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-bottom: 22px; }
+    .form-group { margin-bottom: 16px; }
     .form-group label {
         display: block;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255,255,255,0.6);
         font-size: 12px;
         font-weight: 500;
         margin-bottom: 5px;
@@ -397,8 +346,8 @@ STYLE = """
     .form-group input {
         width: 100%;
         padding: 13px 16px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 10px;
         color: #ffffff;
         font-size: 14px;
@@ -407,12 +356,10 @@ STYLE = """
     }
     .form-group input:focus {
         border-color: #ffd700;
-        background: rgba(255, 215, 0, 0.05);
-        box-shadow: 0 0 25px rgba(255, 215, 0, 0.08);
+        background: rgba(255,215,0,0.05);
+        box-shadow: 0 0 25px rgba(255,215,0,0.08);
     }
-    .form-group input::placeholder {
-        color: rgba(255, 255, 255, 0.2);
-    }
+    .form-group input::placeholder { color: rgba(255,255,255,0.2); }
     .btn {
         width: 100%;
         padding: 15px;
@@ -432,37 +379,29 @@ STYLE = """
     }
     .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        box-shadow: 0 10px 30px rgba(255,215,0,0.3);
     }
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255,255,255,0.06);
         color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255,255,255,0.1);
     }
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
+        background: rgba(255,255,255,0.12);
+        box-shadow: 0 10px 30px rgba(255,255,255,0.05);
     }
     .link {
         text-align: center;
         margin-top: 18px;
-        color: rgba(255, 255, 255, 0.35);
+        color: rgba(255,255,255,0.35);
         font-size: 13px;
     }
-    .link a {
-        color: #ffd700;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s;
-    }
-    .link a:hover {
-        color: #f0a500;
-        text-decoration: underline;
-    }
+    .link a { color: #ffd700; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+    .link a:hover { color: #f0a500; text-decoration: underline; }
     .footer-text {
         text-align: center;
         margin-top: 20px;
-        color: rgba(255, 255, 255, 0.15);
+        color: rgba(255,255,255,0.15);
         font-size: 11px;
         letter-spacing: 1px;
     }
@@ -726,7 +665,7 @@ def register_page(request: Request):
     """
 
 # =====================
-# REGISTER ACTION (KORIJE)
+# REGISTER ACTION
 # =====================
 
 @app.post("/register")
@@ -741,29 +680,24 @@ def register(
     if user_exist:
         raise HTTPException(status_code=400, detail="Kont sa deja egziste")
     
-    # Tcheke si ref la se kle admin an
-    admin_key = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
-    
-    # Si ref la egal ak kle admin an, li vin admin
-    if ref and ref.strip() == admin_key.strip():
+    # Tcheke si se kle admin
+    is_admin = 0
+    if ref and ref.strip() == ADMIN_SECRET_KEY.strip():
         is_admin = 1
-        referred_by = ""  # Pa gen referral
-    else:
-        is_admin = 0
-        referred_by = ref if ref else ""  # Referral normal oswa vid
+        ref = None  # Pa mete kòm referral
     
     # Kreye nouvo itilizatè
     new_user = User(
         username=username,
         password=hash_password(password),
         referral_code=create_referral_code(username),
-        referred_by=referred_by,
+        referred_by=ref,
         is_admin=is_admin
     )
     db.add(new_user)
     
-    # Si se yon referral normal (pa kle admin an)
-    if ref and ref.strip() != admin_key.strip():
+    # Si se yon referral (pa admin)
+    if ref:
         referral = Referral(referrer=ref, invited_user=username)
         db.add(referral)
     
