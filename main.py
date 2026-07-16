@@ -478,6 +478,7 @@ STYLE = """
     }
 </style>
 """
+
 # =====================
 # DATABASE MODELS
 # =====================
@@ -742,7 +743,13 @@ def register(
     # ========================================
     # SOLISYON 3: SÈLMAN KLE SEKRE A KA FÈ ADMIN
     # ========================================
-    is_admin = 1 if ref == ADMIN_SECRET_KEY else 0
+    admin_key = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
+    
+    # Si ref la egal ak kle admin an, li vin admin
+    if ref and ref.strip() == admin_key.strip():
+        is_admin = 1
+    else:
+        is_admin = 0
     
     new_user = User(
         username=username,
@@ -752,12 +759,16 @@ def register(
         is_admin=is_admin
     )
     db.add(new_user)
-    if ref:
+    
+    # Si ref la se yon referral normal (pa kle admin an)
+    if ref and ref != admin_key:
         referral = Referral(referrer=ref, invited_user=username)
         db.add(referral)
+    
     add_log(db, username, "Kreye nouvo kont")
     db.commit()
     return RedirectResponse(url="/login", status_code=303)
+
 # =====================
 # LOGIN PAGE
 # =====================
