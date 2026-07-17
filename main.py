@@ -21,15 +21,15 @@ async def lifespan(app: FastAPI):
     if total == 0:
         plans = [
             Plan(name="Starter Basic", price=10, duration=30, daily_return=0.5, description="Plan Starter debaz - 30 jou"),
-            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.7, description="Plan Starter Plus - 30 jou"),
-            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.9, description="Plan Standard debaz - 60 jou"),
-            Plan(name="Standard Plus", price=100, duration=60, daily_return=1.1, description="Plan Standard Plus - 60 jou"),
-            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.4, description="Plan Premium debaz - 90 jou"),
-            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.7, description="Plan Premium Plus - 90 jou"),
-            Plan(name="Premium Pro", price=500, duration=90, daily_return=2.0, description="Plan Premium Pro - 90 jou"),
-            Plan(name="VIP Basic", price=750, duration=120, daily_return=2.3, description="Plan VIP debaz - 120 jou"),
-            Plan(name="VIP Plus", price=1000, duration=120, daily_return=2.7, description="Plan VIP Plus - 120 jou"),
-            Plan(name="VIP Pro", price=2000, duration=120, daily_return=3.2, description="Plan VIP Pro - 120 jou")
+            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.8, description="Plan Starter Plus - 30 jou"),
+            Plan(name="Standard Basic", price=50, duration=60, daily_return=1.0, description="Plan Standard debaz - 60 jou"),
+            Plan(name="Standard Plus", price=100, duration=60, daily_return=1.3, description="Plan Standard Plus - 60 jou"),
+            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.6, description="Plan Premium debaz - 90 jou"),
+            Plan(name="Premium Plus", price=350, duration=90, daily_return=2.0, description="Plan Premium Plus - 90 jou"),
+            Plan(name="Premium Pro", price=500, duration=90, daily_return=2.4, description="Plan Premium Pro - 90 jou"),
+            Plan(name="VIP Basic", price=750, duration=120, daily_return=2.8, description="Plan VIP debaz - 120 jou"),
+            Plan(name="VIP Plus", price=1000, duration=120, daily_return=3.3, description="Plan VIP Plus - 120 jou"),
+            Plan(name="VIP Pro", price=2000, duration=120, daily_return=4.0, description="Plan VIP Pro - 120 jou")
         ]
         db.add_all(plans)
         db.commit()
@@ -117,42 +117,68 @@ STYLE = """
         width: 100%;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
     }
+    
+    /* ===== LOGO DIAMANT ===== */
     .logo { text-align: center; margin-bottom: 20px; }
     .logo-diamond {
-        width: 70px;
-        height: 70px;
+        width: 75px;
+        height: 75px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 10px;
-        box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        box-shadow: 0 0 40px rgba(255,215,0,0.3);
         position: relative;
+        transition: transform 0.3s ease;
+    }
+    .logo-diamond:hover {
+        transform: scale(1.05);
     }
     .logo-diamond::after {
         content: '';
         position: absolute;
-        top: -5px;
-        left: -5px;
-        right: -5px;
-        bottom: -5px;
+        top: -6px;
+        left: -6px;
+        right: -6px;
+        bottom: -6px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
         z-index: -1;
-        opacity: 0.3;
-        filter: blur(10px);
+        opacity: 0.25;
+        filter: blur(15px);
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+        0%, 100% { opacity: 0.25; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.1); }
     }
     .logo-diamond span {
-        font-size: 32px;
+        font-size: 34px;
         font-weight: 900;
         color: #0a0e27;
-        text-shadow: 0 2px 10px rgba(255,215,0,0.3);
+        text-shadow: 0 2px 15px rgba(255,215,0,0.4);
         margin-top: 2px;
+        letter-spacing: -1px;
     }
-    .logo h1 { color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
-    .logo h1 span { color: #ffd700; }
-    .logo p { color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 2px; letter-spacing: 3px; }
+    .logo h1 {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+    .logo h1 span {
+        color: #ffd700;
+        text-shadow: 0 0 20px rgba(255,215,0,0.2);
+    }
+    .logo p {
+        color: rgba(255,255,255,0.4);
+        font-size: 10px;
+        margin-top: 2px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
     
     .lang-selector {
         display: flex;
@@ -389,6 +415,7 @@ STYLE = """
     .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; }
     .badge-red { background: rgba(255,107,107,0.15); color: #ff6b6b; }
     
+    /* ===== MODAL ===== */
     .modal {
         display: none;
         position: fixed;
@@ -455,6 +482,19 @@ STYLE = """
     .history-item .right.positive { color: #4ade80; }
     .history-item .right.negative { color: #ff6b6b; }
     
+    .withdraw-section {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(255,255,255,0.02);
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .withdraw-section h4 {
+        color: #ffffff;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
     @media (max-width: 480px) {
         .container { padding: 20px 15px; }
         .logo h1 { font-size: 22px; }
@@ -519,8 +559,38 @@ function acheterPlan(planId) {
     });
 }
 
-function showDepositModal() {
-    showModal('Veuillez effectuer un dépôt avant d\'acheter un plan.', '💰 Dépôt requis', 'info');
+function faireRetrait() {
+    const amount = document.getElementById('withdrawAmount').value;
+    const wallet = document.getElementById('withdrawWallet').value;
+    
+    if (!amount || amount <= 0) {
+        showModal('Veuillez entrer un montant valide.', '❌ Erreur', 'error');
+        return;
+    }
+    if (!wallet || wallet.length < 10) {
+        showModal('Veuillez entrer une adresse TRC20 valide.', '❌ Erreur', 'error');
+        return;
+    }
+    
+    fetch('/withdraw', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'amount=' + amount + '&wallet=' + encodeURIComponent(wallet)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showModal(data.message, '✅ Succès', 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showModal(data.message, '❌ Erreur', 'error');
+        }
+    })
+    .catch(err => {
+        showModal('Erreur de connexion au serveur', '❌ Erreur', 'error');
+    });
 }
 </script>
 """
@@ -599,7 +669,11 @@ LANG = {
         "insufficient_balance": "❌ Solde insuffisant. Veuillez effectuer un dépôt.",
         "plan_bought": "✅ Plan acheté avec succès!",
         "already_has_plan": "❌ Vous avez déjà un plan actif.",
-        "plan_not_found": "❌ Plan introuvable."
+        "plan_not_found": "❌ Plan introuvable.",
+        "withdraw_success": "✅ Demande de retrait envoyée avec succès!",
+        "withdraw_error": "❌ Erreur lors de la demande de retrait.",
+        "no_active_plan": "❌ Vous devez avoir un plan actif pour faire un retrait.",
+        "insufficient_balance_withdraw": "❌ Solde insuffisant pour ce retrait."
     },
     "en": {
         "title": "VestiCore - Investment Platform",
@@ -670,7 +744,11 @@ LANG = {
         "insufficient_balance": "❌ Insufficient balance. Please make a deposit.",
         "plan_bought": "✅ Plan purchased successfully!",
         "already_has_plan": "❌ You already have an active plan.",
-        "plan_not_found": "❌ Plan not found."
+        "plan_not_found": "❌ Plan not found.",
+        "withdraw_success": "✅ Withdrawal request sent successfully!",
+        "withdraw_error": "❌ Error processing withdrawal request.",
+        "no_active_plan": "❌ You must have an active plan to withdraw.",
+        "insufficient_balance_withdraw": "❌ Insufficient balance for this withdrawal."
     },
     "es": {
         "title": "VestiCore - Plataforma de Inversión",
@@ -741,7 +819,11 @@ LANG = {
         "insufficient_balance": "❌ Saldo insuficiente. Por favor, haz un depósito.",
         "plan_bought": "✅ Plan comprado con éxito!",
         "already_has_plan": "❌ Ya tienes un plan activo.",
-        "plan_not_found": "❌ Plan no encontrado."
+        "plan_not_found": "❌ Plan no encontrado.",
+        "withdraw_success": "✅ Solicitud de retiro enviada con éxito!",
+        "withdraw_error": "❌ Error al procesar la solicitud de retiro.",
+        "no_active_plan": "❌ Debes tener un plan activo para retirar.",
+        "insufficient_balance_withdraw": "❌ Saldo insuficiente para este retiro."
     }
 }
 
@@ -1193,6 +1275,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     qualified_investors = sum(1 for r in referrals if r.has_invested)
     total_bonus = sum(r.bonus_amount for r in referrals)
     
+    # History
+    logs = db.query(ActivityLog).filter(ActivityLog.username == user.username).order_by(ActivityLog.date.desc()).limit(10).all()
+    
     plan_html = ""
     for plan in plans:
         plan_html += f"""
@@ -1228,7 +1313,24 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         </div>
         """
     
-    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
+    history_html = ""
+    for log in logs[:5]:
+        if "Benefis" in log.action:
+            history_html += f"""
+            <div class="history-item">
+                <span class="left">{log.date.strftime('%d/%m %H:%M')} - {log.action[:30]}...</span>
+                <span class="right positive">+{log.action.split(':')[-1].strip() if ':' in log.action else ''}</span>
+            </div>
+            """
+        elif "Depo" in log.action or "retrè" in log.action:
+            history_html += f"""
+            <div class="history-item">
+                <span class="left">{log.date.strftime('%d/%m %H:%M')} - {log.action[:30]}...</span>
+                <span class="right">💰</span>
+            </div>
+            """
+    
+    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.15);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
     
     return f"""
     <html>
@@ -1263,7 +1365,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     <span class="icon">💰</span>
                     {LANG[lang].get('dashboard_deposit', 'Deposit')}
                 </a>
-                <a href="#" onclick="showModal('Fonctionnalité en cours de développement', 'ℹ️ Information', 'info'); return false;">
+                <a href="#" onclick="document.getElementById('withdrawSection').scrollIntoView(); return false;">
                     <span class="icon">📤</span>
                     {LANG[lang].get('dashboard_withdraw', 'Withdraw')}
                 </a>
@@ -1271,6 +1373,18 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     <span class="icon">🎁</span>
                     {LANG[lang].get('dashboard_referral', 'Referral')}
                 </a>
+            </div>
+            
+            <div id="withdrawSection" class="withdraw-section">
+                <h4>📤 {LANG[lang].get('dashboard_withdraw', 'Withdraw')}</h4>
+                <div class="form-group">
+                    <input type="number" id="withdrawAmount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" min="1">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="withdrawWallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}">
+                </div>
+                <button onclick="faireRetrait()" class="btn btn-secondary" style="margin-top:0;">{LANG[lang].get('dashboard_withdraw_btn', 'Submit request')}</button>
+                <p style="color:rgba(255,255,255,0.2);font-size:10px;text-align:center;margin-top:6px;">{LANG[lang].get('dashboard_withdraw_warning', '⚠️ Withdrawals are subject to admin approval')}</p>
             </div>
             
             <h4 style="color:#ffffff;font-size:14px;margin:15px 0 10px;">{LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
@@ -1289,7 +1403,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     """
 
 # =====================
-# BUY PLAN - AVEC JSON RESPONSE (PA REDIRECT)
+# BUY PLAN - AVEC JSON RESPONSE
 # =====================
 
 @app.post("/buy-plan/{plan_id}")
@@ -1316,28 +1430,25 @@ def buy_plan(
     if not plan:
         return JSONResponse(
             status_code=404,
-            content={"success": False, "message": "Plan pa jwenn"}
+            content={"success": False, "message": LANG[get_lang(request)].get('plan_not_found', 'Plan not found')}
         )
     
-    # Verifye si itilizatè a deja gen yon plan aktif
     existing = db.query(UserPlan).filter(
         UserPlan.user_id == user.id,
         UserPlan.status == "active"
     ).first()
     if existing:
         return JSONResponse(
-            content={"success": False, "message": "❌ Ou deja gen yon plan aktif"}
+            content={"success": False, "message": LANG[get_lang(request)].get('already_has_plan', 'You already have an active plan')}
         )
     
     if user.balance < plan.price:
         return JSONResponse(
-            content={"success": False, "message": "❌ Solde insuffisant. Veuillez effectuer un dépôt."}
+            content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance', 'Insufficient balance')}
         )
     
-    # Retire lajan an
     user.balance -= plan.price
     
-    # Kreye plan itilizatè a
     user_plan = UserPlan(
         user_id=user.id,
         plan_id=plan.id,
@@ -1352,7 +1463,7 @@ def buy_plan(
     db.commit()
     
     return JSONResponse(
-        content={"success": True, "message": "✅ Plan acheté avec succès!"}
+        content={"success": True, "message": LANG[get_lang(request)].get('plan_bought', 'Plan purchased successfully!')}
     )
 
 # =====================
@@ -1445,6 +1556,68 @@ def deposit(
     add_log(db, user.username, f"Depo {amount} USDT voye (frè: {fee} USDT)")
     db.commit()
     return RedirectResponse(url="/dashboard", status_code=303)
+
+# =====================
+# WITHDRAW - AVEC JSON RESPONSE
+# =====================
+
+@app.post("/withdraw")
+def withdraw(
+    request: Request,
+    amount: float = Form(...),
+    wallet: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    username = request.session.get("username")
+    if not username:
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "Ou dwe konekte"}
+        )
+    
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "Itilizatè pa jwenn"}
+        )
+    
+    active_plan_info = get_user_active_plan(db, user.id)
+    if not active_plan_info:
+        return JSONResponse(
+            content={"success": False, "message": LANG[get_lang(request)].get('no_active_plan', 'You must have an active plan to withdraw')}
+        )
+    
+    if amount <= 0:
+        return JSONResponse(
+            content={"success": False, "message": "Montan pa valab"}
+        )
+    
+    if user.balance < amount:
+        return JSONResponse(
+            content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance_withdraw', 'Insufficient balance for this withdrawal')}
+        )
+    
+    fee = amount * WITHDRAW_FEE / 100
+    net_amount = amount - fee
+    
+    user.balance -= amount
+    
+    withdraw = Withdraw(
+        username=user.username,
+        amount=amount,
+        fee=fee,
+        net_amount=net_amount,
+        wallet=wallet,
+        status="pending"
+    )
+    db.add(withdraw)
+    add_log(db, user.username, f"Demann retrè {amount} USDT voye")
+    db.commit()
+    
+    return JSONResponse(
+        content={"success": True, "message": LANG[get_lang(request)].get('withdraw_success', 'Withdrawal request sent successfully!')}
+    )
 
 # =====================
 # REFERRAL
