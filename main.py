@@ -20,16 +20,16 @@ async def lifespan(app: FastAPI):
     total = db.query(Plan).count()
     if total == 0:
         plans = [
-            Plan(name="Starter Basic", price=10, duration=30, daily_return=0.5, description="Plan Starter debaz - 30 jou"),
-            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.8, description="Plan Starter Plus - 30 jou"),
-            Plan(name="Standard Basic", price=50, duration=60, daily_return=1.0, description="Plan Standard debaz - 60 jou"),
-            Plan(name="Standard Plus", price=100, duration=60, daily_return=1.3, description="Plan Standard Plus - 60 jou"),
-            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.6, description="Plan Premium debaz - 90 jou"),
-            Plan(name="Premium Plus", price=350, duration=90, daily_return=2.0, description="Plan Premium Plus - 90 jou"),
-            Plan(name="Premium Pro", price=500, duration=90, daily_return=2.4, description="Plan Premium Pro - 90 jou"),
-            Plan(name="VIP Basic", price=750, duration=120, daily_return=2.8, description="Plan VIP debaz - 120 jou"),
-            Plan(name="VIP Plus", price=1000, duration=120, daily_return=3.3, description="Plan VIP Plus - 120 jou"),
-            Plan(name="VIP Pro", price=2000, duration=120, daily_return=4.0, description="Plan VIP Pro - 120 jou")
+            Plan(name="Starter Basic", price=10, duration=30, daily_return=0.50, description="Plan Starter debaz - 30 jou"),
+            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.60, description="Plan Starter Plus - 30 jou"),
+            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.70, description="Plan Standard debaz - 60 jou"),
+            Plan(name="Standard Plus", price=100, duration=60, daily_return=0.80, description="Plan Standard Plus - 60 jou"),
+            Plan(name="Premium Basic", price=200, duration=90, daily_return=0.90, description="Plan Premium debaz - 90 jou"),
+            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.00, description="Plan Premium Plus - 90 jou"),
+            Plan(name="Premium Pro", price=500, duration=90, daily_return=1.10, description="Plan Premium Pro - 90 jou"),
+            Plan(name="VIP Basic", price=750, duration=120, daily_return=1.20, description="Plan VIP debaz - 120 jou"),
+            Plan(name="VIP Plus", price=1000, duration=120, daily_return=1.30, description="Plan VIP Plus - 120 jou"),
+            Plan(name="VIP Pro", price=2000, duration=120, daily_return=1.50, description="Plan VIP Pro - 120 jou")
         ]
         db.add_all(plans)
         db.commit()
@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="VestiCore",
-    description="Platfòm VestiCore",
+    description="Platfòm VestiCore - Finans Dijital & Rewards Platform",
     version="3.0",
     lifespan=lifespan
 )
@@ -91,7 +91,7 @@ REFERRAL_BONUS = 2
 REFERRAL_MIN_INVESTORS = 10
 
 # =====================
-# STIL CSS AVEC LOGO DIAMANT
+# STIL CSS
 # =====================
 
 STYLE = """
@@ -103,317 +103,367 @@ STYLE = """
         min-height: 100vh;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         padding: 20px;
     }
     .container {
-        background: rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.03);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,215,0,0.2);
+        border: 1px solid rgba(255,215,0,0.08);
         border-radius: 24px;
-        padding: 40px 35px;
-        max-width: 600px;
+        padding: 25px 30px;
+        max-width: 1100px;
         width: 100%;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        margin-top: 10px;
     }
     
-    /* ===== LOGO DIAMANT ===== */
-    .logo { text-align: center; margin-bottom: 20px; }
+    /* ===== HEADER ===== */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
     .logo-diamond {
-        width: 75px;
-        height: 75px;
+        width: 40px;
+        height: 40px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 10px;
-        box-shadow: 0 0 40px rgba(255,215,0,0.3);
-        position: relative;
-        transition: transform 0.3s ease;
-    }
-    .logo-diamond:hover {
-        transform: scale(1.05);
-    }
-    .logo-diamond::after {
-        content: '';
-        position: absolute;
-        top: -6px;
-        left: -6px;
-        right: -6px;
-        bottom: -6px;
-        background: linear-gradient(135deg, #ffd700, #f0a500);
-        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-        z-index: -1;
-        opacity: 0.25;
-        filter: blur(15px);
-        animation: pulseGlow 2s ease-in-out infinite;
-    }
-    @keyframes pulseGlow {
-        0%, 100% { opacity: 0.25; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(1.1); }
+        box-shadow: 0 0 20px rgba(255,215,0,0.2);
     }
     .logo-diamond span {
-        font-size: 34px;
+        font-size: 18px;
         font-weight: 900;
         color: #0a0e27;
-        text-shadow: 0 2px 15px rgba(255,215,0,0.4);
-        margin-top: 2px;
-        letter-spacing: -1px;
     }
-    .logo h1 {
+    .logo-text {
         color: #ffffff;
-        font-size: 28px;
+        font-size: 22px;
         font-weight: 700;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
     }
-    .logo h1 span {
-        color: #ffd700;
-        text-shadow: 0 0 20px rgba(255,215,0,0.2);
-    }
-    .logo p {
-        color: rgba(255,255,255,0.4);
-        font-size: 10px;
-        margin-top: 2px;
-        letter-spacing: 4px;
-        text-transform: uppercase;
-    }
+    .logo-text span { color: #ffd700; }
     
-    .lang-selector {
+    .header-right {
         display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-bottom: 15px;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
     }
-    .lang-selector a {
-        color: rgba(255,255,255,0.3);
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 6px;
+    .header-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        padding: 6px 12px 6px 6px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
         transition: all 0.3s;
+        position: relative;
     }
-    .lang-selector a:hover { color: #ffd700; background: rgba(255,215,0,0.1); }
-    .lang-selector a.active { color: #ffd700; background: rgba(255,215,0,0.15); }
-    
-    .title { color: #ffffff; font-size: 22px; font-weight: 600; margin-bottom: 6px; text-align: center; }
-    .subtitle { color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-bottom: 22px; }
-    
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-        display: block;
-        color: rgba(255,255,255,0.6);
-        font-size: 12px;
-        font-weight: 500;
-        margin-bottom: 5px;
-        letter-spacing: 0.5px;
+    .header-user:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,215,0,0.15);
     }
-    .form-group input {
-        width: 100%;
-        padding: 13px 16px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 10px;
+    .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffd700, #f0a500);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0a0e27;
+        font-weight: 700;
+        font-size: 16px;
+    }
+    .user-info .name {
         color: #ffffff;
         font-size: 14px;
-        transition: all 0.3s ease;
-        outline: none;
+        font-weight: 600;
     }
-    .form-group input:focus {
-        border-color: #ffd700;
-        background: rgba(255,215,0,0.05);
-        box-shadow: 0 0 25px rgba(255,215,0,0.08);
+    .user-info .id {
+        color: rgba(255,255,255,0.3);
+        font-size: 10px;
     }
-    .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+    .user-plan-badge {
+        background: rgba(255,215,0,0.12);
+        color: #ffd700;
+        font-size: 9px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,215,0,0.1);
+    }
+    .notif-bell {
+        color: rgba(255,255,255,0.4);
+        font-size: 18px;
+        position: relative;
+        cursor: pointer;
+    }
+    .notif-bell .badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ff6b6b;
+        color: #fff;
+        font-size: 9px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
     
-    .btn {
-        width: 100%;
-        padding: 15px;
+    /* ===== NAV ===== */
+    .nav {
+        display: flex;
+        gap: 5px;
+        padding: 12px 0;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        margin-bottom: 20px;
+    }
+    .nav a {
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    .nav a:hover {
+        color: #ffffff;
+        background: rgba(255,255,255,0.05);
+    }
+    .nav a.active {
+        color: #ffd700;
+        background: rgba(255,215,0,0.08);
+    }
+    
+    /* ===== USER DASHBOARD HEADER ===== */
+    .user-dash-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .dash-stat {
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+    .dash-stat .label {
+        color: rgba(255,255,255,0.3);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .dash-stat .value {
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+    .dash-stat .value span { color: #ffd700; font-size: 14px; }
+    .dash-stat .sub {
+        color: rgba(255,255,255,0.25);
+        font-size: 11px;
+        margin-top: 2px;
+    }
+    .dash-stat.gold { border-color: rgba(255,215,0,0.12); }
+    .dash-stat.green { border-color: rgba(74,222,128,0.12); }
+    .dash-stat.blue { border-color: rgba(59,130,246,0.12); }
+    .dash-stat.purple { border-color: rgba(168,85,247,0.12); }
+    .dash-stat.red { border-color: rgba(255,107,107,0.12); }
+    
+    /* ===== ACTIONS ===== */
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .actions .btn {
+        padding: 10px 24px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         border: none;
         border-radius: 10px;
         color: #0a0e27;
-        font-size: 15px;
         font-weight: 700;
+        font-size: 13px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        letter-spacing: 0.5px;
-        margin-top: 6px;
-        text-align: center;
+        transition: all 0.3s;
         text-decoration: none;
-        display: block;
+        display: inline-block;
     }
-    .btn:hover {
+    .actions .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+        box-shadow: 0 10px 30px rgba(255,215,0,0.2);
     }
-    .btn-secondary {
+    .actions .btn-secondary {
         background: rgba(255,255,255,0.06);
         color: #ffffff;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.08);
     }
-    .btn-secondary:hover {
+    .actions .btn-secondary:hover {
         background: rgba(255,255,255,0.12);
         box-shadow: 0 10px 30px rgba(255,255,255,0.05);
     }
-    .btn-sm {
-        padding: 8px 16px;
-        font-size: 12px;
-        width: auto;
-        display: inline-block;
-        margin: 0;
-    }
-    .btn-danger {
-        background: linear-gradient(135deg, #ff6b6b, #ee4444);
-        color: #fff;
-    }
-    .btn-danger:hover {
-        box-shadow: 0 10px 30px rgba(255,107,107,0.3);
-    }
-    .btn-success {
-        background: linear-gradient(135deg, #4ade80, #22c55e);
-        color: #0a0e27;
-    }
-    .btn-success:hover {
-        box-shadow: 0 10px 30px rgba(74,222,128,0.3);
-    }
     
-    .link {
-        text-align: center;
-        margin-top: 18px;
-        color: rgba(255,255,255,0.35);
-        font-size: 13px;
-    }
-    .link a { color: #ffd700; text-decoration: none; font-weight: 600; transition: color 0.3s; }
-    .link a:hover { color: #f0a500; text-decoration: underline; }
-    
-    .footer-text {
-        text-align: center;
-        margin-top: 20px;
-        color: rgba(255,255,255,0.15);
-        font-size: 11px;
-        letter-spacing: 1px;
-    }
-    
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .dashboard-user h2 {
-        color: #ffffff;
-        font-size: 18px;
-    }
-    .dashboard-user p {
-        color: rgba(255,255,255,0.3);
-        font-size: 11px;
-    }
-    
-    .balance-card {
-        background: rgba(255,215,0,0.04);
-        border-radius: 14px;
-        padding: 18px;
-        border: 1px solid rgba(255,215,0,0.08);
-        margin-bottom: 15px;
-        text-align: center;
-    }
-    .balance-card .label {
-        color: rgba(255,255,255,0.4);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .balance-card .amount {
-        color: #ffffff;
-        font-size: 32px;
-        font-weight: 700;
-        margin: 5px 0;
-    }
-    .balance-card .amount span {
-        color: #ffd700;
-        font-size: 18px;
-    }
-    
-    .quick-actions {
+    /* ===== CARDS ===== */
+    .cards {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
-        margin-bottom: 15px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
     }
-    .quick-actions a {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 10px;
-        padding: 12px 8px;
+    .card {
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(255,255,255,0.04);
         text-align: center;
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 600;
         transition: all 0.3s;
-        cursor: pointer;
     }
-    .quick-actions a:hover {
-        background: rgba(255,215,0,0.05);
-        border-color: rgba(255,215,0,0.15);
+    .card:hover {
+        background: rgba(255,255,255,0.04);
+        transform: translateY(-2px);
     }
-    .quick-actions a .icon {
-        display: block;
-        font-size: 20px;
-        margin-bottom: 4px;
-    }
+    .card .icon { font-size: 24px; margin-bottom: 6px; }
+    .card .label { color: rgba(255,255,255,0.3); font-size: 10px; text-transform: uppercase; }
+    .card .value { color: #ffffff; font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .card .value.gold { color: #ffd700; }
+    .card .value.green { color: #4ade80; }
+    .card .value.blue { color: #3b82f6; }
+    .card .value.purple { color: #a855f7; }
+    .card .value.red { color: #ff6b6b; }
     
-    .plan-card {
-        background: rgba(255,255,255,0.03);
-        border-radius: 10px;
-        padding: 14px;
-        margin: 8px 0;
-        border: 1px solid rgba(255,255,255,0.05);
+    /* ===== SECTIONS ===== */
+    .sections {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .section {
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+    .section h4 {
+        color: #ffffff;
+        font-size: 14px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section h4 span { color: rgba(255,255,255,0.2); font-size: 12px; font-weight: 400; }
+    
+    .tx-item {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
     }
-    .plan-card .plan-info h4 {
-        color: #ffd700;
-        font-size: 14px;
+    .tx-item .left { color: rgba(255,255,255,0.5); font-size: 12px; }
+    .tx-item .right { font-size: 12px; font-weight: 600; }
+    .tx-item .right.positive { color: #4ade80; }
+    .tx-item .right.negative { color: #ff6b6b; }
+    .tx-item .right.pending { color: #fbbf24; }
+    
+    .news-item {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
     }
-    .plan-card .plan-info p {
-        color: rgba(255,255,255,0.4);
-        font-size: 11px;
-        margin: 2px 0;
-    }
-    .plan-card .plan-info .return {
-        color: #4ade80;
-        font-weight: 600;
-    }
-    .plan-card .plan-price {
+    .news-item .title {
         color: #ffffff;
-        font-size: 16px;
-        font-weight: 700;
-        text-align: right;
+        font-size: 12px;
+        font-weight: 500;
     }
-    .plan-card .plan-price small {
-        color: rgba(255,255,255,0.3);
+    .news-item .date {
+        color: rgba(255,255,255,0.2);
         font-size: 10px;
-        font-weight: 400;
     }
     
-    .badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-size: 10px;
+    .promo-item {
+        background: rgba(255,215,0,0.04);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin: 6px 0;
+        border: 1px solid rgba(255,215,0,0.06);
+    }
+    .promo-item .title {
+        color: #ffd700;
+        font-size: 12px;
         font-weight: 600;
     }
-    .badge-gold { background: rgba(255,215,0,0.15); color: #ffd700; }
-    .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; }
-    .badge-red { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+    .promo-item .desc {
+        color: rgba(255,255,255,0.4);
+        font-size: 11px;
+    }
+    
+    /* ===== DROPDOWN ===== */
+    .dropdown {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: rgba(20,20,50,0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 8px 0;
+        min-width: 200px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        z-index: 100;
+    }
+    .dropdown.active { display: block; }
+    .dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        color: rgba(255,255,255,0.6);
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+    .dropdown a:hover {
+        background: rgba(255,255,255,0.05);
+        color: #ffffff;
+    }
+    .dropdown a .icon { font-size: 16px; }
+    .dropdown .divider {
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin: 6px 12px;
+    }
+    .dropdown .logout {
+        color: #ff6b6b;
+    }
+    .dropdown .logout:hover {
+        background: rgba(255,107,107,0.05);
+    }
     
     /* ===== MODAL ===== */
     .modal {
@@ -429,13 +479,11 @@ STYLE = """
         justify-content: center;
         align-items: center;
     }
-    .modal.active {
-        display: flex;
-    }
+    .modal.active { display: flex; }
     .modal-content {
-        background: rgba(255,255,255,0.05);
+        background: rgba(20,20,50,0.95);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,215,0,0.2);
+        border: 1px solid rgba(255,215,0,0.15);
         border-radius: 20px;
         padding: 30px;
         max-width: 400px;
@@ -443,45 +491,12 @@ STYLE = """
         text-align: center;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     }
-    .modal-content h3 {
-        color: #ffffff;
-        font-size: 20px;
-        margin-bottom: 10px;
-    }
-    .modal-content p {
-        color: rgba(255,255,255,0.6);
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-    .modal-content .btn {
-        width: auto;
-        display: inline-block;
-        padding: 10px 30px;
-    }
-    .modal-content .icon-big {
-        font-size: 48px;
-        margin-bottom: 15px;
-        display: block;
-    }
+    .modal-content h3 { color: #ffffff; font-size: 20px; margin-bottom: 10px; }
+    .modal-content p { color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    .modal-content .btn { width: auto; display: inline-block; padding: 10px 30px; }
+    .modal-content .icon-big { font-size: 48px; margin-bottom: 15px; display: block; }
     
-    .history-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 6px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
-    }
-    .history-item .left {
-        color: rgba(255,255,255,0.5);
-        font-size: 11px;
-    }
-    .history-item .right {
-        font-size: 11px;
-        font-weight: 600;
-    }
-    .history-item .right.positive { color: #4ade80; }
-    .history-item .right.negative { color: #ff6b6b; }
-    
+    /* ===== WITHDRAW SECTION ===== */
     .withdraw-section {
         margin-top: 15px;
         padding: 15px;
@@ -489,26 +504,30 @@ STYLE = """
         border-radius: 10px;
         border: 1px solid rgba(255,255,255,0.05);
     }
-    .withdraw-section h4 {
-        color: #ffffff;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
+    .withdraw-section h4 { color: #ffffff; font-size: 14px; margin-bottom: 10px; }
     
-    @media (max-width: 480px) {
-        .container { padding: 20px 15px; }
-        .logo h1 { font-size: 22px; }
-        .logo-diamond { width: 55px; height: 55px; }
-        .logo-diamond span { font-size: 26px; }
-        .quick-actions { grid-template-columns: 1fr 1fr 1fr; }
-        .plan-card { flex-direction: column; text-align: center; }
-        .plan-card .plan-price { text-align: center; margin-top: 8px; }
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+        .user-dash-header { grid-template-columns: 1fr 1fr; }
+        .cards { grid-template-columns: repeat(3, 1fr); }
+        .sections { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+        .container { padding: 15px; }
+        .header { flex-direction: column; align-items: stretch; }
+        .header-right { justify-content: space-between; }
+        .user-dash-header { grid-template-columns: 1fr; }
+        .cards { grid-template-columns: 1fr 1fr; }
+        .nav { gap: 3px; }
+        .nav a { font-size: 11px; padding: 4px 10px; }
+        .actions { flex-direction: column; }
+        .actions .btn { text-align: center; }
     }
 </style>
 """
 
 # =====================
-# JAVASCRIPT POU MODAL + ACHTE PLAN
+# JAVASCRIPT
 # =====================
 
 MODAL_JS = """
@@ -529,7 +548,6 @@ function showModal(message, title, type) {
         icon.textContent = 'ℹ️';
         titleEl.textContent = title || 'Information';
     }
-    
     msgEl.textContent = message;
     modal.classList.add('active');
 }
@@ -538,12 +556,14 @@ function closeModal() {
     document.getElementById('customModal').classList.remove('active');
 }
 
+function toggleDropdown() {
+    document.getElementById('userDropdown').classList.toggle('active');
+}
+
 function acheterPlan(planId) {
     fetch('/buy-plan/' + planId, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     })
     .then(response => response.json())
     .then(data => {
@@ -574,9 +594,7 @@ function faireRetrait() {
     
     fetch('/withdraw', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'amount=' + amount + '&wallet=' + encodeURIComponent(wallet)
     })
     .then(response => response.json())
@@ -596,14 +614,14 @@ function faireRetrait() {
 """
 
 # =====================
-# TEXTE POU CHAK LANG
+# LANG
 # =====================
 
 LANG = {
     "fr": {
-        "title": "VestiCore - Plateforme d'investissement",
+        "title": "VestiCore - Finans Dijital & Rewards",
         "logo_sub": "INVEST • CROISSANCE • PROSPÉRITÉ",
-        "home_title": "Plateforme d'investissement numérique",
+        "home_title": "Platfòm Finans Dijital",
         "home_desc": "Faites fructifier votre argent",
         "home_btn_register": "Créer un compte",
         "home_btn_login": "Se connecter",
@@ -671,14 +689,32 @@ LANG = {
         "already_has_plan": "❌ Vous avez déjà un plan actif.",
         "plan_not_found": "❌ Plan introuvable.",
         "withdraw_success": "✅ Demande de retrait envoyée avec succès!",
-        "withdraw_error": "❌ Erreur lors de la demande de retrait.",
         "no_active_plan": "❌ Vous devez avoir un plan actif pour faire un retrait.",
-        "insufficient_balance_withdraw": "❌ Solde insuffisant pour ce retrait."
+        "insufficient_balance_withdraw": "❌ Solde insuffisant pour ce retrait.",
+        "home": "Accueil",
+        "investment": "Investissement",
+        "wallet": "Portefeuille",
+        "referral": "Parrainage",
+        "academy": "Académie",
+        "tools": "Outils",
+        "market": "Marché",
+        "analytics": "Analyses",
+        "my_profile": "Mon profil",
+        "security": "Sécurité",
+        "settings": "Paramètres",
+        "active_plan": "Plan actif",
+        "total_investment": "Investissement total",
+        "referral_bonus_label": "Bonus de parrainage",
+        "pending_withdraw": "Retrait en attente",
+        "recent_transactions": "Transactions récentes",
+        "earnings_history": "Historique des gains",
+        "news": "Actualités",
+        "promotions": "Promotions"
     },
     "en": {
-        "title": "VestiCore - Investment Platform",
+        "title": "VestiCore - Digital Finance & Rewards",
         "logo_sub": "INVEST • GROW • PROSPER",
-        "home_title": "Digital Investment Platform",
+        "home_title": "Digital Finance Platform",
         "home_desc": "Make your money grow",
         "home_btn_register": "Create account",
         "home_btn_login": "Login",
@@ -746,14 +782,32 @@ LANG = {
         "already_has_plan": "❌ You already have an active plan.",
         "plan_not_found": "❌ Plan not found.",
         "withdraw_success": "✅ Withdrawal request sent successfully!",
-        "withdraw_error": "❌ Error processing withdrawal request.",
         "no_active_plan": "❌ You must have an active plan to withdraw.",
-        "insufficient_balance_withdraw": "❌ Insufficient balance for this withdrawal."
+        "insufficient_balance_withdraw": "❌ Insufficient balance for this withdrawal.",
+        "home": "Home",
+        "investment": "Investment",
+        "wallet": "Wallet",
+        "referral": "Referral",
+        "academy": "Academy",
+        "tools": "Tools",
+        "market": "Market",
+        "analytics": "Analytics",
+        "my_profile": "My Profile",
+        "security": "Security",
+        "settings": "Settings",
+        "active_plan": "Active Plan",
+        "total_investment": "Total Investment",
+        "referral_bonus_label": "Referral Bonus",
+        "pending_withdraw": "Pending Withdraw",
+        "recent_transactions": "Recent Transactions",
+        "earnings_history": "Earnings History",
+        "news": "News",
+        "promotions": "Promotions"
     },
     "es": {
-        "title": "VestiCore - Plataforma de Inversión",
+        "title": "VestiCore - Finanzas Digitales & Rewards",
         "logo_sub": "INVIERTE • CRECE • PROSPERA",
-        "home_title": "Plataforma de Inversión Digital",
+        "home_title": "Plataforma de Finanzas Digitales",
         "home_desc": "Haz crecer tu dinero",
         "home_btn_register": "Crear cuenta",
         "home_btn_login": "Iniciar sesión",
@@ -821,9 +875,27 @@ LANG = {
         "already_has_plan": "❌ Ya tienes un plan activo.",
         "plan_not_found": "❌ Plan no encontrado.",
         "withdraw_success": "✅ Solicitud de retiro enviada con éxito!",
-        "withdraw_error": "❌ Error al procesar la solicitud de retiro.",
         "no_active_plan": "❌ Debes tener un plan activo para retirar.",
-        "insufficient_balance_withdraw": "❌ Saldo insuficiente para este retiro."
+        "insufficient_balance_withdraw": "❌ Saldo insuficiente para este retiro.",
+        "home": "Inicio",
+        "investment": "Inversión",
+        "wallet": "Billetera",
+        "referral": "Referidos",
+        "academy": "Academia",
+        "tools": "Herramientas",
+        "market": "Mercado",
+        "analytics": "Análisis",
+        "my_profile": "Mi Perfil",
+        "security": "Seguridad",
+        "settings": "Configuración",
+        "active_plan": "Plan Activo",
+        "total_investment": "Inversión Total",
+        "referral_bonus_label": "Bonificación por Referidos",
+        "pending_withdraw": "Retiro Pendiente",
+        "recent_transactions": "Transacciones Recientes",
+        "earnings_history": "Historial de Ganancias",
+        "news": "Noticias",
+        "promotions": "Promociones"
     }
 }
 
@@ -843,6 +915,7 @@ class User(Base):
     referral_bonus = Column(Float, default=0)
     referral_qualified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
+    user_id_display = Column(String, unique=True, nullable=True)
 
 class Plan(Base):
     __tablename__ = "plans"
@@ -902,6 +975,14 @@ class ActivityLog(Base):
     action = Column(String)
     date = Column(DateTime, default=datetime.now)
 
+class Notification(Base):
+    __tablename__ = "notifications"
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    message = Column(String)
+    read = Column(Boolean, default=False)
+    date = Column(DateTime, default=datetime.now)
+
 Base.metadata.create_all(bind=engine)
 
 # =====================
@@ -932,6 +1013,9 @@ def verify_password(password, hashed):
 def create_referral_code(username):
     code = username.upper()[:5]
     return code + str(uuid.uuid4())[:5]
+
+def generate_user_id():
+    return "VC" + str(uuid.uuid4())[:6].upper()
 
 # =====================
 # ACTIVITY LOG
@@ -1048,26 +1132,6 @@ def set_lang(lang: str, request: Request):
     return response
 
 # =====================
-# LOGO AVEC LANG
-# =====================
-
-def get_logo_html(lang_key, request):
-    return f"""
-    <div class="lang-selector">
-        <a href="/set-lang/fr" class="{'active' if lang_key == 'fr' else ''}">FR</a>
-        <a href="/set-lang/en" class="{'active' if lang_key == 'en' else ''}">EN</a>
-        <a href="/set-lang/es" class="{'active' if lang_key == 'es' else ''}">ES</a>
-    </div>
-    <div class="logo">
-        <div class="logo-diamond">
-            <span>V</span>
-        </div>
-        <h1>Vesti<span>Core</span></h1>
-        <p>{LANG[lang_key].get('logo_sub', 'INVEST • GROW • PROSPER')}</p>
-    </div>
-    """
-
-# =====================
 # MODAL HTML
 # =====================
 
@@ -1078,7 +1142,7 @@ def get_modal_html():
             <span class="icon-big" id="modalIcon">ℹ️</span>
             <h3 id="modalTitle">Information</h3>
             <p id="modalMessage">Message</p>
-            <button onclick="closeModal()" class="btn">Fermer</button>
+            <button onclick="closeModal()" class="btn" style="width:auto;display:inline-block;padding:10px 30px;">Fermer</button>
         </div>
     </div>
     {MODAL_JS}
@@ -1099,18 +1163,34 @@ def home(request: Request):
         {STYLE}
     </head>
     <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div style="text-align:center;margin:5px 0 25px;">
-                <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;">
-                    {LANG[lang].get('home_title', 'Digital Investment Platform')}<br>
-                    <span style="color:#ffd700;">{LANG[lang].get('home_desc', 'Make your money grow')}</span>
+        <div class="container" style="max-width:600px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+                <div class="lang-selector" style="display:flex;gap:6px;">
+                    <a href="/set-lang/fr" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">FR</a>
+                    <a href="/set-lang/en" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">EN</a>
+                    <a href="/set-lang/es" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">ES</a>
+                </div>
+            </div>
+            
+            <div style="text-align:center;margin:20px 0 30px;">
+                <p style="color:rgba(255,255,255,0.6);font-size:16px;line-height:1.8;">
+                    {LANG[lang].get('home_title', 'Digital Finance Platform')}<br>
+                    <span style="color:#ffd700;font-size:20px;font-weight:600;">{LANG[lang].get('home_desc', 'Make your money grow')}</span>
                 </p>
             </div>
-            <a href="/register" class="btn">{LANG[lang].get('home_btn_register', 'Create account')}</a>
-            <br><br>
-            <a href="/login" class="btn btn-secondary">{LANG[lang].get('home_btn_login', 'Login')}</a>
-            <div class="footer-text">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</div>
+            
+            <a href="/register" class="btn" style="display:block;text-align:center;text-decoration:none;width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:10px;color:#0a0e27;font-weight:700;font-size:16px;cursor:pointer;">{LANG[lang].get('home_btn_register', 'Create account')}</a>
+            <br>
+            <a href="/login" class="btn btn-secondary" style="display:block;text-align:center;text-decoration:none;width:100%;padding:15px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-weight:700;font-size:16px;cursor:pointer;">{LANG[lang].get('home_btn_login', 'Login')}</a>
+            
+            <div style="text-align:center;margin-top:25px;color:rgba(255,255,255,0.1);font-size:11px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</div>
         </div>
         {get_modal_html()}
     </body>
@@ -1118,7 +1198,7 @@ def home(request: Request):
     """
 
 # =====================
-# REGISTER PAGE
+# REGISTER
 # =====================
 
 @app.get("/register", response_class=HTMLResponse)
@@ -1128,32 +1208,43 @@ def register_page(request: Request, ref: str = None):
     return f"""
     <html>
     <head>
-        <title>{LANG[lang].get('title', 'VestiCore')}</title>
+        <title>{LANG[lang].get('register_title', 'Create account')} - VestiCore</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {STYLE}
     </head>
     <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div class="title">{LANG[lang].get('register_title', 'Create your account')}</div>
-            <div class="subtitle">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
+        <div class="container" style="max-width:500px;">
+            <div style="display:flex;justify-content:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('register_title', 'Create your account')}</div>
+            <div class="subtitle" style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
+            
             <form method="post">
-                <div class="form-group">
-                    <label>{LANG[lang].get('register_username', 'Username')}</label>
-                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" required>
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
+                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <div class="form-group">
-                    <label>{LANG[lang].get('register_password', 'Password')}</label>
-                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" required>
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
+                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <div class="form-group">
-                    <label>{LANG[lang].get('register_ref', 'Referral code (optional)')}</label>
-                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}" {ref_value}>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_ref', 'Referral code (optional)')}</label>
+                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}" {ref_value} style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;">
                 </div>
-                <button type="submit" class="btn">{LANG[lang].get('register_btn', 'Create account')}</button>
+                <button type="submit" class="btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:10px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('register_btn', 'Create account')}</button>
             </form>
-            <div class="link">
-                {LANG[lang].get('register_link', 'Already have an account?')} <a href="/login">{LANG[lang].get('register_link_btn', 'Login')}</a>
+            
+            <div class="link" style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
+                {LANG[lang].get('register_link', 'Already have an account?')} <a href="/login" style="color:#ffd700;text-decoration:none;font-weight:600;">{LANG[lang].get('register_link_btn', 'Login')}</a>
             </div>
         </div>
         {get_modal_html()}
@@ -1182,7 +1273,8 @@ def register(
         password=hash_password(password),
         referral_code=create_referral_code(username),
         referred_by=ref,
-        is_admin=is_admin
+        is_admin=is_admin,
+        user_id_display=generate_user_id()
     )
     db.add(new_user)
     db.flush()
@@ -1204,7 +1296,7 @@ def register(
     return RedirectResponse(url="/login", status_code=303)
 
 # =====================
-# LOGIN PAGE
+# LOGIN
 # =====================
 
 @app.get("/login", response_class=HTMLResponse)
@@ -1213,28 +1305,39 @@ def login_page(request: Request):
     return f"""
     <html>
     <head>
-        <title>{LANG[lang].get('title', 'VestiCore')}</title>
+        <title>{LANG[lang].get('login_title', 'Login')} - VestiCore</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {STYLE}
     </head>
     <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div class="title">{LANG[lang].get('login_title', 'Welcome back')}</div>
-            <div class="subtitle">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
+        <div class="container" style="max-width:500px;">
+            <div style="display:flex;justify-content:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('login_title', 'Welcome back')}</div>
+            <div class="subtitle" style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
+            
             <form method="post">
-                <div class="form-group">
-                    <label>{LANG[lang].get('register_username', 'Username')}</label>
-                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" required>
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
+                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <div class="form-group">
-                    <label>{LANG[lang].get('register_password', 'Password')}</label>
-                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" required>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
+                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <button type="submit" class="btn">{LANG[lang].get('login_btn', 'Login')}</button>
+                <button type="submit" class="btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:10px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('login_btn', 'Login')}</button>
             </form>
-            <div class="link">
-                {LANG[lang].get('login_link', 'No account?')} <a href="/register">{LANG[lang].get('login_link_btn', 'Create account')}</a>
+            
+            <div class="link" style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
+                {LANG[lang].get('login_link', 'No account?')} <a href="/register" style="color:#ffd700;text-decoration:none;font-weight:600;">{LANG[lang].get('login_link_btn', 'Create account')}</a>
             </div>
         </div>
         {get_modal_html()}
@@ -1259,7 +1362,7 @@ def login(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD
+# DASHBOARD - NOUVO VIZYON
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -1275,62 +1378,69 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     qualified_investors = sum(1 for r in referrals if r.has_invested)
     total_bonus = sum(r.bonus_amount for r in referrals)
     
+    # Notifications
+    notifications = db.query(Notification).filter(Notification.username == user.username, Notification.read == False).all()
+    notif_count = len(notifications)
+    
     # History
     logs = db.query(ActivityLog).filter(ActivityLog.username == user.username).order_by(ActivityLog.date.desc()).limit(10).all()
     
+    # Total investment (from user_plans)
+    total_investment = db.query(UserPlan).filter(UserPlan.user_id == user.id, UserPlan.status == "active").first()
+    total_investment_amount = total_investment.amount if total_investment else 0
+    
+    # Pending withdraw
+    pending_withdraw = db.query(Withdraw).filter(Withdraw.username == user.username, Withdraw.status == "pending").all()
+    pending_withdraw_amount = sum(w.amount for w in pending_withdraw)
+    
+    # Active plan name
+    active_plan_name = active_plan_info["plan"].name if active_plan_info else "Aucun"
+    
+    # Plans for modal
     plan_html = ""
     for plan in plans:
+        total_return = plan.price * (plan.daily_return / 100) * plan.duration
         plan_html += f"""
-        <div class="plan-card">
-            <div class="plan-info">
-                <h4>{plan.name}</h4>
-                <p>{plan.description}</p>
-                <p>⏳ {plan.duration} jours • <span class="return">📈 {plan.daily_return}% / jour</span></p>
+        <div class="plan-card" style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;margin:8px 0;border:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+            <div>
+                <h4 style="color:#ffd700;font-size:14px;">{plan.name}</h4>
+                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{plan.description}</p>
+                <p style="color:rgba(255,255,255,0.3);font-size:11px;">⏳ {plan.duration} jours • 📈 {plan.daily_return}%/jour</p>
+                <p style="color:rgba(255,255,255,0.2);font-size:10px;">💎 Total: +{total_return:.2f} USDT</p>
             </div>
-            <div class="plan-price">
-                {plan.price} <small>USDT</small>
-                <br>
-                <button onclick="acheterPlan({plan.id})" class="btn btn-sm" style="margin-top:4px;">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
+            <div style="text-align:right;">
+                <div style="color:#ffffff;font-size:16px;font-weight:700;">{plan.price} <small style="color:rgba(255,255,255,0.3);font-size:10px;">USDT</small></div>
+                <button onclick="acheterPlan({plan.id})" style="margin-top:4px;padding:6px 14px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:6px;color:#0a0e27;font-weight:700;font-size:11px;cursor:pointer;">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
             </div>
         </div>
         """
     
-    plan_info_html = ""
-    if active_plan_info:
-        plan = active_plan_info["plan"]
-        exp_date = active_plan_info["expiration_date"]
-        plan_info_html = f"""
-        <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.15);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
-            <span class="badge badge-green">✅ {LANG[lang].get('dashboard_plan_active', 'Active plan')}</span>
-            <p style="color:#ffffff;font-size:14px;margin-top:6px;">{plan.name}</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:11px;">Expire: {exp_date.strftime('%d/%m/%Y')}</p>
-        </div>
-        """
-    else:
-        plan_info_html = f"""
-        <div style="background:rgba(255,150,0,0.05);border:1px solid rgba(255,150,0,0.12);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
-            <p style="color:#fbbf24;font-size:12px;">{LANG[lang].get('dashboard_no_plan', '⚠️ You don\'t have an active plan.')}</p>
-        </div>
-        """
-    
+    # History HTML
     history_html = ""
     for log in logs[:5]:
         if "Benefis" in log.action:
             history_html += f"""
-            <div class="history-item">
+            <div class="tx-item">
                 <span class="left">{log.date.strftime('%d/%m %H:%M')} - {log.action[:30]}...</span>
                 <span class="right positive">+{log.action.split(':')[-1].strip() if ':' in log.action else ''}</span>
             </div>
             """
-        elif "Depo" in log.action or "retrè" in log.action:
+        elif "Depo" in log.action:
             history_html += f"""
-            <div class="history-item">
+            <div class="tx-item">
                 <span class="left">{log.date.strftime('%d/%m %H:%M')} - {log.action[:30]}...</span>
-                <span class="right">💰</span>
+                <span class="right positive">💰</span>
+            </div>
+            """
+        elif "retrè" in log.action:
+            history_html += f"""
+            <div class="tx-item">
+                <span class="left">{log.date.strftime('%d/%m %H:%M')} - {log.action[:30]}...</span>
+                <span class="right pending">⏳</span>
             </div>
             """
     
-    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.15);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
+    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.08);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
     
     return f"""
     <html>
@@ -1340,60 +1450,183 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         {STYLE}
     </head>
     <body>
-        <div class="container" style="max-width:600px;">
-            {get_logo_html(lang, request)}
+        <div class="container">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div class="logo-text">Vesti<span>Core</span></div>
+                </div>
+                <div class="header-right">
+                    <div class="notif-bell">
+                        🔔
+                        {f'<span class="badge">{notif_count}</span>' if notif_count > 0 else ''}
+                    </div>
+                    <div class="header-user" onclick="toggleDropdown()">
+                        <div class="avatar">{user.username[0].upper()}</div>
+                        <div class="user-info">
+                            <div class="name">{user.username}</div>
+                            <div class="id">{user.user_id_display or 'VC000001'} • <span class="user-plan-badge">{active_plan_name}</span></div>
+                        </div>
+                        <span style="color:rgba(255,255,255,0.2);font-size:12px;">▼</span>
+                    </div>
+                    <!-- Dropdown -->
+                    <div id="userDropdown" class="dropdown">
+                        <a href="#"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
+                        <a href="#"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
+                        <a href="#"><span class="icon">🪪</span> Verification</a>
+                        <a href="#"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
+                        <div class="divider"></div>
+                        <a href="/logout" class="logout"><span class="icon">🚪</span> {LANG[lang].get('logout', 'Logout')}</a>
+                    </div>
+                </div>
+            </div>
             
-            <div class="dashboard-header">
-                <div class="dashboard-user">
-                    <h2>👋 {user.username}</h2>
-                    <p>{LANG[lang].get('dashboard_balance_label', 'Available balance')}</p>
+            <!-- NAV -->
+            <div class="nav">
+                <a href="/dashboard" class="active">🏠 {LANG[lang].get('home', 'Home')}</a>
+                <a href="#plans">💼 {LANG[lang].get('investment', 'Investment')}</a>
+                <a href="/deposit-page">💳 {LANG[lang].get('wallet', 'Wallet')}</a>
+                <a href="/referral">👥 {LANG[lang].get('referral', 'Referral')}</a>
+                <a href="#">📚 {LANG[lang].get('academy', 'Academy')}</a>
+                <a href="#">🛠 {LANG[lang].get('tools', 'Tools')}</a>
+                <a href="#">🛒 {LANG[lang].get('market', 'Market')}</a>
+                <a href="#">📊 {LANG[lang].get('analytics', 'Analytics')}</a>
+            </div>
+            
+            <!-- USER DASHBOARD HEADER -->
+            <div class="user-dash-header">
+                <div class="dash-stat gold">
+                    <div class="label">{LANG[lang].get('dashboard_balance', 'BALANCE')}</div>
+                    <div class="value">{user.balance:.2f} <span>USDT</span></div>
+                    <div class="sub">🎁 Rewards: {total_bonus:.2f} USDT</div>
+                </div>
+                <div class="dash-stat green">
+                    <div class="label">{LANG[lang].get('active_plan', 'Active Plan')}</div>
+                    <div class="value" style="font-size:16px;">⭐ {active_plan_name}</div>
+                    <div class="sub">👥 {len(referrals)} referrals</div>
+                </div>
+                <div class="dash-stat blue">
+                    <div class="label">{LANG[lang].get('total_investment', 'Total Investment')}</div>
+                    <div class="value">{total_investment_amount:.2f} <span>USDT</span></div>
+                    <div class="sub">💰 Investi</div>
+                </div>
+                <div class="dash-stat purple">
+                    <div class="label">{LANG[lang].get('referral_bonus_label', 'Referral Bonus')}</div>
+                    <div class="value">{total_bonus:.2f} <span>USDT</span></div>
+                    <div class="sub">🎁 {REFERRAL_MIN_INVESTORS - qualified_investors} restants</div>
+                </div>
+                <div class="dash-stat red" style="grid-column: span 1;">
+                    <div class="label">{LANG[lang].get('pending_withdraw', 'Pending Withdraw')}</div>
+                    <div class="value" style="color:#fbbf24;">{pending_withdraw_amount:.2f} <span>USDT</span></div>
+                    <div class="sub">⏳ En attente</div>
+                </div>
+            </div>
+            
+            <!-- ACTIONS -->
+            <div class="actions">
+                <a href="/deposit-page" class="btn">💵 {LANG[lang].get('dashboard_deposit', 'Deposit')}</a>
+                <a href="#" onclick="document.getElementById('withdrawSection').scrollIntoView(); return false;" class="btn btn-secondary">💸 {LANG[lang].get('dashboard_withdraw', 'Withdraw')}</a>
+                <a href="/referral" class="btn btn-secondary">👥 {LANG[lang].get('dashboard_referral', 'Referral')}</a>
+            </div>
+            
+            <!-- CARDS -->
+            <div class="cards">
+                <div class="card">
+                    <div class="icon">💰</div>
+                    <div class="label">{LANG[lang].get('dashboard_balance', 'BALANCE')}</div>
+                    <div class="value gold">{user.balance:.2f} USDT</div>
+                </div>
+                <div class="card">
+                    <div class="icon">⭐</div>
+                    <div class="label">{LANG[lang].get('active_plan', 'Active Plan')}</div>
+                    <div class="value green">{active_plan_name}</div>
+                </div>
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <div class="label">{LANG[lang].get('total_investment', 'Total Investment')}</div>
+                    <div class="value blue">{total_investment_amount:.2f} USDT</div>
+                </div>
+                <div class="card">
+                    <div class="icon">🎁</div>
+                    <div class="label">{LANG[lang].get('referral_bonus_label', 'Referral Bonus')}</div>
+                    <div class="value purple">{total_bonus:.2f} USDT</div>
+                </div>
+                <div class="card">
+                    <div class="icon">⏳</div>
+                    <div class="label">{LANG[lang].get('pending_withdraw', 'Pending Withdraw')}</div>
+                    <div class="value red">{pending_withdraw_amount:.2f} USDT</div>
+                </div>
+            </div>
+            
+            <!-- SECTIONS -->
+            <div class="sections">
+                <div class="section">
+                    <h4>📜 {LANG[lang].get('recent_transactions', 'Recent Transactions')} <span>Dènye aktivite</span></h4>
+                    {history_html if history_html else '<div style="color:rgba(255,255,255,0.15);font-size:12px;text-align:center;padding:15px 0;">Pa gen tranzaksyon</div>'}
                 </div>
                 <div>
-                    <a href="/logout" class="btn btn-sm btn-danger">{LANG[lang].get('dashboard_logout', 'Logout')}</a>
+                    <div class="section" style="margin-bottom:12px;">
+                        <h4>📈 {LANG[lang].get('earnings_history', 'Earnings History')}</h4>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.02);">
+                            <span style="color:rgba(255,255,255,0.4);font-size:12px;">Today</span>
+                            <span style="color:#4ade80;font-size:12px;font-weight:600;">+0.00 USDT</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                            <span style="color:rgba(255,255,255,0.4);font-size:12px;">This month</span>
+                            <span style="color:#4ade80;font-size:12px;font-weight:600;">+{total_bonus:.2f} USDT</span>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h4>📰 {LANG[lang].get('news', 'News')}</h4>
+                        <div class="news-item">
+                            <div class="title">🎉 Bienvenue sur VestiCore!</div>
+                            <div class="date">{datetime.now().strftime('%d/%m/%Y')}</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="title">💰 Nouveaux plans disponibles</div>
+                            <div class="date">{datetime.now().strftime('%d/%m/%Y')}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="balance-card">
-                <div class="label">{LANG[lang].get('dashboard_balance', 'BALANCE')}</div>
-                <div class="amount">{user.balance:.2f} <span>USDT</span></div>
+            <!-- PROMOTIONS -->
+            <div class="section" style="margin-bottom:15px;">
+                <h4>🎯 {LANG[lang].get('promotions', 'Promotions')}</h4>
+                <div class="promo-item">
+                    <div class="title">🎁 Bonus de parrainage</div>
+                    <div class="desc">Gagnez 2% sur les dépôts de vos 10 premiers investisseurs!</div>
+                </div>
+                <div class="promo-item">
+                    <div class="title">💰 Plan VIP Pro</div>
+                    <div class="desc">Investissez 2000 USDT et gagnez 1.50% par jour pendant 120 jours</div>
+                </div>
             </div>
             
-            {plan_info_html}
-            
-            <div class="quick-actions">
-                <a href="/deposit-page">
-                    <span class="icon">💰</span>
-                    {LANG[lang].get('dashboard_deposit', 'Deposit')}
-                </a>
-                <a href="#" onclick="document.getElementById('withdrawSection').scrollIntoView(); return false;">
-                    <span class="icon">📤</span>
-                    {LANG[lang].get('dashboard_withdraw', 'Withdraw')}
-                </a>
-                <a href="/referral">
-                    <span class="icon">🎁</span>
-                    {LANG[lang].get('dashboard_referral', 'Referral')}
-                </a>
+            <!-- PLANS (pour modal) -->
+            <div id="plans" class="section">
+                <h4>💼 {LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
+                {plan_html}
             </div>
             
+            <!-- WITHDRAW SECTION -->
             <div id="withdrawSection" class="withdraw-section">
-                <h4>📤 {LANG[lang].get('dashboard_withdraw', 'Withdraw')}</h4>
-                <div class="form-group">
-                    <input type="number" id="withdrawAmount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" min="1">
+                <h4>💸 {LANG[lang].get('dashboard_withdraw', 'Withdraw')}</h4>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <input type="number" id="withdrawAmount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" min="1" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
                 </div>
-                <div class="form-group">
-                    <input type="text" id="withdrawWallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <input type="text" id="withdrawWallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
                 </div>
-                <button onclick="faireRetrait()" class="btn btn-secondary" style="margin-top:0;">{LANG[lang].get('dashboard_withdraw_btn', 'Submit request')}</button>
-                <p style="color:rgba(255,255,255,0.2);font-size:10px;text-align:center;margin-top:6px;">{LANG[lang].get('dashboard_withdraw_warning', '⚠️ Withdrawals are subject to admin approval')}</p>
+                <button onclick="faireRetrait()" class="btn btn-secondary" style="width:100%;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-weight:700;font-size:14px;cursor:pointer;">{LANG[lang].get('dashboard_withdraw_btn', 'Submit request')}</button>
+                <p style="color:rgba(255,255,255,0.2);font-size:10px;text-align:center;margin-top:8px;">⚠️ {LANG[lang].get('dashboard_withdraw_warning', 'Withdrawals are subject to admin approval')}</p>
             </div>
             
-            <h4 style="color:#ffffff;font-size:14px;margin:15px 0 10px;">{LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
-            {plan_html}
-            
-            {f'<div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">{admin_link}</div>' if user.is_admin == 1 else ''}
-            
-            <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
-                <p style="color:rgba(255,255,255,0.15);font-size:9px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</p>
+            <!-- FOOTER -->
+            <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+                {admin_link}
+                <span style="color:rgba(255,255,255,0.08);font-size:9px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</span>
             </div>
         </div>
         
@@ -1403,7 +1636,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     """
 
 # =====================
-# BUY PLAN - AVEC JSON RESPONSE
+# BUY PLAN
 # =====================
 
 @app.post("/buy-plan/{plan_id}")
@@ -1414,38 +1647,25 @@ def buy_plan(
 ):
     username = request.session.get("username")
     if not username:
-        return JSONResponse(
-            status_code=401,
-            content={"success": False, "message": "Ou dwe konekte"}
-        )
+        return JSONResponse(status_code=401, content={"success": False, "message": "Ou dwe konekte"})
     
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        return JSONResponse(
-            status_code=404,
-            content={"success": False, "message": "Itilizatè pa jwenn"}
-        )
+        return JSONResponse(status_code=404, content={"success": False, "message": "Itilizatè pa jwenn"})
     
     plan = db.query(Plan).filter(Plan.id == plan_id).first()
     if not plan:
-        return JSONResponse(
-            status_code=404,
-            content={"success": False, "message": LANG[get_lang(request)].get('plan_not_found', 'Plan not found')}
-        )
+        return JSONResponse(content={"success": False, "message": LANG[get_lang(request)].get('plan_not_found', 'Plan not found')})
     
     existing = db.query(UserPlan).filter(
         UserPlan.user_id == user.id,
         UserPlan.status == "active"
     ).first()
     if existing:
-        return JSONResponse(
-            content={"success": False, "message": LANG[get_lang(request)].get('already_has_plan', 'You already have an active plan')}
-        )
+        return JSONResponse(content={"success": False, "message": LANG[get_lang(request)].get('already_has_plan', 'You already have an active plan')})
     
     if user.balance < plan.price:
-        return JSONResponse(
-            content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance', 'Insufficient balance')}
-        )
+        return JSONResponse(content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance', 'Insufficient balance')})
     
     user.balance -= plan.price
     
@@ -1462,9 +1682,7 @@ def buy_plan(
     add_log(db, user.username, f"Achte plan {plan.name} pou {plan.price} USDT")
     db.commit()
     
-    return JSONResponse(
-        content={"success": True, "message": LANG[get_lang(request)].get('plan_bought', 'Plan purchased successfully!')}
-    )
+    return JSONResponse(content={"success": True, "message": LANG[get_lang(request)].get('plan_bought', 'Plan purchased successfully!')})
 
 # =====================
 # DEPOSIT PAGE
@@ -1477,14 +1695,24 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
     return f"""
     <html>
     <head>
-        <title>Deposit - VestiCore</title>
+        <title>{LANG[lang].get('deposit_title', 'Deposit')} - VestiCore</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {STYLE}
     </head>
     <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div class="title">{LANG[lang].get('deposit_title', '💰 USDT Deposit')}</div>
+        <div class="container" style="max-width:550px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('deposit_back', 'Back')}</a>
+            </div>
+            
+            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('deposit_title', '💰 USDT Deposit')}</div>
             
             <div style="background:rgba(255,0,0,0.06);border:1px solid rgba(255,0,0,0.12);border-radius:10px;padding:12px;margin-bottom:15px;">
                 <p style="color:#ff6b6b;font-weight:600;font-size:12px;text-align:center;">{LANG[lang].get('deposit_warning', '⚠️ Send ONLY USDT on TRC20 (Tron)')}</p>
@@ -1508,18 +1736,14 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
             
             <h3 style="color:#ffffff;font-size:14px;margin-bottom:10px;">{LANG[lang].get('deposit_verify', 'Verify your deposit')}</h3>
             <form method="post" action="/deposit">
-                <div class="form-group">
-                    <input type="number" name="amount" placeholder="{LANG[lang].get('deposit_amount', 'USDT Amount')}" step="0.01" required>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <input type="number" name="amount" placeholder="{LANG[lang].get('deposit_amount', 'USDT Amount')}" step="0.01" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <div class="form-group">
-                    <input type="text" name="txid" placeholder="{LANG[lang].get('deposit_txid', 'Transaction ID (txid)')}" required>
+                <div class="form-group" style="margin-bottom:16px;">
+                    <input type="text" name="txid" placeholder="{LANG[lang].get('deposit_txid', 'Transaction ID (txid)')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
                 </div>
-                <button type="submit" class="btn">{LANG[lang].get('deposit_btn', 'Submit deposit')}</button>
+                <button type="submit" class="btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:8px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('deposit_btn', 'Submit deposit')}</button>
             </form>
-            
-            <div class="link" style="margin-top:15px;">
-                <a href="/dashboard">{LANG[lang].get('deposit_back', '← Back')}</a>
-            </div>
         </div>
         {get_modal_html()}
     </body>
@@ -1558,7 +1782,7 @@ def deposit(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# WITHDRAW - AVEC JSON RESPONSE
+# WITHDRAW
 # =====================
 
 @app.post("/withdraw")
@@ -1570,33 +1794,21 @@ def withdraw(
 ):
     username = request.session.get("username")
     if not username:
-        return JSONResponse(
-            status_code=401,
-            content={"success": False, "message": "Ou dwe konekte"}
-        )
+        return JSONResponse(status_code=401, content={"success": False, "message": "Ou dwe konekte"})
     
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        return JSONResponse(
-            status_code=404,
-            content={"success": False, "message": "Itilizatè pa jwenn"}
-        )
+        return JSONResponse(status_code=404, content={"success": False, "message": "Itilizatè pa jwenn"})
     
     active_plan_info = get_user_active_plan(db, user.id)
     if not active_plan_info:
-        return JSONResponse(
-            content={"success": False, "message": LANG[get_lang(request)].get('no_active_plan', 'You must have an active plan to withdraw')}
-        )
+        return JSONResponse(content={"success": False, "message": LANG[get_lang(request)].get('no_active_plan', 'You must have an active plan to withdraw')})
     
     if amount <= 0:
-        return JSONResponse(
-            content={"success": False, "message": "Montan pa valab"}
-        )
+        return JSONResponse(content={"success": False, "message": "Montan pa valab"})
     
     if user.balance < amount:
-        return JSONResponse(
-            content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance_withdraw', 'Insufficient balance for this withdrawal')}
-        )
+        return JSONResponse(content={"success": False, "message": LANG[get_lang(request)].get('insufficient_balance_withdraw', 'Insufficient balance for this withdrawal')})
     
     fee = amount * WITHDRAW_FEE / 100
     net_amount = amount - fee
@@ -1615,9 +1827,7 @@ def withdraw(
     add_log(db, user.username, f"Demann retrè {amount} USDT voye")
     db.commit()
     
-    return JSONResponse(
-        content={"success": True, "message": LANG[get_lang(request)].get('withdraw_success', 'Withdrawal request sent successfully!')}
-    )
+    return JSONResponse(content={"success": True, "message": LANG[get_lang(request)].get('withdraw_success', 'Withdrawal request sent successfully!')})
 
 # =====================
 # REFERRAL
@@ -1640,14 +1850,24 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
     return f"""
     <html>
     <head>
-        <title>Referral - VestiCore</title>
+        <title>{LANG[lang].get('referral_title', 'Referral')} - VestiCore</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {STYLE}
     </head>
     <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div class="title">{LANG[lang].get('referral_title', '👥 Referral')}</div>
+        <div class="container" style="max-width:550px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('referral_back', 'Back')}</a>
+            </div>
+            
+            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('referral_title', '👥 Referral')}</div>
             
             <div style="background:rgba(255,215,0,0.04);border-radius:10px;padding:15px;border:1px solid rgba(255,215,0,0.06);">
                 <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_code', 'YOUR CODE')}</p>
@@ -1675,10 +1895,6 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
             <div style="background:rgba(255,215,0,0.04);border-radius:8px;padding:12px;margin-top:12px;text-align:center;border:1px solid rgba(255,215,0,0.1);">
                 <p style="color:rgba(255,255,255,0.6);font-size:12px;">{status_text}</p>
                 <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;">{LANG[lang].get('referral_bonus', 'Bonus received')}: <span style="color:#ffd700;font-weight:700;">{total_bonus:.2f} USDT</span></p>
-            </div>
-            
-            <div class="link" style="margin-top:15px;">
-                <a href="/dashboard">{LANG[lang].get('referral_back', '← Back')}</a>
             </div>
         </div>
         {get_modal_html()}
@@ -1746,28 +1962,30 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         {STYLE}
     </head>
     <body>
-        <div class="container" style="max-width:560px;">
-            {get_logo_html(lang, request)}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <div>
-                    <h1 style="color:#ffffff;font-size:20px;">🛡️ {LANG[lang].get('admin_title', 'Admin')}</h1>
-                    <p style="color:rgba(255,255,255,0.3);font-size:11px;">{LANG[lang].get('admin_sub', 'Admin Dashboard')}</p>
+        <div class="container" style="max-width:600px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">ADMIN</div>
+                    </div>
                 </div>
-                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;">{LANG[lang].get('admin_back', '← Back')}</a>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">{LANG[lang].get('admin_back', '← Back')}</a>
             </div>
             
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:15px;">
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
                     <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_users', 'USERS')}</p>
-                    <p style="color:#ffffff;font-size:20px;font-weight:700;">{len(users)}</p>
+                    <p style="color:#ffffff;font-size:22px;font-weight:700;">{len(users)}</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
                     <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_deposits', 'DEPOSITS')}</p>
-                    <p style="color:#4ade80;font-size:20px;font-weight:700;">{len(deposits)}</p>
+                    <p style="color:#4ade80;font-size:22px;font-weight:700;">{len(deposits)}</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
                     <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_withdraws', 'WITHDRAWALS')}</p>
-                    <p style="color:#fbbf24;font-size:20px;font-weight:700;">{len(withdraws)}</p>
+                    <p style="color:#fbbf24;font-size:22px;font-weight:700;">{len(withdraws)}</p>
                 </div>
             </div>
             
