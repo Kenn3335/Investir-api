@@ -20,16 +20,16 @@ async def lifespan(app: FastAPI):
     total = db.query(Plan).count()
     if total == 0:
         plans = [
-            Plan(name="Starter Basic", price=10, duration=30, daily_return=0.50, description="Plan Starter debaz - 30 jou"),
-            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.60, description="Plan Starter Plus - 30 jou"),
-            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.70, description="Plan Standard debaz - 60 jou"),
-            Plan(name="Standard Plus", price=100, duration=60, daily_return=0.80, description="Plan Standard Plus - 60 jou"),
-            Plan(name="Premium Basic", price=200, duration=90, daily_return=0.90, description="Plan Premium debaz - 90 jou"),
-            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.00, description="Plan Premium Plus - 90 jou"),
-            Plan(name="Premium Pro", price=500, duration=90, daily_return=1.10, description="Plan Premium Pro - 90 jou"),
-            Plan(name="VIP Basic", price=750, duration=120, daily_return=1.20, description="Plan VIP debaz - 120 jou"),
-            Plan(name="VIP Plus", price=1000, duration=120, daily_return=1.30, description="Plan VIP Plus - 120 jou"),
-            Plan(name="VIP Pro", price=2000, duration=120, daily_return=1.50, description="Plan VIP Pro - 120 jou")
+            Plan(name="Starter Basic", price=10, duration=30, daily_return=0.90, description="Plan Starter debaz - 30 jou"),
+            Plan(name="Starter Plus", price=25, duration=30, daily_return=1.00, description="Plan Starter Plus - 30 jou"),
+            Plan(name="Standard Basic", price=50, duration=60, daily_return=1.10, description="Plan Standard debaz - 60 jou"),
+            Plan(name="Standard Plus", price=100, duration=60, daily_return=1.20, description="Plan Standard Plus - 60 jou"),
+            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.30, description="Plan Premium debaz - 90 jou"),
+            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.40, description="Plan Premium Plus - 90 jou"),
+            Plan(name="Premium Pro", price=500, duration=90, daily_return=1.50, description="Plan Premium Pro - 90 jou"),
+            Plan(name="VIP Basic", price=750, duration=120, daily_return=1.60, description="Plan VIP debaz - 120 jou"),
+            Plan(name="VIP Plus", price=1000, duration=120, daily_return=1.70, description="Plan VIP Plus - 120 jou"),
+            Plan(name="VIP Pro", price=2000, duration=120, daily_return=1.90, description="Plan VIP Pro - 120 jou")
         ]
         db.add_all(plans)
         db.commit()
@@ -129,17 +129,8 @@ STYLE = """
         justify-content: center;
         box-shadow: 0 0 20px rgba(255,215,0,0.2);
     }
-    .logo-diamond span {
-        font-size: 18px;
-        font-weight: 900;
-        color: #0a0e27;
-    }
-    .logo-text {
-        color: #ffffff;
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: 1px;
-    }
+    .logo-diamond span { font-size: 18px; font-weight: 900; color: #0a0e27; }
+    .logo-text { color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
     .logo-text span { color: #ffd700; }
     
     .header {
@@ -151,17 +142,8 @@ STYLE = """
         flex-wrap: wrap;
         gap: 10px;
     }
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .header-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
     .header-user {
         display: flex;
         align-items: center;
@@ -190,15 +172,8 @@ STYLE = """
         font-weight: 700;
         font-size: 16px;
     }
-    .user-info .name {
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    .user-info .id {
-        color: rgba(255,255,255,0.3);
-        font-size: 10px;
-    }
+    .user-info .name { color: #ffffff; font-size: 14px; font-weight: 600; }
+    .user-info .id { color: rgba(255,255,255,0.3); font-size: 10px; }
     .user-plan-badge {
         background: rgba(255,215,0,0.12);
         color: #ffd700;
@@ -208,12 +183,7 @@ STYLE = """
         border-radius: 10px;
         border: 1px solid rgba(255,215,0,0.1);
     }
-    .notif-bell {
-        color: rgba(255,255,255,0.4);
-        font-size: 18px;
-        position: relative;
-        cursor: pointer;
-    }
+    .notif-bell { color: rgba(255,255,255,0.4); font-size: 18px; position: relative; cursor: pointer; }
     .notif-bell .badge {
         position: absolute;
         top: -6px;
@@ -246,15 +216,10 @@ STYLE = """
         padding: 6px 14px;
         border-radius: 8px;
         transition: all 0.3s;
+        cursor: pointer;
     }
-    .nav a:hover {
-        color: #ffffff;
-        background: rgba(255,255,255,0.05);
-    }
-    .nav a.active {
-        color: #ffd700;
-        background: rgba(255,215,0,0.08);
-    }
+    .nav a:hover { color: #ffffff; background: rgba(255,255,255,0.05); }
+    .nav a.active { color: #ffd700; background: rgba(255,215,0,0.08); }
     
     .user-dash-header {
         display: grid;
@@ -268,24 +233,10 @@ STYLE = """
         padding: 14px 16px;
         border: 1px solid rgba(255,255,255,0.04);
     }
-    .dash-stat .label {
-        color: rgba(255,255,255,0.3);
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .dash-stat .value {
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: 700;
-        margin-top: 4px;
-    }
+    .dash-stat .label { color: rgba(255,255,255,0.3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .dash-stat .value { color: #ffffff; font-size: 20px; font-weight: 700; margin-top: 4px; }
     .dash-stat .value span { color: #ffd700; font-size: 14px; }
-    .dash-stat .sub {
-        color: rgba(255,255,255,0.25);
-        font-size: 11px;
-        margin-top: 2px;
-    }
+    .dash-stat .sub { color: rgba(255,255,255,0.25); font-size: 11px; margin-top: 2px; }
     .dash-stat.gold { border-color: rgba(255,215,0,0.12); }
     .dash-stat.green { border-color: rgba(74,222,128,0.12); }
     .dash-stat.blue { border-color: rgba(59,130,246,0.12); }
@@ -311,10 +262,7 @@ STYLE = """
         text-decoration: none;
         display: inline-block;
     }
-    .actions .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255,215,0,0.2);
-    }
+    .actions .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,215,0,0.2); }
     .actions .btn-secondary {
         background: rgba(255,255,255,0.06);
         color: #ffffff;
@@ -323,13 +271,6 @@ STYLE = """
     .actions .btn-secondary:hover {
         background: rgba(255,255,255,0.12);
         box-shadow: 0 10px 30px rgba(255,255,255,0.05);
-    }
-    .btn-danger {
-        background: linear-gradient(135deg, #ff6b6b, #ee4444);
-        color: #fff;
-    }
-    .btn-danger:hover {
-        box-shadow: 0 10px 30px rgba(255,107,107,0.3);
     }
     
     .cards {
@@ -346,10 +287,7 @@ STYLE = """
         text-align: center;
         transition: all 0.3s;
     }
-    .card:hover {
-        background: rgba(255,255,255,0.04);
-        transform: translateY(-2px);
-    }
+    .card:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
     .card .icon { font-size: 24px; margin-bottom: 6px; }
     .card .label { color: rgba(255,255,255,0.3); font-size: 10px; text-transform: uppercase; }
     .card .value { color: #ffffff; font-size: 18px; font-weight: 700; margin-top: 4px; }
@@ -381,37 +319,6 @@ STYLE = """
     }
     .section h4 span { color: rgba(255,255,255,0.2); font-size: 12px; font-weight: 400; }
     
-    .plan-card {
-        background: rgba(255,255,255,0.02);
-        border-radius: 10px;
-        padding: 14px;
-        margin: 8px 0;
-        border: 1px solid rgba(255,255,255,0.04);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    .plan-card h4 { color: #ffd700; font-size: 14px; }
-    .plan-card p { color: rgba(255,255,255,0.4); font-size: 11px; margin: 2px 0; }
-    .plan-card .return { color: #4ade80; font-weight: 600; }
-    .plan-card .plan-price { color: #ffffff; font-size: 16px; font-weight: 700; text-align: right; }
-    .plan-card .plan-price small { color: rgba(255,255,255,0.3); font-size: 10px; font-weight: 400; }
-    .plan-card .btn-sm {
-        padding: 6px 14px;
-        font-size: 11px;
-        background: linear-gradient(135deg, #ffd700, #f0a500);
-        border: none;
-        border-radius: 6px;
-        color: #0a0e27;
-        font-weight: 700;
-        cursor: pointer;
-        margin-top: 4px;
-    }
-    .plan-card .btn-sm:hover {
-        transform: scale(1.05);
-    }
-    
     .tx-item {
         display: flex;
         justify-content: space-between;
@@ -423,13 +330,6 @@ STYLE = """
     .tx-item .right.positive { color: #4ade80; }
     .tx-item .right.negative { color: #ff6b6b; }
     .tx-item .right.pending { color: #fbbf24; }
-    
-    .news-item {
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.02);
-    }
-    .news-item .title { color: #ffffff; font-size: 12px; font-weight: 500; }
-    .news-item .date { color: rgba(255,255,255,0.2); font-size: 10px; }
     
     .promo-item {
         background: rgba(255,215,0,0.04);
@@ -466,19 +366,13 @@ STYLE = """
         font-size: 13px;
         transition: all 0.3s;
     }
-    .dropdown a:hover {
-        background: rgba(255,255,255,0.05);
-        color: #ffffff;
-    }
+    .dropdown a:hover { background: rgba(255,255,255,0.05); color: #ffffff; }
     .dropdown a .icon { font-size: 16px; }
-    .dropdown .divider {
-        border-top: 1px solid rgba(255,255,255,0.05);
-        margin: 6px 12px;
-    }
+    .dropdown .divider { border-top: 1px solid rgba(255,255,255,0.05); margin: 6px 12px; }
     .dropdown .logout { color: #ff6b6b; }
     .dropdown .logout:hover { background: rgba(255,107,107,0.05); }
     
-    .modal {
+    .modal-overlay {
         display: none;
         position: fixed;
         top: 0;
@@ -491,22 +385,69 @@ STYLE = """
         justify-content: center;
         align-items: center;
     }
-    .modal.active { display: flex; }
+    .modal-overlay.active { display: flex; }
     .modal-content {
         background: rgba(20,20,50,0.95);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255,215,0,0.15);
         border-radius: 20px;
         padding: 30px;
-        max-width: 400px;
+        max-width: 600px;
         width: 90%;
-        text-align: center;
+        max-height: 80vh;
+        overflow-y: auto;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     }
-    .modal-content h3 { color: #ffffff; font-size: 20px; margin-bottom: 10px; }
-    .modal-content p { color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-    .modal-content .btn { width: auto; display: inline-block; padding: 10px 30px; background: linear-gradient(135deg, #ffd700, #f0a500); border: none; border-radius: 8px; color: #0a0e27; font-weight: 700; cursor: pointer; }
-    .modal-content .icon-big { font-size: 48px; margin-bottom: 15px; display: block; }
+    .modal-content h3 { color: #ffffff; font-size: 20px; margin-bottom: 15px; text-align: center; }
+    .modal-content .close-btn {
+        float: right;
+        color: rgba(255,255,255,0.3);
+        font-size: 24px;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+    .modal-content .close-btn:hover { color: #ffffff; }
+    
+    .modal-plan-card {
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+        padding: 14px;
+        margin: 8px 0;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .modal-plan-card h4 { color: #ffd700; font-size: 14px; }
+    .modal-plan-card p { color: rgba(255,255,255,0.4); font-size: 11px; margin: 2px 0; }
+    .modal-plan-card .return { color: #4ade80; font-weight: 600; }
+    .modal-plan-card .plan-price { color: #ffffff; font-size: 16px; font-weight: 700; text-align: right; }
+    .modal-plan-card .plan-price small { color: rgba(255,255,255,0.3); font-size: 10px; font-weight: 400; }
+    .modal-plan-card .btn-sm {
+        padding: 6px 14px;
+        font-size: 11px;
+        background: linear-gradient(135deg, #ffd700, #f0a500);
+        border: none;
+        border-radius: 6px;
+        color: #0a0e27;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 4px;
+    }
+    .modal-plan-card .btn-sm:hover { transform: scale(1.05); }
+    
+    .error-message {
+        background: rgba(255,107,107,0.08);
+        border: 1px solid rgba(255,107,107,0.12);
+        color: #ff6b6b;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
     
     .withdraw-section {
         margin-top: 15px;
@@ -549,41 +490,35 @@ STYLE = """
     .profile-item .value { color: #ffffff; font-size: 15px; font-weight: 600; margin-top: 4px; }
     .profile-item .value.gold { color: #ffd700; }
     
-    .kyc-status {
-        padding: 12px;
-        border-radius: 8px;
+    .simple-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .simple-modal.active { display: flex; }
+    .simple-modal-content {
+        background: rgba(20,20,50,0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,215,0,0.15);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
         text-align: center;
-        margin: 10px 0;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     }
-    .kyc-status.pending { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.15); color: #fbbf24; }
-    .kyc-status.verified { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); color: #4ade80; }
-    .kyc-status.rejected { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.15); color: #ff6b6b; }
-    .kyc-status.unverified { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
-    
-    .ticket-item {
-        background: rgba(255,255,255,0.02);
-        padding: 12px 14px;
-        border-radius: 8px;
-        margin: 6px 0;
-        border: 1px solid rgba(255,255,255,0.04);
-    }
-    .ticket-item .ticket-title { color: #ffffff; font-size: 13px; font-weight: 600; }
-    .ticket-item .ticket-status { font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 10px; display: inline-block; }
-    .ticket-item .ticket-status.open { background: rgba(74,222,128,0.12); color: #4ade80; }
-    .ticket-item .ticket-status.closed { background: rgba(255,107,107,0.12); color: #ff6b6b; }
-    .ticket-item .ticket-status.waiting { background: rgba(251,191,36,0.12); color: #fbbf24; }
-    .ticket-item .ticket-date { color: rgba(255,255,255,0.2); font-size: 10px; }
-    
-    .error-message {
-        background: rgba(255,107,107,0.08);
-        border: 1px solid rgba(255,107,107,0.12);
-        color: #ff6b6b;
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-size: 13px;
-        margin-bottom: 15px;
-        text-align: center;
-    }
+    .simple-modal-content h3 { color: #ffffff; font-size: 20px; margin-bottom: 10px; }
+    .simple-modal-content p { color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    .simple-modal-content .btn { width: auto; display: inline-block; padding: 10px 30px; }
+    .simple-modal-content .icon-big { font-size: 48px; margin-bottom: 15px; display: block; }
     
     @media (max-width: 992px) {
         .user-dash-header { grid-template-columns: 1fr 1fr; }
@@ -601,6 +536,9 @@ STYLE = """
         .nav a { font-size: 11px; padding: 4px 10px; }
         .actions { flex-direction: column; }
         .actions .btn { text-align: center; }
+        .modal-content { padding: 20px; }
+        .modal-plan-card { flex-direction: column; text-align: center; }
+        .modal-plan-card .plan-price { text-align: center; margin-top: 8px; }
     }
 </style>
 """
@@ -635,8 +573,16 @@ function closeModal() {
     document.getElementById('customModal').classList.remove('active');
 }
 
+function closePlansModal() {
+    document.getElementById('plansModal').classList.remove('active');
+}
+
 function toggleDropdown() {
     document.getElementById('userDropdown').classList.toggle('active');
+}
+
+function openPlansModal() {
+    document.getElementById('plansModal').classList.add('active');
 }
 
 function acheterPlan(planId) {
@@ -688,14 +634,6 @@ function faireRetrait() {
     .catch(err => {
         showModal('Erreur de connexion au serveur', '❌ Erreur', 'error');
     });
-}
-
-function showProfile() {
-    document.getElementById('profileSection').scrollIntoView({ behavior: 'smooth' });
-}
-
-function showPlans() {
-    document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' });
 }
 </script>
 """
@@ -795,18 +733,7 @@ LANG = {
         "recent_transactions": "Transactions récentes",
         "earnings_history": "Historique des gains",
         "news": "Actualités",
-        "promotions": "Promotions",
-        "kyc_title": "Vérification KYC",
-        "kyc_pending": "En attente de vérification",
-        "kyc_verified": "✅ Vérifié",
-        "kyc_rejected": "❌ Rejeté",
-        "kyc_unverified": "Non vérifié",
-        "kyc_submit": "Soumettre pour vérification",
-        "tickets_title": "Mes tickets",
-        "ticket_new": "Nouveau ticket",
-        "ticket_open": "Ouvert",
-        "ticket_closed": "Fermé",
-        "ticket_waiting": "En attente"
+        "promotions": "Promotions"
     },
     "en": {
         "title": "VestiCore - Digital Finance & Rewards",
@@ -898,18 +825,7 @@ LANG = {
         "recent_transactions": "Recent Transactions",
         "earnings_history": "Earnings History",
         "news": "News",
-        "promotions": "Promotions",
-        "kyc_title": "KYC Verification",
-        "kyc_pending": "Pending verification",
-        "kyc_verified": "✅ Verified",
-        "kyc_rejected": "❌ Rejected",
-        "kyc_unverified": "Unverified",
-        "kyc_submit": "Submit for verification",
-        "tickets_title": "My Tickets",
-        "ticket_new": "New ticket",
-        "ticket_open": "Open",
-        "ticket_closed": "Closed",
-        "ticket_waiting": "Waiting"
+        "promotions": "Promotions"
     },
     "es": {
         "title": "VestiCore - Finanzas Digitales & Rewards",
@@ -1001,18 +917,7 @@ LANG = {
         "recent_transactions": "Transacciones Recientes",
         "earnings_history": "Historial de Ganancias",
         "news": "Noticias",
-        "promotions": "Promociones",
-        "kyc_title": "Verificación KYC",
-        "kyc_pending": "Pendiente de verificación",
-        "kyc_verified": "✅ Verificado",
-        "kyc_rejected": "❌ Rechazado",
-        "kyc_unverified": "No verificado",
-        "kyc_submit": "Enviar para verificación",
-        "tickets_title": "Mis tickets",
-        "ticket_new": "Nuevo ticket",
-        "ticket_open": "Abierto",
-        "ticket_closed": "Cerrado",
-        "ticket_waiting": "En espera"
+        "promotions": "Promociones"
     }
 }
 
@@ -1033,11 +938,9 @@ class User(Base):
     referral_qualified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
     user_id_display = Column(String, unique=True, nullable=True)
-    # KYC
-    kyc_status = Column(String, default="unverified")  # unverified, pending, verified, rejected
+    kyc_status = Column(String, default="unverified")
     kyc_document = Column(String, nullable=True)
     kyc_submitted_at = Column(DateTime, nullable=True)
-    # Profile
     full_name = Column(String, nullable=True)
     email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -1109,17 +1012,13 @@ class Notification(Base):
     read = Column(Boolean, default=False)
     date = Column(DateTime, default=datetime.now)
 
-# =====================
-# TICKET SYSTEM
-# =====================
-
 class Ticket(Base):
     __tablename__ = "tickets"
     id = Column(Integer, primary_key=True)
     username = Column(String)
     subject = Column(String)
     message = Column(Text)
-    status = Column(String, default="open")  # open, waiting, closed
+    status = Column(String, default="open")
     admin_response = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now)
@@ -1278,12 +1177,12 @@ def set_lang(lang: str, request: Request):
 
 def get_modal_html():
     return f"""
-    <div id="customModal" class="modal">
-        <div class="modal-content">
+    <div id="customModal" class="simple-modal">
+        <div class="simple-modal-content">
             <span class="icon-big" id="modalIcon">ℹ️</span>
             <h3 id="modalTitle">Information</h3>
             <p id="modalMessage">Message</p>
-            <button onclick="closeModal()" class="btn">Fermer</button>
+            <button onclick="closeModal()" class="btn" style="width:auto;display:inline-block;padding:10px 30px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:8px;color:#0a0e27;font-weight:700;cursor:pointer;">Fermer</button>
         </div>
     </div>
     {MODAL_JS}
@@ -1506,7 +1405,7 @@ def login(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD - AVEC PLAN AK PROFIL
+# DASHBOARD - SAN PLAN ANBA
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -1515,7 +1414,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     
     lang = get_lang(request)
     user = current_user(request, db)
-    plans = db.query(Plan).all()
     active_plan_info = get_user_active_plan(db, user.id)
     
     referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
@@ -1535,47 +1433,24 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     
     active_plan_name = active_plan_info["plan"].name if active_plan_info else "Aucun"
     
-    # KYC status
-    kyc_status_text = {
-        "unverified": LANG[lang].get('kyc_unverified', 'Unverified'),
-        "pending": LANG[lang].get('kyc_pending', 'Pending verification'),
-        "verified": LANG[lang].get('kyc_verified', '✅ Verified'),
-        "rejected": LANG[lang].get('kyc_rejected', '❌ Rejected')
-    }.get(user.kyc_status, 'Unverified')
-    
-    kyc_class = {
-        "unverified": "unverified",
-        "pending": "pending",
-        "verified": "verified",
-        "rejected": "rejected"
-    }.get(user.kyc_status, "unverified")
-    
-    # Profile info
-    profile_items = f"""
-    <div class="profile-item"><div class="label">Nom d'utilisateur</div><div class="value">{user.username}</div></div>
-    <div class="profile-item"><div class="label">ID</div><div class="value gold">{user.user_id_display or 'VC000001'}</div></div>
-    <div class="profile-item"><div class="label">Plan actif</div><div class="value">{active_plan_name}</div></div>
-    <div class="profile-item"><div class="label">Solde</div><div class="value gold">{user.balance:.2f} USDT</div></div>
-    <div class="profile-item"><div class="label">Bonus de parrainage</div><div class="value">{total_bonus:.2f} USDT</div></div>
-    <div class="profile-item"><div class="label">Membres depuis</div><div class="value">{user.created_at.strftime('%d/%m/%Y')}</div></div>
-    """
-    
-    # Plans
-    plan_html = ""
+    # Plans for modal
+    plans = db.query(Plan).all()
+    plan_modal_html = ""
     for plan in plans:
         total_return = plan.price * (plan.daily_return / 100) * plan.duration
-        plan_html += f"""
-        <div class="plan-card">
+        daily_usdt = plan.price * (plan.daily_return / 100)
+        plan_modal_html += f"""
+        <div class="modal-plan-card">
             <div>
                 <h4>{plan.name}</h4>
                 <p>{plan.description}</p>
                 <p>⏳ {plan.duration} jours • <span class="return">📈 {plan.daily_return}% / jour</span></p>
-                <p style="color:rgba(255,255,255,0.2);font-size:10px;">💎 Total: +{total_return:.2f} USDT</p>
+                <p style="color:rgba(255,255,255,0.3);font-size:10px;">💵 {daily_usdt:.2f} USDT/jour • 💎 Total: {total_return:.2f} USDT</p>
             </div>
             <div class="plan-price">
                 {plan.price} <small>USDT</small>
                 <br>
-                <button onclick="acheterPlan({plan.id})" class="btn-sm">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
+                <button onclick="acheterPlan({plan.id}); closePlansModal();" class="btn-sm">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
             </div>
         </div>
         """
@@ -1604,6 +1479,30 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 <span class="right pending">⏳</span>
             </div>
             """
+    
+    # Profile
+    profile_items = f"""
+    <div class="profile-item"><div class="label">Nom d'utilisateur</div><div class="value">{user.username}</div></div>
+    <div class="profile-item"><div class="label">ID</div><div class="value gold">{user.user_id_display or 'VC000001'}</div></div>
+    <div class="profile-item"><div class="label">Plan actif</div><div class="value">{active_plan_name}</div></div>
+    <div class="profile-item"><div class="label">Solde</div><div class="value gold">{user.balance:.2f} USDT</div></div>
+    <div class="profile-item"><div class="label">Bonus de parrainage</div><div class="value">{total_bonus:.2f} USDT</div></div>
+    <div class="profile-item"><div class="label">Membres depuis</div><div class="value">{user.created_at.strftime('%d/%m/%Y')}</div></div>
+    """
+    
+    kyc_status_text = {
+        "unverified": "Non vérifié",
+        "pending": "En attente de vérification",
+        "verified": "✅ Vérifié",
+        "rejected": "❌ Rejeté"
+    }.get(user.kyc_status, "Non vérifié")
+    
+    kyc_class = {
+        "unverified": "unverified",
+        "pending": "pending",
+        "verified": "verified",
+        "rejected": "rejected"
+    }.get(user.kyc_status, "unverified")
     
     admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.08);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
     
@@ -1635,10 +1534,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                         </div>
                         <span style="color:rgba(255,255,255,0.2);font-size:12px;">▼</span>
                     </div>
-                    <!-- Dropdown -->
                     <div id="userDropdown" class="dropdown">
-                        <a href="#" onclick="showProfile(); toggleDropdown(); return false;"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
-                        <a href="#" onclick="showPlans(); toggleDropdown(); return false;"><span class="icon">📊</span> {LANG[lang].get('dashboard_plans', 'Plans')}</a>
+                        <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); toggleDropdown(); return false;"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
+                        <a href="#" onclick="openPlansModal(); toggleDropdown(); return false;"><span class="icon">📊</span> {LANG[lang].get('dashboard_plans', 'Plans')}</a>
                         <a href="#"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
                         <a href="#"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
                         <div class="divider"></div>
@@ -1650,10 +1548,10 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <!-- NAV -->
             <div class="nav">
                 <a href="/dashboard" class="active">🏠 {LANG[lang].get('home', 'Home')}</a>
-                <a href="#" onclick="showPlans(); return false;">💼 {LANG[lang].get('investment', 'Investment')}</a>
+                <a href="#" onclick="openPlansModal(); return false;">💼 {LANG[lang].get('investment', 'Investment')}</a>
                 <a href="/deposit-page">💳 {LANG[lang].get('wallet', 'Wallet')}</a>
                 <a href="/referral">👥 {LANG[lang].get('referral', 'Referral')}</a>
-                <a href="#" onclick="showProfile(); return false;">👤 {LANG[lang].get('my_profile', 'Profile')}</a>
+                <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); return false;">👤 {LANG[lang].get('my_profile', 'Profile')}</a>
                 <a href="#">📚 {LANG[lang].get('academy', 'Academy')}</a>
                 <a href="#">🛠 {LANG[lang].get('tools', 'Tools')}</a>
             </div>
@@ -1764,14 +1662,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 </div>
                 <div class="promo-item">
                     <div class="title">💰 Plan VIP Pro</div>
-                    <div class="desc">Investissez 2000 USDT et gagnez 1.50% par jour pendant 120 jours</div>
+                    <div class="desc">Investissez 2000 USDT et gagnez 1.90% par jour pendant 120 jours</div>
                 </div>
-            </div>
-            
-            <!-- PLANS SECTION -->
-            <div id="plansSection" class="section">
-                <h4>💼 {LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
-                {plan_html}
             </div>
             
             <!-- PROFILE SECTION -->
@@ -1780,14 +1672,12 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 <div class="profile-info">
                     {profile_items}
                 </div>
-                
-                <!-- KYC -->
                 <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
-                    <h4 style="color:#ffffff;font-size:13px;">🪪 {LANG[lang].get('kyc_title', 'KYC Verification')}</h4>
-                    <div class="kyc-status {kyc_class}">
+                    <h4 style="color:#ffffff;font-size:13px;">🪪 KYC Verification</h4>
+                    <div class="kyc-status {kyc_class}" style="padding:10px;border-radius:8px;text-align:center;margin:8px 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
                         <strong>Status:</strong> {kyc_status_text}
                     </div>
-                    {f'<a href="#" onclick="showModal(\'Votre demande KYC a été soumise. Admin va vérifier.\', \'📋 KYC Soumis\', \'info\')" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">{LANG[lang].get("kyc_submit", "Submit for verification")}</a>' if user.kyc_status in ['unverified', 'rejected'] else ''}
+                    {f'<a href="#" onclick="showModal(\'Votre demande KYC a été soumise. Admin va vérifier.\', \'📋 KYC Soumis\', \'info\')" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">Soumettre pour vérification</a>' if user.kyc_status in ['unverified', 'rejected'] else ''}
                 </div>
             </div>
             
@@ -1808,6 +1698,15 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
                 {admin_link}
                 <span style="color:rgba(255,255,255,0.08);font-size:9px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</span>
+            </div>
+        </div>
+        
+        <!-- PLANS MODAL -->
+        <div id="plansModal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closePlansModal()">✕</button>
+                <h3>💼 {LANG[lang].get('dashboard_plans', 'Investment Plans')}</h3>
+                {plan_modal_html}
             </div>
         </div>
         
@@ -2156,14 +2055,14 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     for t in tickets[:5]:
         status_class = "open" if t.status == "open" else "closed" if t.status == "closed" else "waiting"
         tickets_html += f"""
-        <div class="ticket-item">
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
             <div>
-                <span class="ticket-title">{t.subject}</span>
-                <span class="ticket-status {status_class}">{t.status.upper()}</span>
+                <span style="color:#ffffff;font-size:13px;font-weight:600;">{t.subject}</span>
+                <span style="font-size:10px;font-weight:600;padding:2px 10px;border-radius:10px;display:inline-block;background:rgba(74,222,128,0.12);color:#4ade80;">{t.status.upper()}</span>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:4px;">
                 <span style="color:rgba(255,255,255,0.3);font-size:10px;">{t.username}</span>
-                <span class="ticket-date">{t.created_at.strftime('%d/%m %H:%M')}</span>
+                <span style="color:rgba(255,255,255,0.2);font-size:10px;">{t.created_at.strftime('%d/%m %H:%M')}</span>
             </div>
         </div>
         """
