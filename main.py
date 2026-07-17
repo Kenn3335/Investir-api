@@ -1,25 +1,57 @@
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from contextlib import asynccontextmanager
 import os
+import uuid
 from starlette.middleware.sessions import SessionMiddleware
 
 # =====================
-# KONFIGIRASYON APP
+# KONFIGIRASYON APP AVEC LIFESPAN
 # =====================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # STARTUP - Kreye plan si pa genyen
+    db = next(get_db())
+    total = db.query(Plan).count()
+    if total == 0:
+        plans = [
+            Plan(name="Starter Basic", price=10, duration=30, daily_return=0.5, description="Plan Starter debaz - 30 jou"),
+            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.6, description="Plan Starter Plus - 30 jou"),
+            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.7, description="Plan Standard debaz - 60 jou"),
+            Plan(name="Standard Plus", price=100, duration=60, daily_return=0.8, description="Plan Standard Plus - 60 jou"),
+            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.0, description="Plan Premium debaz - 90 jou"),
+            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.2, description="Plan Premium Plus - 90 jou"),
+            Plan(name="Premium Pro", price=500, duration=90, daily_return=1.5, description="Plan Premium Pro - 90 jou"),
+            Plan(name="VIP Basic", price=750, duration=120, daily_return=1.8, description="Plan VIP debaz - 120 jou"),
+            Plan(name="VIP Plus", price=1000, duration=120, daily_return=2.0, description="Plan VIP Plus - 120 jou"),
+            Plan(name="VIP Pro", price=2000, duration=120, daily_return=2.5, description="Plan VIP Pro - 120 jou")
+        ]
+        db.add_all(plans)
+        db.commit()
+    db.close()
+    yield
+    # SHUTDOWN
 
 app = FastAPI(
     title="VestiCore",
     description="Platfòm VestiCore",
-    version="2.0"
+    version="2.0",
+    lifespan=lifespan
 )
 
+# =====================
+# SESSION MIDDLEWARE
+# =====================
+
+SECRET_KEY = os.getenv("SECRET_KEY", "vesticore-secret-key-change-later")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "vesticore-secret-key-change-later")
+    secret_key=SECRET_KEY
 )
 
 # =====================
@@ -54,225 +86,12 @@ USDT_TRON_ADDRESS = "TUNtoPGB3sBwbbX81t6ca4fK2exJNFLRiu"
 USDT_CONTRACT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 DEPOSIT_FEE = int(os.getenv("DEPOSIT_FEE", "3"))
 WITHDRAW_FEE = int(os.getenv("WITHDRAW_FEE", "5"))
-ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
+ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY")
+REFERRAL_BONUS = 2  # 2% bonus
+REFERRAL_MIN_INVESTORS = 10  # Fok 10 moun envesti
 
 # =====================
-# TEXTE POU CHAK LANG
-# =====================
-
-LANG = {
-    "fr": {
-        "title": "VestiCore - Plateforme d'investissement",
-        "logo_sub": "INVEST • CROISSANCE • PROSPÉRITÉ",
-        "home_title": "Plateforme d'investissement numérique",
-        "home_desc": "Faites fructifier votre argent",
-        "home_btn_register": "Créer un compte",
-        "home_btn_login": "Se connecter",
-        "register_title": "Créer votre compte",
-        "register_sub": "Commencez votre voyage d'investissement",
-        "register_username": "Nom d'utilisateur",
-        "register_password": "Mot de passe",
-        "register_ref": "Code de parrainage (optionnel)",
-        "register_btn": "Créer un compte",
-        "register_link": "Vous avez déjà un compte?",
-        "register_link_btn": "Se connecter",
-        "login_title": "Bienvenue de retour",
-        "login_sub": "Connectez-vous pour accéder à votre espace",
-        "login_btn": "Se connecter",
-        "login_link": "Pas de compte?",
-        "login_link_btn": "Créer un compte",
-        "dashboard_balance": "SOLDE",
-        "dashboard_withdraw": "Faire un retrait",
-        "dashboard_withdraw_placeholder": "Montant USDT",
-        "dashboard_withdraw_wallet": "Votre adresse TRC20",
-        "dashboard_withdraw_btn": "Envoyer la demande",
-        "dashboard_withdraw_warning": "⚠️ Les retraits sont soumis à l'approbation de l'administrateur",
-        "dashboard_plans": "Plans VestiCore",
-        "dashboard_buy": "Acheter ce plan",
-        "dashboard_no_plan": "⚠️ Vous n'avez pas de plan actif. Achetez un plan pour commencer à faire des retraits.",
-        "dashboard_plan_active": "✅ Votre plan:",
-        "dashboard_plan_start": "📅 Début:",
-        "dashboard_plan_expire": "⏳ Expire:",
-        "dashboard_plan_min": "💰 Retrait min:",
-        "dashboard_plan_max": "📈 Retrait max:",
-        "deposit_title": "💰 Dépôt USDT",
-        "deposit_warning": "⚠️ Envoyer UNIQUEMENT USDT sur TRC20 (Tron)",
-        "deposit_network": "🌐 RÉSEAU",
-        "deposit_address": "🏦 ADRESSE PORTEFEUILLE",
-        "deposit_contract": "📄 ADRESSE CONTRAT",
-        "deposit_fee": "💸 FRAIS",
-        "deposit_time": "⏱️ TEMPS",
-        "deposit_verify": "Vérifier votre dépôt",
-        "deposit_amount": "Montant USDT",
-        "deposit_txid": "ID de transaction (txid)",
-        "deposit_btn": "Envoyer le dépôt",
-        "deposit_back": "← Retour au Dashboard",
-        "referral_title": "👥 Parrainage",
-        "referral_code": "VOTRE CODE DE PARRAINAGE",
-        "referral_link": "LIEN D'INVITATION",
-        "referral_count": "Personnes que vous avez invitées:",
-        "referral_back": "← Retour au Dashboard",
-        "logout": "Déconnexion",
-        "admin_title": "🛡️ Administration",
-        "admin_sub": "Tableau de bord administrateur",
-        "admin_users": "UTILISATEURS",
-        "admin_deposits": "DÉPÔTS",
-        "admin_withdraws": "RETRAITS",
-        "admin_pending_deposits": "⏳ Dépôts en attente",
-        "admin_pending_withdraws": "⏳ Retraits en attente",
-        "admin_no_pending": "Aucune demande en attente",
-        "admin_approve": "Approuver",
-        "admin_reject": "Rejeter",
-        "admin_recent": "Activités récentes",
-        "admin_back": "← Retour",
-        "footer": "© 2026 VestiCore. Tous droits réservés."
-    },
-    "en": {
-        "title": "VestiCore - Investment Platform",
-        "logo_sub": "INVEST • GROW • PROSPER",
-        "home_title": "Digital Investment Platform",
-        "home_desc": "Make your money grow",
-        "home_btn_register": "Create account",
-        "home_btn_login": "Login",
-        "register_title": "Create your account",
-        "register_sub": "Start your investment journey",
-        "register_username": "Username",
-        "register_password": "Password",
-        "register_ref": "Referral code (optional)",
-        "register_btn": "Create account",
-        "register_link": "Already have an account?",
-        "register_link_btn": "Login",
-        "login_title": "Welcome back",
-        "login_sub": "Login to access your space",
-        "login_btn": "Login",
-        "login_link": "No account?",
-        "login_link_btn": "Create account",
-        "dashboard_balance": "BALANCE",
-        "dashboard_withdraw": "Make a Withdrawal",
-        "dashboard_withdraw_placeholder": "USDT Amount",
-        "dashboard_withdraw_wallet": "Your TRC20 address",
-        "dashboard_withdraw_btn": "Submit request",
-        "dashboard_withdraw_warning": "⚠️ Withdrawals are subject to admin approval",
-        "dashboard_plans": "VestiCore Plans",
-        "dashboard_buy": "Buy this plan",
-        "dashboard_no_plan": "⚠️ You don't have an active plan. Buy a plan to start withdrawing.",
-        "dashboard_plan_active": "✅ Your plan:",
-        "dashboard_plan_start": "📅 Start:",
-        "dashboard_plan_expire": "⏳ Expires:",
-        "dashboard_plan_min": "💰 Min withdraw:",
-        "dashboard_plan_max": "📈 Max withdraw:",
-        "deposit_title": "💰 USDT Deposit",
-        "deposit_warning": "⚠️ Send ONLY USDT on TRC20 (Tron)",
-        "deposit_network": "🌐 NETWORK",
-        "deposit_address": "🏦 WALLET ADDRESS",
-        "deposit_contract": "📄 CONTRACT ADDRESS",
-        "deposit_fee": "💸 FEE",
-        "deposit_time": "⏱️ TIME",
-        "deposit_verify": "Verify your deposit",
-        "deposit_amount": "USDT Amount",
-        "deposit_txid": "Transaction ID (txid)",
-        "deposit_btn": "Submit deposit",
-        "deposit_back": "← Back to Dashboard",
-        "referral_title": "👥 Referral",
-        "referral_code": "YOUR REFERRAL CODE",
-        "referral_link": "INVITATION LINK",
-        "referral_count": "People you invited:",
-        "referral_back": "← Back to Dashboard",
-        "logout": "Logout",
-        "admin_title": "🛡️ Admin",
-        "admin_sub": "Admin Dashboard",
-        "admin_users": "USERS",
-        "admin_deposits": "DEPOSITS",
-        "admin_withdraws": "WITHDRAWALS",
-        "admin_pending_deposits": "⏳ Pending deposits",
-        "admin_pending_withdraws": "⏳ Pending withdrawals",
-        "admin_no_pending": "No pending requests",
-        "admin_approve": "Approve",
-        "admin_reject": "Reject",
-        "admin_recent": "Recent activities",
-        "admin_back": "← Back",
-        "footer": "© 2026 VestiCore. All rights reserved."
-    },
-    "es": {
-        "title": "VestiCore - Plataforma de Inversión",
-        "logo_sub": "INVIERTE • CRECE • PROSPERA",
-        "home_title": "Plataforma de Inversión Digital",
-        "home_desc": "Haz crecer tu dinero",
-        "home_btn_register": "Crear cuenta",
-        "home_btn_login": "Iniciar sesión",
-        "register_title": "Crea tu cuenta",
-        "register_sub": "Comienza tu viaje de inversión",
-        "register_username": "Nombre de usuario",
-        "register_password": "Contraseña",
-        "register_ref": "Código de referencia (opcional)",
-        "register_btn": "Crear cuenta",
-        "register_link": "¿Ya tienes una cuenta?",
-        "register_link_btn": "Iniciar sesión",
-        "login_title": "Bienvenido de nuevo",
-        "login_sub": "Inicia sesión para acceder a tu espacio",
-        "login_btn": "Iniciar sesión",
-        "login_link": "¿No tienes cuenta?",
-        "login_link_btn": "Crear cuenta",
-        "dashboard_balance": "SALDO",
-        "dashboard_withdraw": "Hacer un retiro",
-        "dashboard_withdraw_placeholder": "Monto USDT",
-        "dashboard_withdraw_wallet": "Tu dirección TRC20",
-        "dashboard_withdraw_btn": "Enviar solicitud",
-        "dashboard_withdraw_warning": "⚠️ Los retiros están sujetos a aprobación del administrador",
-        "dashboard_plans": "Planes VestiCore",
-        "dashboard_buy": "Comprar este plan",
-        "dashboard_no_plan": "⚠️ No tienes un plan activo. Compra un plan para comenzar a retirar.",
-        "dashboard_plan_active": "✅ Tu plan:",
-        "dashboard_plan_start": "📅 Inicio:",
-        "dashboard_plan_expire": "⏳ Expira:",
-        "dashboard_plan_min": "💰 Retiro mínimo:",
-        "dashboard_plan_max": "📈 Retiro máximo:",
-        "deposit_title": "💰 Depósito USDT",
-        "deposit_warning": "⚠️ Enviar SOLAMENTE USDT en TRC20 (Tron)",
-        "deposit_network": "🌐 RED",
-        "deposit_address": "🏦 DIRECCIÓN DE BILLETERA",
-        "deposit_contract": "📄 DIRECCIÓN DEL CONTRATO",
-        "deposit_fee": "💸 COMISIÓN",
-        "deposit_time": "⏱️ TIEMPO",
-        "deposit_verify": "Verifica tu depósito",
-        "deposit_amount": "Monto USDT",
-        "deposit_txid": "ID de transacción (txid)",
-        "deposit_btn": "Enviar depósito",
-        "deposit_back": "← Volver al Dashboard",
-        "referral_title": "👥 Referidos",
-        "referral_code": "TU CÓDIGO DE REFERIDO",
-        "referral_link": "ENLACE DE INVITACIÓN",
-        "referral_count": "Personas que invitaste:",
-        "referral_back": "← Volver al Dashboard",
-        "logout": "Cerrar sesión",
-        "admin_title": "🛡️ Administración",
-        "admin_sub": "Panel de administración",
-        "admin_users": "USUARIOS",
-        "admin_deposits": "DEPÓSITOS",
-        "admin_withdraws": "RETIROS",
-        "admin_pending_deposits": "⏳ Depósitos pendientes",
-        "admin_pending_withdraws": "⏳ Retiros pendientes",
-        "admin_no_pending": "No hay solicitudes pendientes",
-        "admin_approve": "Aprobar",
-        "admin_reject": "Rechazar",
-        "admin_recent": "Actividades recientes",
-        "admin_back": "← Volver",
-        "footer": "© 2026 VestiCore. Todos los derechos reservados."
-    }
-}
-
-# =====================
-# FONKSYON POU JWENN LANG
-# =====================
-
-def get_lang(request: Request):
-    lang = request.cookies.get("lang", "fr")
-    if lang not in LANG:
-        lang = "fr"
-    return lang
-
-# =====================
-# STIL CSS
+# STIL CSS AVEC LOGO DIAMANT
 # =====================
 
 STYLE = """
@@ -299,18 +118,37 @@ STYLE = """
         box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
     }
     .logo { text-align: center; margin-bottom: 25px; }
-    .logo-icon {
-        width: 70px; height: 70px;
+    .logo-diamond {
+        width: 80px;
+        height: 80px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
-        border-radius: 18px;
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        margin-bottom: 15px;
+        box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        position: relative;
+    }
+    .logo-diamond::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        background: linear-gradient(135deg, #ffd700, #f0a500);
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        z-index: -1;
+        opacity: 0.3;
+        filter: blur(10px);
+    }
+    .logo-diamond span {
         font-size: 36px;
         font-weight: 900;
         color: #0a0e27;
-        box-shadow: 0 10px 30px rgba(255,215,0,0.3);
-        margin-bottom: 12px;
+        text-shadow: 0 2px 10px rgba(255,215,0,0.3);
+        margin-top: 2px;
     }
     .logo h1 { color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
     .logo h1 span { color: #ffd700; }
@@ -405,14 +243,249 @@ STYLE = """
         font-size: 11px;
         letter-spacing: 1px;
     }
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+    }
+    .badge-gold { background: rgba(255,215,0,0.15); color: #ffd700; }
+    .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .badge-red { background: rgba(255,107,107,0.15); color: #ff6b6b; }
     @media (max-width: 480px) {
         .container { padding: 25px 18px; }
         .logo h1 { font-size: 24px; }
-        .logo-icon { width: 55px; height: 55px; font-size: 28px; }
+        .logo-diamond { width: 60px; height: 60px; }
+        .logo-diamond span { font-size: 28px; }
         .lang-selector a { font-size: 10px; padding: 3px 8px; }
     }
 </style>
 """
+
+# =====================
+# TEXTE POU CHAK LANG (VERSIO KOURT)
+# =====================
+
+LANG = {
+    "fr": {
+        "title": "VestiCore - Plateforme d'investissement",
+        "logo_sub": "INVEST • CROISSANCE • PROSPÉRITÉ",
+        "home_title": "Plateforme d'investissement numérique",
+        "home_desc": "Faites fructifier votre argent",
+        "home_btn_register": "Créer un compte",
+        "home_btn_login": "Se connecter",
+        "register_title": "Créer votre compte",
+        "register_sub": "Commencez votre voyage d'investissement",
+        "register_username": "Nom d'utilisateur",
+        "register_password": "Mot de passe",
+        "register_ref": "Code de parrainage (optionnel)",
+        "register_btn": "Créer un compte",
+        "register_link": "Vous avez déjà un compte?",
+        "register_link_btn": "Se connecter",
+        "login_title": "Bienvenue de retour",
+        "login_sub": "Connectez-vous pour accéder à votre espace",
+        "login_btn": "Se connecter",
+        "login_link": "Pas de compte?",
+        "login_link_btn": "Créer un compte",
+        "dashboard_balance": "SOLDE",
+        "dashboard_withdraw": "Faire un retrait",
+        "dashboard_withdraw_placeholder": "Montant USDT",
+        "dashboard_withdraw_wallet": "Votre adresse TRC20",
+        "dashboard_withdraw_btn": "Envoyer la demande",
+        "dashboard_withdraw_warning": "⚠️ Les retraits sont soumis à l'approbation de l'administrateur",
+        "dashboard_plans": "Plans VestiCore",
+        "dashboard_buy": "Acheter ce plan",
+        "dashboard_no_plan": "⚠️ Vous n'avez pas de plan actif. Achetez un plan pour commencer à faire des retraits.",
+        "dashboard_plan_active": "✅ Votre plan:",
+        "dashboard_plan_start": "📅 Début:",
+        "dashboard_plan_expire": "⏳ Expire:",
+        "dashboard_plan_min": "💰 Retrait min:",
+        "dashboard_plan_max": "📈 Retrait max:",
+        "deposit_title": "💰 Dépôt USDT",
+        "deposit_warning": "⚠️ Envoyer UNIQUEMENT USDT sur TRC20 (Tron)",
+        "deposit_network": "🌐 RÉSEAU",
+        "deposit_address": "🏦 ADRESSE PORTEFEUILLE",
+        "deposit_contract": "📄 ADRESSE CONTRAT",
+        "deposit_fee": "💸 FRAIS",
+        "deposit_time": "⏱️ TEMPS",
+        "deposit_verify": "Vérifier votre dépôt",
+        "deposit_amount": "Montant USDT",
+        "deposit_txid": "ID de transaction (txid)",
+        "deposit_btn": "Envoyer le dépôt",
+        "deposit_back": "← Retour au Dashboard",
+        "referral_title": "👥 Parrainage",
+        "referral_code": "VOTRE CODE DE PARRAINAGE",
+        "referral_link": "LIEN D'INVITATION",
+        "referral_count": "Personnes que vous avez invitées:",
+        "referral_investors": "Investisseurs qualifiés:",
+        "referral_needed": "Encore {needed} investisseurs pour débloquer 2%",
+        "referral_bonus": "Bonus reçu:",
+        "referral_back": "← Retour au Dashboard",
+        "logout": "Déconnexion",
+        "admin_title": "🛡️ Administration",
+        "admin_sub": "Tableau de bord administrateur",
+        "admin_users": "UTILISATEURS",
+        "admin_deposits": "DÉPÔTS",
+        "admin_withdraws": "RETRAITS",
+        "admin_pending_deposits": "⏳ Dépôts en attente",
+        "admin_pending_withdraws": "⏳ Retraits en attente",
+        "admin_no_pending": "Aucune demande en attente",
+        "admin_approve": "Approuver",
+        "admin_reject": "Rejeter",
+        "admin_recent": "Activités récentes",
+        "admin_back": "← Retour",
+        "footer": "© 2026 VestiCore. Tous droits réservés."
+    },
+    "en": {
+        "title": "VestiCore - Investment Platform",
+        "logo_sub": "INVEST • GROW • PROSPER",
+        "home_title": "Digital Investment Platform",
+        "home_desc": "Make your money grow",
+        "home_btn_register": "Create account",
+        "home_btn_login": "Login",
+        "register_title": "Create your account",
+        "register_sub": "Start your investment journey",
+        "register_username": "Username",
+        "register_password": "Password",
+        "register_ref": "Referral code (optional)",
+        "register_btn": "Create account",
+        "register_link": "Already have an account?",
+        "register_link_btn": "Login",
+        "login_title": "Welcome back",
+        "login_sub": "Login to access your space",
+        "login_btn": "Login",
+        "login_link": "No account?",
+        "login_link_btn": "Create account",
+        "dashboard_balance": "BALANCE",
+        "dashboard_withdraw": "Make a Withdrawal",
+        "dashboard_withdraw_placeholder": "USDT Amount",
+        "dashboard_withdraw_wallet": "Your TRC20 address",
+        "dashboard_withdraw_btn": "Submit request",
+        "dashboard_withdraw_warning": "⚠️ Withdrawals are subject to admin approval",
+        "dashboard_plans": "VestiCore Plans",
+        "dashboard_buy": "Buy this plan",
+        "dashboard_no_plan": "⚠️ You don't have an active plan. Buy a plan to start withdrawing.",
+        "dashboard_plan_active": "✅ Your plan:",
+        "dashboard_plan_start": "📅 Start:",
+        "dashboard_plan_expire": "⏳ Expires:",
+        "dashboard_plan_min": "💰 Min withdraw:",
+        "dashboard_plan_max": "📈 Max withdraw:",
+        "deposit_title": "💰 USDT Deposit",
+        "deposit_warning": "⚠️ Send ONLY USDT on TRC20 (Tron)",
+        "deposit_network": "🌐 NETWORK",
+        "deposit_address": "🏦 WALLET ADDRESS",
+        "deposit_contract": "📄 CONTRACT ADDRESS",
+        "deposit_fee": "💸 FEE",
+        "deposit_time": "⏱️ TIME",
+        "deposit_verify": "Verify your deposit",
+        "deposit_amount": "USDT Amount",
+        "deposit_txid": "Transaction ID (txid)",
+        "deposit_btn": "Submit deposit",
+        "deposit_back": "← Back to Dashboard",
+        "referral_title": "👥 Referral",
+        "referral_code": "YOUR REFERRAL CODE",
+        "referral_link": "INVITATION LINK",
+        "referral_count": "People you invited:",
+        "referral_investors": "Qualified investors:",
+        "referral_needed": "{needed} more investors needed for 2% bonus",
+        "referral_bonus": "Bonus received:",
+        "referral_back": "← Back to Dashboard",
+        "logout": "Logout",
+        "admin_title": "🛡️ Admin",
+        "admin_sub": "Admin Dashboard",
+        "admin_users": "USERS",
+        "admin_deposits": "DEPOSITS",
+        "admin_withdraws": "WITHDRAWALS",
+        "admin_pending_deposits": "⏳ Pending deposits",
+        "admin_pending_withdraws": "⏳ Pending withdrawals",
+        "admin_no_pending": "No pending requests",
+        "admin_approve": "Approve",
+        "admin_reject": "Reject",
+        "admin_recent": "Recent activities",
+        "admin_back": "← Back",
+        "footer": "© 2026 VestiCore. All rights reserved."
+    },
+    "es": {
+        "title": "VestiCore - Plataforma de Inversión",
+        "logo_sub": "INVIERTE • CRECE • PROSPERA",
+        "home_title": "Plataforma de Inversión Digital",
+        "home_desc": "Haz crecer tu dinero",
+        "home_btn_register": "Crear cuenta",
+        "home_btn_login": "Iniciar sesión",
+        "register_title": "Crea tu cuenta",
+        "register_sub": "Comienza tu viaje de inversión",
+        "register_username": "Nombre de usuario",
+        "register_password": "Contraseña",
+        "register_ref": "Código de referencia (opcional)",
+        "register_btn": "Crear cuenta",
+        "register_link": "¿Ya tienes una cuenta?",
+        "register_link_btn": "Iniciar sesión",
+        "login_title": "Bienvenido de nuevo",
+        "login_sub": "Inicia sesión para acceder a tu espacio",
+        "login_btn": "Iniciar sesión",
+        "login_link": "¿No tienes cuenta?",
+        "login_link_btn": "Crear cuenta",
+        "dashboard_balance": "SALDO",
+        "dashboard_withdraw": "Hacer un retiro",
+        "dashboard_withdraw_placeholder": "Monto USDT",
+        "dashboard_withdraw_wallet": "Tu dirección TRC20",
+        "dashboard_withdraw_btn": "Enviar solicitud",
+        "dashboard_withdraw_warning": "⚠️ Los retiros están sujetos a aprobación del administrador",
+        "dashboard_plans": "Planes VestiCore",
+        "dashboard_buy": "Comprar este plan",
+        "dashboard_no_plan": "⚠️ No tienes un plan activo. Compra un plan para comenzar a retirar.",
+        "dashboard_plan_active": "✅ Tu plan:",
+        "dashboard_plan_start": "📅 Inicio:",
+        "dashboard_plan_expire": "⏳ Expira:",
+        "dashboard_plan_min": "💰 Retiro mínimo:",
+        "dashboard_plan_max": "📈 Retiro máximo:",
+        "deposit_title": "💰 Depósito USDT",
+        "deposit_warning": "⚠️ Enviar SOLAMENTE USDT en TRC20 (Tron)",
+        "deposit_network": "🌐 RED",
+        "deposit_address": "🏦 DIRECCIÓN DE BILLETERA",
+        "deposit_contract": "📄 DIRECCIÓN DEL CONTRATO",
+        "deposit_fee": "💸 COMISIÓN",
+        "deposit_time": "⏱️ TIEMPO",
+        "deposit_verify": "Verifica tu depósito",
+        "deposit_amount": "Monto USDT",
+        "deposit_txid": "ID de transacción (txid)",
+        "deposit_btn": "Enviar depósito",
+        "deposit_back": "← Volver al Dashboard",
+        "referral_title": "👥 Referidos",
+        "referral_code": "TU CÓDIGO DE REFERIDO",
+        "referral_link": "ENLACE DE INVITACIÓN",
+        "referral_count": "Personas que invitaste:",
+        "referral_investors": "Inversores calificados:",
+        "referral_needed": "Se necesitan {needed} inversores más para 2%",
+        "referral_bonus": "Bonificación recibida:",
+        "referral_back": "← Volver al Dashboard",
+        "logout": "Cerrar sesión",
+        "admin_title": "🛡️ Administración",
+        "admin_sub": "Panel de administración",
+        "admin_users": "USUARIOS",
+        "admin_deposits": "DEPÓSITOS",
+        "admin_withdraws": "RETIROS",
+        "admin_pending_deposits": "⏳ Depósitos pendientes",
+        "admin_pending_withdraws": "⏳ Retiros pendientes",
+        "admin_no_pending": "No hay solicitudes pendientes",
+        "admin_approve": "Aprobar",
+        "admin_reject": "Rechazar",
+        "admin_recent": "Actividades recientes",
+        "admin_back": "← Volver",
+        "footer": "© 2026 VestiCore. Todos los derechos reservados."
+    }
+}
+
+# =====================
+# FONKSYON POU JWENN LANG
+# =====================
+
+def get_lang(request: Request):
+    lang = request.cookies.get("lang", "fr")
+    if lang not in LANG:
+        lang = "fr"
+    return lang
 
 # =====================
 # DATABASE MODELS
@@ -427,6 +500,8 @@ class User(Base):
     is_admin = Column(Integer, default=0)
     referral_code = Column(String, unique=True)
     referred_by = Column(String, nullable=True)
+    referral_bonus = Column(Float, default=0)
+    referral_qualified = Column(Boolean, default=False)  # True si 10 moun envesti
     created_at = Column(DateTime, default=datetime.now)
 
 class Plan(Base):
@@ -435,6 +510,7 @@ class Plan(Base):
     name = Column(String)
     price = Column(Float, default=0)
     duration = Column(Integer)
+    daily_return = Column(Float, default=0)
     description = Column(String)
 
 class UserPlan(Base):
@@ -445,13 +521,17 @@ class UserPlan(Base):
     amount = Column(Float)
     status = Column(String, default="active")
     start_date = Column(DateTime, default=datetime.now)
+    last_return_date = Column(DateTime, default=datetime.now)
+    total_returned = Column(Float, default=0)  # Total benefis peye
 
 class Deposit(Base):
     __tablename__ = "deposits"
     id = Column(Integer, primary_key=True)
     username = Column(String)
     amount = Column(Float)
-    txid = Column(String)
+    fee = Column(Float, default=0)
+    net_amount = Column(Float, default=0)
+    txid = Column(String, unique=True)
     status = Column(String, default="pending")
     date = Column(DateTime, default=datetime.now)
 
@@ -460,6 +540,8 @@ class Withdraw(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String)
     amount = Column(Float)
+    fee = Column(Float, default=0)
+    net_amount = Column(Float, default=0)
     wallet = Column(String)
     status = Column(String, default="pending")
     date = Column(DateTime, default=datetime.now)
@@ -469,6 +551,8 @@ class Referral(Base):
     id = Column(Integer, primary_key=True)
     referrer = Column(String)
     invited_user = Column(String)
+    has_invested = Column(Boolean, default=False)
+    bonus_amount = Column(Float, default=0)
     status = Column(String, default="pending")
 
 class ActivityLog(Base):
@@ -502,12 +586,12 @@ def verify_password(password, hashed):
     return pwd_context.verify(password, hashed)
 
 # =====================
-# REFERRAL CODE
+# REFERRAL CODE (AVEC UUID)
 # =====================
 
 def create_referral_code(username):
     code = username.upper()[:5]
-    return code + str(datetime.now().timestamp())[-5:]
+    return code + str(uuid.uuid4())[:5]
 
 # =====================
 # ACTIVITY LOG
@@ -563,6 +647,77 @@ def get_user_active_plan(db: Session, user_id: int):
     return {"user_plan": user_plan, "plan": plan, "expiration_date": expiration_date}
 
 # =====================
+# PAYE BENEFIS PLAN
+# =====================
+
+def process_plan_returns(db: Session):
+    """Peye benefis chak jou pou tout plan aktif"""
+    user_plans = db.query(UserPlan).filter(UserPlan.status == "active").all()
+    
+    for up in user_plans:
+        plan = db.query(Plan).filter(Plan.id == up.plan_id).first()
+        if not plan:
+            continue
+        
+        # Vérifier si plan ekspire
+        expiration_date = up.start_date + timedelta(days=plan.duration)
+        if datetime.now() > expiration_date:
+            up.status = "expired"
+            db.commit()
+            continue
+        
+        # Konbyen jou pase depi dènye peyeman
+        days_passed = (datetime.now() - up.last_return_date).days
+        
+        if days_passed >= 1:
+            # Benefis chak jou
+            daily_profit = up.amount * (plan.daily_return / 100)
+            
+            # Pa peye plis pase total plan an
+            max_return = up.amount * (plan.daily_return / 100) * plan.duration
+            remaining = max_return - up.total_returned
+            
+            if remaining <= 0:
+                up.status = "completed"
+                db.commit()
+                continue
+            
+            to_pay = min(daily_profit * days_passed, remaining)
+            
+            # Ajoute nan balans itilizatè a
+            user = db.query(User).filter(User.id == up.user_id).first()
+            if user:
+                user.balance += to_pay
+                up.total_returned += to_pay
+                up.last_return_date = datetime.now()
+                add_log(db, user.username, f"Benefis plan {plan.name}: {to_pay:.2f} USDT")
+    
+    db.commit()
+
+# =====================
+# CHECK REFERRAL QUALIFICATION
+# =====================
+
+def check_referral_qualification(db: Session, referrer_username: str):
+    """Vérifier si referrer a 10 investisseurs qualifiés"""
+    referrer = db.query(User).filter(User.username == referrer_username).first()
+    if not referrer:
+        return False
+    
+    # Konte moun envite ki te envesti
+    qualified = db.query(Referral).filter(
+        Referral.referrer == referrer_username,
+        Referral.has_invested == True
+    ).count()
+    
+    if qualified >= REFERRAL_MIN_INVESTORS and not referrer.referral_qualified:
+        referrer.referral_qualified = True
+        db.commit()
+        add_log(db, referrer_username, f"Referral qualified! {qualified} investisseurs")
+    
+    return referrer.referral_qualified
+
+# =====================
 # SELÈKSYON LANG
 # =====================
 
@@ -584,7 +739,9 @@ def get_logo_html(lang_key, request):
         <a href="/set-lang/es" class="{'active' if lang_key == 'es' else ''}">ES</a>
     </div>
     <div class="logo">
-        <div class="logo-icon">V</div>
+        <div class="logo-diamond">
+            <span>V</span>
+        </div>
         <h1>Vesti<span>Core</span></h1>
         <p>{LANG[lang_key].get('logo_sub', 'INVEST • GROW • PROSPER')}</p>
     </div>
@@ -627,8 +784,9 @@ def home(request: Request):
 # =====================
 
 @app.get("/register", response_class=HTMLResponse)
-def register_page(request: Request):
+def register_page(request: Request, ref: str = None):
     lang = get_lang(request)
+    ref_value = f'value="{ref}"' if ref else ''
     return f"""
     <html>
     <head>
@@ -652,7 +810,7 @@ def register_page(request: Request):
                 </div>
                 <div class="form-group">
                     <label>{LANG[lang].get('register_ref', 'Referral code (optional)')}</label>
-                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}">
+                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}" {ref_value}>
                 </div>
                 <button type="submit" class="btn">{LANG[lang].get('register_btn', 'Create account')}</button>
             </form>
@@ -680,9 +838,9 @@ def register(
     if user_exist:
         raise HTTPException(status_code=400, detail="Kont sa deja egziste")
     
-    # Tcheke si se kle admin
+    # Tcheke si se kle admin (si ADMIN_SECRET_KEY la egziste)
     is_admin = 0
-    if ref and ref.strip() == ADMIN_SECRET_KEY.strip():
+    if ADMIN_SECRET_KEY and ref and ref.strip() == ADMIN_SECRET_KEY.strip():
         is_admin = 1
         ref = None  # Pa mete kòm referral
     
@@ -695,11 +853,21 @@ def register(
         is_admin=is_admin
     )
     db.add(new_user)
+    db.flush()
     
     # Si se yon referral (pa admin)
     if ref:
-        referral = Referral(referrer=ref, invited_user=username)
-        db.add(referral)
+        # Chèche moun ki envite a
+        referrer = db.query(User).filter(User.referral_code == ref).first()
+        if referrer:
+            referral = Referral(
+                referrer=referrer.username,
+                invited_user=username,
+                has_invested=False,
+                bonus_amount=0,
+                status="pending"
+            )
+            db.add(referral)
     
     add_log(db, username, "Kreye nouvo kont")
     db.commit()
@@ -766,10 +934,18 @@ def login(
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
+    # Peye benefis plan yo anvan w montre dashboard la
+    process_plan_returns(db)
+    
     lang = get_lang(request)
     user = current_user(request, db)
     plans = db.query(Plan).all()
     active_plan_info = get_user_active_plan(db, user.id)
+    
+    # Referral enfòmasyon
+    referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
+    qualified_investors = sum(1 for r in referrals if r.has_invested)
+    total_bonus = sum(r.bonus_amount for r in referrals)
     
     plan_html = ""
     for plan in plans:
@@ -778,6 +954,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <h3 style="color:#ffd700;font-size:16px;">{plan.name}</h3>
             <p style="color:rgba(255,255,255,0.5);font-size:12px;">{plan.description}</p>
             <p style="color:rgba(255,255,255,0.3);font-size:12px;">⏳ {plan.duration} {LANG[lang].get('days', 'days') if lang == 'en' else 'jou' if lang == 'fr' else 'días'}</p>
+            <p style="color:rgba(255,255,255,0.4);font-size:12px;">📈 {plan.daily_return}% / jou</p>
             <p style="color:#ffffff;font-size:18px;font-weight:700;margin:6px 0;">{plan.price} USDT</p>
             <form method="post" action="/buy-plan">
                 <input type="hidden" name="plan_id" value="{plan.id}">
@@ -801,6 +978,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_start', '📅 Start:')} {active_plan_info['user_plan'].start_date.strftime('%d/%m/%Y')}</p>
             <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_expire', '⏳ Expires:')} {exp_date.strftime('%d/%m/%Y')}</p>
             <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_min', '💰 Min withdraw:')} {min_wd} USDT | {LANG[lang].get('dashboard_plan_max', '📈 Max withdraw:')} {max_wd} USDT</p>
+            <p style="color:rgba(255,255,255,0.5);font-size:12px;">📊 Retourné: {active_plan_info['user_plan'].total_returned:.2f} USDT</p>
         </div>
         """
     else:
@@ -831,7 +1009,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             </div>
             <div style="background:rgba(255,215,0,0.04);border-radius:14px;padding:18px;border:1px solid rgba(255,215,0,0.08);">
                 <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('dashboard_balance', 'BALANCE')}</p>
-                <p style="color:#ffffff;font-size:28px;font-weight:700;">{user.balance} <span style="color:#ffd700;font-size:16px;">USDT</span></p>
+                <p style="color:#ffffff;font-size:28px;font-weight:700;">{user.balance:.2f} <span style="color:#ffd700;font-size:16px;">USDT</span></p>
             </div>
             {plan_info_html}
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;">
@@ -911,6 +1089,10 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
     </html>
     """
 
+# =====================
+# DEPOSIT ACTION (AVEK VERIFIKASYON TXID UNIK + FEE)
+# =====================
+
 @app.post("/deposit")
 def deposit(
     request: Request,
@@ -921,9 +1103,26 @@ def deposit(
     user = current_user(request, db)
     if amount <= 0:
         raise HTTPException(status_code=400, detail="Montan pa valab")
-    deposit = Deposit(username=user.username, amount=amount, txid=txid, status="pending")
+    
+    # Verifye si TXID la deja itilize
+    existing = db.query(Deposit).filter(Deposit.txid == txid).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="ID tranzaksyon sa deja itilize")
+    
+    # Kalkile frè 3%
+    fee = amount * DEPOSIT_FEE / 100
+    net_amount = amount - fee
+    
+    deposit = Deposit(
+        username=user.username,
+        amount=amount,
+        fee=fee,
+        net_amount=net_amount,
+        txid=txid,
+        status="pending"
+    )
     db.add(deposit)
-    add_log(db, user.username, f"Depo {amount} USDT voye pou verifikasyon")
+    add_log(db, user.username, f"Depo {amount} USDT voye pou verifikasyon (frè: {fee} USDT)")
     db.commit()
     return RedirectResponse(url="/dashboard", status_code=303)
 
@@ -941,21 +1140,30 @@ def buy_plan(
     plan = db.query(Plan).filter(Plan.id == plan_id).first()
     if not plan:
         raise HTTPException(status_code=404, detail="Plan pa jwenn")
+    
+    # Verifye si itilizatè a deja gen yon plan aktif
     existing = db.query(UserPlan).filter(
         UserPlan.user_id == user.id,
         UserPlan.status == "active"
     ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Ou deja gen yon plan aktif")
+    
     if user.balance < plan.price:
         raise HTTPException(status_code=400, detail="Balans pa ase pou achte plan sa")
+    
+    # Retire lajan an
     user.balance -= plan.price
+    
+    # Kreye plan itilizatè a
     user_plan = UserPlan(
         user_id=user.id,
         plan_id=plan.id,
         amount=plan.price,
         status="active",
-        start_date=datetime.now()
+        start_date=datetime.now(),
+        last_return_date=datetime.now(),
+        total_returned=0
     )
     db.add(user_plan)
     add_log(db, user.username, f"Achte plan {plan.name} pou {plan.price} USDT")
@@ -963,7 +1171,7 @@ def buy_plan(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# WITHDRAW
+# WITHDRAW (BLOKE LAJAN DEPI KOU)
 # =====================
 
 @app.post("/withdraw")
@@ -989,11 +1197,19 @@ def withdraw(
         raise HTTPException(status_code=400, detail=f"Maksimòm retrè pou plan {plan_name} se {max_withdraw} USDT")
     if user.balance < amount:
         raise HTTPException(status_code=400, detail="Balans pa ase")
+    
+    # Kalkile frè 5%
     fee = amount * WITHDRAW_FEE / 100
     net_amount = amount - fee
+    
+    # BLOKE LAJAN AN DEPI KOU
+    user.balance -= amount
+    
     withdraw = Withdraw(
         username=user.username,
-        amount=net_amount,
+        amount=amount,
+        fee=fee,
+        net_amount=net_amount,
         wallet=wallet,
         status="pending"
     )
@@ -1003,6 +1219,152 @@ def withdraw(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
+# ADMIN APPROVE WITHDRAW (PA RETIRE LAJAN)
+# =====================
+
+@app.post("/admin/approve-withdraw/{withdraw_id}")
+def approve_withdraw(
+    withdraw_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
+    if not withdraw:
+        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
+    if withdraw.status != "pending":
+        raise HTTPException(status_code=400, detail="Demann sa deja trete")
+    withdraw.status = "approved"
+    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT apwouve pa admin (net: {withdraw.net_amount} USDT)")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
+# ADMIN REJECT WITHDRAW (RETOUTE KANTITE TOTAL LA)
+# =====================
+
+@app.post("/admin/reject-withdraw/{withdraw_id}")
+def reject_withdraw(
+    withdraw_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
+    if not withdraw:
+        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
+    if withdraw.status != "pending":
+        raise HTTPException(status_code=400, detail="Demann sa deja trete")
+    withdraw.status = "rejected"
+    
+    # RETOUTE KANTITE TOTAL LA (AMOUNT, PA NET_AMOUNT)
+    user = db.query(User).filter(User.username == withdraw.username).first()
+    if user:
+        user.balance += withdraw.amount
+    
+    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT rejete pa admin")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
+# ADMIN APPROVE DEPOSIT (AVEK FEE + REFERRAL)
+# =====================
+
+@app.post("/admin/approve-deposit/{deposit_id}")
+def approve_deposit(
+    deposit_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    deposit = db.query(Deposit).filter(Deposit.id == deposit_id).first()
+    if not deposit:
+        raise HTTPException(status_code=404, detail="Depo pa jwenn")
+    if deposit.status != "pending":
+        raise HTTPException(status_code=400, detail="Depo sa deja trete")
+    
+    deposit.status = "approved"
+    user = db.query(User).filter(User.username == deposit.username).first()
+    if user:
+        # Ajoute net_amount (apre frè)
+        user.balance += deposit.net_amount
+        add_log(db, user.username, f"Depo {deposit.amount} USDT apwouve (net: {deposit.net_amount} USDT)")
+        
+        # Si itilizatè a te envite pa yon moun, mete has_invested = True
+        if user.referred_by:
+            referral = db.query(Referral).filter(
+                Referral.invited_user == user.username
+            ).first()
+            if referral:
+                referral.has_invested = True
+                
+                # Vérifier si referrer a 10 investisseurs qualifiés
+                referrer = db.query(User).filter(User.username == referral.referrer).first()
+                if referrer:
+                    # Konte moun envite ki te envesti
+                    qualified = db.query(Referral).filter(
+                        Referral.referrer == referrer.username,
+                        Referral.has_invested == True
+                    ).count()
+                    
+                    # Si 10+ moun envesti, bay bonus 2%
+                    if qualified >= REFERRAL_MIN_INVESTORS and not referrer.referral_qualified:
+                        referrer.referral_qualified = True
+                        
+                        # Kalkile total depo moun envite yo
+                        invited_users = db.query(Referral).filter(
+                            Referral.referrer == referrer.username,
+                            Referral.has_invested == True
+                        ).all()
+                        
+                        total_invested = 0
+                        for inv in invited_users:
+                            user_deposits = db.query(Deposit).filter(
+                                Deposit.username == inv.invited_user,
+                                Deposit.status == "approved"
+                            ).all()
+                            total_invested += sum(d.net_amount for d in user_deposits)
+                        
+                        bonus = total_invested * REFERRAL_BONUS / 100
+                        referrer.balance += bonus
+                        referrer.referral_bonus += bonus
+                        
+                        # Mete ajou referral
+                        for inv in invited_users:
+                            ref = db.query(Referral).filter(
+                                Referral.invited_user == inv.invited_user
+                            ).first()
+                            if ref:
+                                ref.bonus_amount = bonus / len(invited_users)
+                                ref.status = "completed"
+                        
+                        add_log(db, referrer.username, f"Bonus referral {bonus:.2f} USDT - 10 investisseurs")
+    
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
+# ADMIN REJECT DEPOSIT
+# =====================
+
+@app.post("/admin/reject-deposit/{deposit_id}")
+def reject_deposit(
+    deposit_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    deposit = db.query(Deposit).filter(Deposit.id == deposit_id).first()
+    if not deposit:
+        raise HTTPException(status_code=404, detail="Depo pa jwenn")
+    if deposit.status != "pending":
+        raise HTTPException(status_code=400, detail="Depo sa deja trete")
+    deposit.status = "rejected"
+    add_log(db, deposit.username, f"Depo {deposit.amount} USDT rejete")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
 # REFERRAL
 # =====================
 
@@ -1010,7 +1372,16 @@ def withdraw(
 def referral_page(request: Request, db: Session = Depends(get_db)):
     lang = get_lang(request)
     user = current_user(request, db)
-    referrals = db.query(Referral).filter(Referral.referrer == user.referral_code).all()
+    referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
+    
+    qualified_investors = sum(1 for r in referrals if r.has_invested)
+    total_bonus = sum(r.bonus_amount for r in referrals)
+    needed = max(0, REFERRAL_MIN_INVESTORS - qualified_investors)
+    
+    status_text = LANG[lang].get('referral_needed', '{needed} more investors needed for 2% bonus').format(needed=needed)
+    if qualified_investors >= REFERRAL_MIN_INVESTORS:
+        status_text = "✅ " + LANG[lang].get('referral_bonus', '2% bonus unlocked!') if lang != 'fr' else "✅ Bonus 2% debloke!"
+    
     return f"""
     <html>
     <head>
@@ -1028,10 +1399,21 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
             </div>
             <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;margin-top:12px;">
                 <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('referral_link', 'INVITATION LINK')}</p>
-                <p style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:11px;word-break:break-all;">/register?ref={user.referral_code}</p>
+                <p style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:11px;word-break:break-all;"><a href="/register?ref={user.referral_code}" style="color:#ffd700;">/register?ref={user.referral_code}</a></p>
             </div>
-            <div style="text-align:center;margin-top:16px;">
-                <p style="color:rgba(255,255,255,0.4);font-size:13px;">{LANG[lang].get('referral_count', 'People you invited:')} <span style="color:#ffd700;font-weight:700;font-size:18px;">{len(referrals)}</span></p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_count', 'People you invited:')}</p>
+                    <p style="color:#ffffff;font-size:22px;font-weight:700;">{len(referrals)}</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_investors', 'Qualified investors:')}</p>
+                    <p style="color:#4ade80;font-size:22px;font-weight:700;">{qualified_investors}/{REFERRAL_MIN_INVESTORS}</p>
+                </div>
+            </div>
+            <div style="background:rgba(255,215,0,0.04);border-radius:8px;padding:12px;margin-top:12px;text-align:center;border:1px solid rgba(255,215,0,0.1);">
+                <p style="color:rgba(255,255,255,0.6);font-size:12px;">{status_text}</p>
+                <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;">{LANG[lang].get('referral_bonus', 'Bonus received:')} <span style="color:#ffd700;font-weight:700;">{total_bonus:.2f} USDT</span></p>
             </div>
             <div class="link" style="margin-top:16px;">
                 <a href="/dashboard">{LANG[lang].get('referral_back', '← Back to Dashboard')}</a>
@@ -1063,6 +1445,7 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
             <p style="color:#ffffff;font-size:13px;"><strong>{d.username}</strong> - {d.amount} USDT</p>
             <p style="color:rgba(255,255,255,0.3);font-size:10px;">TXID: {d.txid}</p>
+            <p style="color:rgba(255,255,255,0.2);font-size:10px;">Frè: {d.fee} USDT | Net: {d.net_amount} USDT</p>
             <p style="color:rgba(255,255,255,0.2);font-size:10px;">{d.date.strftime('%d/%m/%Y %H:%M')}</p>
             <div style="display:flex;gap:6px;margin-top:6px;">
                 <form method="post" action="/admin/approve-deposit/{d.id}" style="display:inline;">
@@ -1080,6 +1463,7 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         withdraw_html += f"""
         <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
             <p style="color:#ffffff;font-size:13px;"><strong>{w.username}</strong> - {w.amount} USDT</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:10px;">Frè: {w.fee} USDT | Net: {w.net_amount} USDT</p>
             <p style="color:rgba(255,255,255,0.3);font-size:10px;">Wallet: {w.wallet}</p>
             <p style="color:rgba(255,255,255,0.2);font-size:10px;">{w.date.strftime('%d/%m/%Y %H:%M')}</p>
             <div style="display:flex;gap:6px;margin-top:6px;">
@@ -1141,96 +1525,6 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     """
 
 # =====================
-# ADMIN APPROVE DEPOSIT
-# =====================
-
-@app.post("/admin/approve-deposit/{deposit_id}")
-def approve_deposit(
-    deposit_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    admin_user(request, db)
-    deposit = db.query(Deposit).filter(Deposit.id == deposit_id).first()
-    if not deposit:
-        raise HTTPException(status_code=404, detail="Depo pa jwenn")
-    if deposit.status != "pending":
-        raise HTTPException(status_code=400, detail="Depo sa deja trete")
-    deposit.status = "approved"
-    user = db.query(User).filter(User.username == deposit.username).first()
-    if user:
-        user.balance += deposit.amount
-    add_log(db, deposit.username, f"Depo {deposit.amount} USDT apwouve")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
-
-# =====================
-# ADMIN REJECT DEPOSIT
-# =====================
-
-@app.post("/admin/reject-deposit/{deposit_id}")
-def reject_deposit(
-    deposit_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    admin_user(request, db)
-    deposit = db.query(Deposit).filter(Deposit.id == deposit_id).first()
-    if not deposit:
-        raise HTTPException(status_code=404, detail="Depo pa jwenn")
-    if deposit.status != "pending":
-        raise HTTPException(status_code=400, detail="Depo sa deja trete")
-    deposit.status = "rejected"
-    add_log(db, deposit.username, f"Depo {deposit.amount} USDT rejete")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
-
-# =====================
-# ADMIN APPROVE WITHDRAW
-# =====================
-
-@app.post("/admin/approve-withdraw/{withdraw_id}")
-def approve_withdraw(
-    withdraw_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    admin_user(request, db)
-    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
-    if not withdraw:
-        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
-    if withdraw.status != "pending":
-        raise HTTPException(status_code=400, detail="Demann sa deja trete")
-    withdraw.status = "approved"
-    user = db.query(User).filter(User.username == withdraw.username).first()
-    if user:
-        user.balance -= withdraw.amount
-    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT apwouve")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
-
-# =====================
-# ADMIN REJECT WITHDRAW
-# =====================
-
-@app.post("/admin/reject-withdraw/{withdraw_id}")
-def reject_withdraw(
-    withdraw_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    admin_user(request, db)
-    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
-    if not withdraw:
-        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
-    if withdraw.status != "pending":
-        raise HTTPException(status_code=400, detail="Demann sa deja trete")
-    withdraw.status = "rejected"
-    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT rejete")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
-
-# =====================
 # LOGOUT
 # =====================
 
@@ -1246,31 +1540,6 @@ def logout(request: Request):
 @app.get("/status")
 def status():
     return {"platform": "VestiCore", "status": "online"}
-
-# =====================
-# INITIAL PLANS
-# =====================
-
-@app.on_event("startup")
-def startup_plans():
-    db = next(get_db())
-    total = db.query(Plan).count()
-    if total == 0:
-        plans = [
-            Plan(name="Starter Basic", price=10, duration=30, description="Plan Starter debaz - 30 jou"),
-            Plan(name="Starter Plus", price=25, duration=30, description="Plan Starter Plus - 30 jou"),
-            Plan(name="Standard Basic", price=50, duration=60, description="Plan Standard debaz - 60 jou"),
-            Plan(name="Standard Plus", price=100, duration=60, description="Plan Standard Plus - 60 jou"),
-            Plan(name="Premium Basic", price=200, duration=90, description="Plan Premium debaz - 90 jou"),
-            Plan(name="Premium Plus", price=350, duration=90, description="Plan Premium Plus - 90 jou"),
-            Plan(name="Premium Pro", price=500, duration=90, description="Plan Premium Pro - 90 jou"),
-            Plan(name="VIP Basic", price=750, duration=120, description="Plan VIP debaz - 120 jou"),
-            Plan(name="VIP Plus", price=1000, duration=120, description="Plan VIP Plus - 120 jou"),
-            Plan(name="VIP Pro", price=2000, duration=120, description="Plan VIP Pro - 120 jou")
-        ]
-        db.add_all(plans)
-        db.commit()
-    db.close()
 
 # =====================
 # RUN
