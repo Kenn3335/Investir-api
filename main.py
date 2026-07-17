@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from passlib.context import CryptContext
@@ -15,32 +16,30 @@ from starlette.middleware.sessions import SessionMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # STARTUP - Kreye plan si pa genyen
     db = next(get_db())
     total = db.query(Plan).count()
     if total == 0:
         plans = [
             Plan(name="Starter Basic", price=10, duration=30, daily_return=0.5, description="Plan Starter debaz - 30 jou"),
-            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.6, description="Plan Starter Plus - 30 jou"),
-            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.7, description="Plan Standard debaz - 60 jou"),
-            Plan(name="Standard Plus", price=100, duration=60, daily_return=0.8, description="Plan Standard Plus - 60 jou"),
-            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.0, description="Plan Premium debaz - 90 jou"),
-            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.2, description="Plan Premium Plus - 90 jou"),
-            Plan(name="Premium Pro", price=500, duration=90, daily_return=1.5, description="Plan Premium Pro - 90 jou"),
-            Plan(name="VIP Basic", price=750, duration=120, daily_return=1.8, description="Plan VIP debaz - 120 jou"),
-            Plan(name="VIP Plus", price=1000, duration=120, daily_return=2.0, description="Plan VIP Plus - 120 jou"),
-            Plan(name="VIP Pro", price=2000, duration=120, daily_return=2.5, description="Plan VIP Pro - 120 jou")
+            Plan(name="Starter Plus", price=25, duration=30, daily_return=0.7, description="Plan Starter Plus - 30 jou"),
+            Plan(name="Standard Basic", price=50, duration=60, daily_return=0.9, description="Plan Standard debaz - 60 jou"),
+            Plan(name="Standard Plus", price=100, duration=60, daily_return=1.1, description="Plan Standard Plus - 60 jou"),
+            Plan(name="Premium Basic", price=200, duration=90, daily_return=1.4, description="Plan Premium debaz - 90 jou"),
+            Plan(name="Premium Plus", price=350, duration=90, daily_return=1.7, description="Plan Premium Plus - 90 jou"),
+            Plan(name="Premium Pro", price=500, duration=90, daily_return=2.0, description="Plan Premium Pro - 90 jou"),
+            Plan(name="VIP Basic", price=750, duration=120, daily_return=2.3, description="Plan VIP debaz - 120 jou"),
+            Plan(name="VIP Plus", price=1000, duration=120, daily_return=2.7, description="Plan VIP Plus - 120 jou"),
+            Plan(name="VIP Pro", price=2000, duration=120, daily_return=3.2, description="Plan VIP Pro - 120 jou")
         ]
         db.add_all(plans)
         db.commit()
     db.close()
     yield
-    # SHUTDOWN
 
 app = FastAPI(
     title="VestiCore",
     description="Platfòm VestiCore",
-    version="2.0",
+    version="3.0",
     lifespan=lifespan
 )
 
@@ -75,7 +74,8 @@ Base = declarative_base()
 
 pwd_context = CryptContext(
     schemes=["bcrypt"],
-    deprecated="auto"
+    deprecated="auto",
+    bcrypt__rounds=12
 )
 
 # =====================
@@ -87,8 +87,8 @@ USDT_CONTRACT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 DEPOSIT_FEE = int(os.getenv("DEPOSIT_FEE", "3"))
 WITHDRAW_FEE = int(os.getenv("WITHDRAW_FEE", "5"))
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY")
-REFERRAL_BONUS = 2  # 2% bonus
-REFERRAL_MIN_INVESTORS = 10  # Fok 10 moun envesti
+REFERRAL_BONUS = 2
+REFERRAL_MIN_INVESTORS = 10
 
 # =====================
 # STIL CSS AVEC LOGO DIAMANT
@@ -112,21 +112,21 @@ STYLE = """
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255,215,0,0.2);
         border-radius: 24px;
-        padding: 50px 40px;
-        max-width: 520px;
+        padding: 40px 35px;
+        max-width: 600px;
         width: 100%;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
     }
-    .logo { text-align: center; margin-bottom: 25px; }
+    .logo { text-align: center; margin-bottom: 20px; }
     .logo-diamond {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
         background: linear-gradient(135deg, #ffd700, #f0a500);
         clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         box-shadow: 0 0 30px rgba(255,215,0,0.3);
         position: relative;
     }
@@ -144,15 +144,16 @@ STYLE = """
         filter: blur(10px);
     }
     .logo-diamond span {
-        font-size: 36px;
+        font-size: 32px;
         font-weight: 900;
         color: #0a0e27;
         text-shadow: 0 2px 10px rgba(255,215,0,0.3);
         margin-top: 2px;
     }
-    .logo h1 { color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+    .logo h1 { color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: 2px; }
     .logo h1 span { color: #ffd700; }
-    .logo p { color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px; letter-spacing: 3px; }
+    .logo p { color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 2px; letter-spacing: 3px; }
+    
     .lang-selector {
         display: flex;
         justify-content: flex-end;
@@ -170,8 +171,10 @@ STYLE = """
     }
     .lang-selector a:hover { color: #ffd700; background: rgba(255,215,0,0.1); }
     .lang-selector a.active { color: #ffd700; background: rgba(255,215,0,0.15); }
+    
     .title { color: #ffffff; font-size: 22px; font-weight: 600; margin-bottom: 6px; text-align: center; }
     .subtitle { color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-bottom: 22px; }
+    
     .form-group { margin-bottom: 16px; }
     .form-group label {
         display: block;
@@ -198,6 +201,7 @@ STYLE = """
         box-shadow: 0 0 25px rgba(255,215,0,0.08);
     }
     .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+    
     .btn {
         width: 100%;
         padding: 15px;
@@ -228,6 +232,28 @@ STYLE = """
         background: rgba(255,255,255,0.12);
         box-shadow: 0 10px 30px rgba(255,255,255,0.05);
     }
+    .btn-sm {
+        padding: 8px 16px;
+        font-size: 12px;
+        width: auto;
+        display: inline-block;
+        margin: 0;
+    }
+    .btn-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee4444);
+        color: #fff;
+    }
+    .btn-danger:hover {
+        box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+    }
+    .btn-success {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: #0a0e27;
+    }
+    .btn-success:hover {
+        box-shadow: 0 10px 30px rgba(74,222,128,0.3);
+    }
+    
     .link {
         text-align: center;
         margin-top: 18px;
@@ -236,6 +262,7 @@ STYLE = """
     }
     .link a { color: #ffd700; text-decoration: none; font-weight: 600; transition: color 0.3s; }
     .link a:hover { color: #f0a500; text-decoration: underline; }
+    
     .footer-text {
         text-align: center;
         margin-top: 20px;
@@ -243,9 +270,117 @@ STYLE = """
         font-size: 11px;
         letter-spacing: 1px;
     }
+    
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .dashboard-user h2 {
+        color: #ffffff;
+        font-size: 18px;
+    }
+    .dashboard-user p {
+        color: rgba(255,255,255,0.3);
+        font-size: 11px;
+    }
+    
+    .balance-card {
+        background: rgba(255,215,0,0.04);
+        border-radius: 14px;
+        padding: 18px;
+        border: 1px solid rgba(255,215,0,0.08);
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    .balance-card .label {
+        color: rgba(255,255,255,0.4);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .balance-card .amount {
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 5px 0;
+    }
+    .balance-card .amount span {
+        color: #ffd700;
+        font-size: 18px;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    .quick-actions a {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .quick-actions a:hover {
+        background: rgba(255,215,0,0.05);
+        border-color: rgba(255,215,0,0.15);
+    }
+    .quick-actions a .icon {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+    
+    .plan-card {
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+        padding: 14px;
+        margin: 8px 0;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .plan-card .plan-info h4 {
+        color: #ffd700;
+        font-size: 14px;
+    }
+    .plan-card .plan-info p {
+        color: rgba(255,255,255,0.4);
+        font-size: 11px;
+        margin: 2px 0;
+    }
+    .plan-card .plan-info .return {
+        color: #4ade80;
+        font-weight: 600;
+    }
+    .plan-card .plan-price {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        text-align: right;
+    }
+    .plan-card .plan-price small {
+        color: rgba(255,255,255,0.3);
+        font-size: 10px;
+        font-weight: 400;
+    }
+    
     .badge {
         display: inline-block;
-        padding: 4px 10px;
+        padding: 3px 10px;
         border-radius: 12px;
         font-size: 10px;
         font-weight: 600;
@@ -253,18 +388,145 @@ STYLE = """
     .badge-gold { background: rgba(255,215,0,0.15); color: #ffd700; }
     .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; }
     .badge-red { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal.active {
+        display: flex;
+    }
+    .modal-content {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,215,0,0.2);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    }
+    .modal-content h3 {
+        color: #ffffff;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .modal-content p {
+        color: rgba(255,255,255,0.6);
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    .modal-content .btn {
+        width: auto;
+        display: inline-block;
+        padding: 10px 30px;
+    }
+    .modal-content .icon-big {
+        font-size: 48px;
+        margin-bottom: 15px;
+        display: block;
+    }
+    
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .history-item .left {
+        color: rgba(255,255,255,0.5);
+        font-size: 11px;
+    }
+    .history-item .right {
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .history-item .right.positive { color: #4ade80; }
+    .history-item .right.negative { color: #ff6b6b; }
+    
     @media (max-width: 480px) {
-        .container { padding: 25px 18px; }
-        .logo h1 { font-size: 24px; }
-        .logo-diamond { width: 60px; height: 60px; }
-        .logo-diamond span { font-size: 28px; }
-        .lang-selector a { font-size: 10px; padding: 3px 8px; }
+        .container { padding: 20px 15px; }
+        .logo h1 { font-size: 22px; }
+        .logo-diamond { width: 55px; height: 55px; }
+        .logo-diamond span { font-size: 26px; }
+        .quick-actions { grid-template-columns: 1fr 1fr 1fr; }
+        .plan-card { flex-direction: column; text-align: center; }
+        .plan-card .plan-price { text-align: center; margin-top: 8px; }
     }
 </style>
 """
 
 # =====================
-# TEXTE POU CHAK LANG (VERSIO KOURT)
+# JAVASCRIPT POU MODAL + ACHTE PLAN
+# =====================
+
+MODAL_JS = """
+<script>
+function showModal(message, title, type) {
+    const modal = document.getElementById('customModal');
+    const icon = document.getElementById('modalIcon');
+    const titleEl = document.getElementById('modalTitle');
+    const msgEl = document.getElementById('modalMessage');
+    
+    if (type === 'error') {
+        icon.textContent = '❌';
+        titleEl.textContent = title || 'Erreur';
+    } else if (type === 'success') {
+        icon.textContent = '✅';
+        titleEl.textContent = title || 'Succès';
+    } else {
+        icon.textContent = 'ℹ️';
+        titleEl.textContent = title || 'Information';
+    }
+    
+    msgEl.textContent = message;
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('customModal').classList.remove('active');
+}
+
+function acheterPlan(planId) {
+    fetch('/buy-plan/' + planId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showModal(data.message, '✅ Succès', 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showModal(data.message, '❌ Erreur', 'error');
+        }
+    })
+    .catch(err => {
+        showModal('Erreur de connexion au serveur', '❌ Erreur', 'error');
+    });
+}
+
+function showDepositModal() {
+    showModal('Veuillez effectuer un dépôt avant d\'acheter un plan.', '💰 Dépôt requis', 'info');
+}
+</script>
+"""
+
+# =====================
+# TEXTE POU CHAK LANG
 # =====================
 
 LANG = {
@@ -289,39 +551,37 @@ LANG = {
         "login_link": "Pas de compte?",
         "login_link_btn": "Créer un compte",
         "dashboard_balance": "SOLDE",
-        "dashboard_withdraw": "Faire un retrait",
-        "dashboard_withdraw_placeholder": "Montant USDT",
-        "dashboard_withdraw_wallet": "Votre adresse TRC20",
-        "dashboard_withdraw_btn": "Envoyer la demande",
-        "dashboard_withdraw_warning": "⚠️ Les retraits sont soumis à l'approbation de l'administrateur",
-        "dashboard_plans": "Plans VestiCore",
-        "dashboard_buy": "Acheter ce plan",
-        "dashboard_no_plan": "⚠️ Vous n'avez pas de plan actif. Achetez un plan pour commencer à faire des retraits.",
-        "dashboard_plan_active": "✅ Votre plan:",
-        "dashboard_plan_start": "📅 Début:",
-        "dashboard_plan_expire": "⏳ Expire:",
-        "dashboard_plan_min": "💰 Retrait min:",
-        "dashboard_plan_max": "📈 Retrait max:",
+        "dashboard_balance_label": "Solde disponible",
+        "dashboard_deposit": "Dépôt",
+        "dashboard_withdraw": "Retrait",
+        "dashboard_referral": "Parrainage",
+        "dashboard_history": "Historique",
+        "dashboard_profile": "Profil",
+        "dashboard_logout": "Déconnexion",
+        "dashboard_plans": "Plans d'investissement",
+        "dashboard_buy": "Acheter",
+        "dashboard_no_plan": "⚠️ Vous n'avez pas de plan actif.",
+        "dashboard_plan_active": "✅ Plan actif",
         "deposit_title": "💰 Dépôt USDT",
         "deposit_warning": "⚠️ Envoyer UNIQUEMENT USDT sur TRC20 (Tron)",
         "deposit_network": "🌐 RÉSEAU",
-        "deposit_address": "🏦 ADRESSE PORTEFEUILLE",
-        "deposit_contract": "📄 ADRESSE CONTRAT",
+        "deposit_address": "🏦 ADRESSE",
+        "deposit_contract": "📄 CONTRAT",
         "deposit_fee": "💸 FRAIS",
         "deposit_time": "⏱️ TEMPS",
         "deposit_verify": "Vérifier votre dépôt",
         "deposit_amount": "Montant USDT",
         "deposit_txid": "ID de transaction (txid)",
         "deposit_btn": "Envoyer le dépôt",
-        "deposit_back": "← Retour au Dashboard",
+        "deposit_back": "← Retour",
         "referral_title": "👥 Parrainage",
-        "referral_code": "VOTRE CODE DE PARRAINAGE",
+        "referral_code": "VOTRE CODE",
         "referral_link": "LIEN D'INVITATION",
-        "referral_count": "Personnes que vous avez invitées:",
-        "referral_investors": "Investisseurs qualifiés:",
-        "referral_needed": "Encore {needed} investisseurs pour débloquer 2%",
-        "referral_bonus": "Bonus reçu:",
-        "referral_back": "← Retour au Dashboard",
+        "referral_count": "Personnes invitées",
+        "referral_investors": "Investisseurs qualifiés",
+        "referral_needed": "Encore {needed} investisseurs pour 2%",
+        "referral_bonus": "Bonus reçu",
+        "referral_back": "← Retour",
         "logout": "Déconnexion",
         "admin_title": "🛡️ Administration",
         "admin_sub": "Tableau de bord administrateur",
@@ -335,7 +595,11 @@ LANG = {
         "admin_reject": "Rejeter",
         "admin_recent": "Activités récentes",
         "admin_back": "← Retour",
-        "footer": "© 2026 VestiCore. Tous droits réservés."
+        "footer": "© 2026 VestiCore. Tous droits réservés.",
+        "insufficient_balance": "❌ Solde insuffisant. Veuillez effectuer un dépôt.",
+        "plan_bought": "✅ Plan acheté avec succès!",
+        "already_has_plan": "❌ Vous avez déjà un plan actif.",
+        "plan_not_found": "❌ Plan introuvable."
     },
     "en": {
         "title": "VestiCore - Investment Platform",
@@ -358,39 +622,37 @@ LANG = {
         "login_link": "No account?",
         "login_link_btn": "Create account",
         "dashboard_balance": "BALANCE",
-        "dashboard_withdraw": "Make a Withdrawal",
-        "dashboard_withdraw_placeholder": "USDT Amount",
-        "dashboard_withdraw_wallet": "Your TRC20 address",
-        "dashboard_withdraw_btn": "Submit request",
-        "dashboard_withdraw_warning": "⚠️ Withdrawals are subject to admin approval",
-        "dashboard_plans": "VestiCore Plans",
-        "dashboard_buy": "Buy this plan",
-        "dashboard_no_plan": "⚠️ You don't have an active plan. Buy a plan to start withdrawing.",
-        "dashboard_plan_active": "✅ Your plan:",
-        "dashboard_plan_start": "📅 Start:",
-        "dashboard_plan_expire": "⏳ Expires:",
-        "dashboard_plan_min": "💰 Min withdraw:",
-        "dashboard_plan_max": "📈 Max withdraw:",
+        "dashboard_balance_label": "Available balance",
+        "dashboard_deposit": "Deposit",
+        "dashboard_withdraw": "Withdraw",
+        "dashboard_referral": "Referral",
+        "dashboard_history": "History",
+        "dashboard_profile": "Profile",
+        "dashboard_logout": "Logout",
+        "dashboard_plans": "Investment Plans",
+        "dashboard_buy": "Buy",
+        "dashboard_no_plan": "⚠️ You don't have an active plan.",
+        "dashboard_plan_active": "✅ Active plan",
         "deposit_title": "💰 USDT Deposit",
         "deposit_warning": "⚠️ Send ONLY USDT on TRC20 (Tron)",
         "deposit_network": "🌐 NETWORK",
-        "deposit_address": "🏦 WALLET ADDRESS",
-        "deposit_contract": "📄 CONTRACT ADDRESS",
+        "deposit_address": "🏦 ADDRESS",
+        "deposit_contract": "📄 CONTRACT",
         "deposit_fee": "💸 FEE",
         "deposit_time": "⏱️ TIME",
         "deposit_verify": "Verify your deposit",
         "deposit_amount": "USDT Amount",
         "deposit_txid": "Transaction ID (txid)",
         "deposit_btn": "Submit deposit",
-        "deposit_back": "← Back to Dashboard",
+        "deposit_back": "← Back",
         "referral_title": "👥 Referral",
-        "referral_code": "YOUR REFERRAL CODE",
+        "referral_code": "YOUR CODE",
         "referral_link": "INVITATION LINK",
-        "referral_count": "People you invited:",
-        "referral_investors": "Qualified investors:",
-        "referral_needed": "{needed} more investors needed for 2% bonus",
-        "referral_bonus": "Bonus received:",
-        "referral_back": "← Back to Dashboard",
+        "referral_count": "People invited",
+        "referral_investors": "Qualified investors",
+        "referral_needed": "{needed} more investors for 2%",
+        "referral_bonus": "Bonus received",
+        "referral_back": "← Back",
         "logout": "Logout",
         "admin_title": "🛡️ Admin",
         "admin_sub": "Admin Dashboard",
@@ -404,7 +666,11 @@ LANG = {
         "admin_reject": "Reject",
         "admin_recent": "Recent activities",
         "admin_back": "← Back",
-        "footer": "© 2026 VestiCore. All rights reserved."
+        "footer": "© 2026 VestiCore. All rights reserved.",
+        "insufficient_balance": "❌ Insufficient balance. Please make a deposit.",
+        "plan_bought": "✅ Plan purchased successfully!",
+        "already_has_plan": "❌ You already have an active plan.",
+        "plan_not_found": "❌ Plan not found."
     },
     "es": {
         "title": "VestiCore - Plataforma de Inversión",
@@ -427,39 +693,37 @@ LANG = {
         "login_link": "¿No tienes cuenta?",
         "login_link_btn": "Crear cuenta",
         "dashboard_balance": "SALDO",
-        "dashboard_withdraw": "Hacer un retiro",
-        "dashboard_withdraw_placeholder": "Monto USDT",
-        "dashboard_withdraw_wallet": "Tu dirección TRC20",
-        "dashboard_withdraw_btn": "Enviar solicitud",
-        "dashboard_withdraw_warning": "⚠️ Los retiros están sujetos a aprobación del administrador",
-        "dashboard_plans": "Planes VestiCore",
-        "dashboard_buy": "Comprar este plan",
-        "dashboard_no_plan": "⚠️ No tienes un plan activo. Compra un plan para comenzar a retirar.",
-        "dashboard_plan_active": "✅ Tu plan:",
-        "dashboard_plan_start": "📅 Inicio:",
-        "dashboard_plan_expire": "⏳ Expira:",
-        "dashboard_plan_min": "💰 Retiro mínimo:",
-        "dashboard_plan_max": "📈 Retiro máximo:",
+        "dashboard_balance_label": "Saldo disponible",
+        "dashboard_deposit": "Depósito",
+        "dashboard_withdraw": "Retiro",
+        "dashboard_referral": "Referidos",
+        "dashboard_history": "Historial",
+        "dashboard_profile": "Perfil",
+        "dashboard_logout": "Cerrar sesión",
+        "dashboard_plans": "Planes de inversión",
+        "dashboard_buy": "Comprar",
+        "dashboard_no_plan": "⚠️ No tienes un plan activo.",
+        "dashboard_plan_active": "✅ Plan activo",
         "deposit_title": "💰 Depósito USDT",
         "deposit_warning": "⚠️ Enviar SOLAMENTE USDT en TRC20 (Tron)",
         "deposit_network": "🌐 RED",
-        "deposit_address": "🏦 DIRECCIÓN DE BILLETERA",
-        "deposit_contract": "📄 DIRECCIÓN DEL CONTRATO",
+        "deposit_address": "🏦 DIRECCIÓN",
+        "deposit_contract": "📄 CONTRATO",
         "deposit_fee": "💸 COMISIÓN",
         "deposit_time": "⏱️ TIEMPO",
         "deposit_verify": "Verifica tu depósito",
         "deposit_amount": "Monto USDT",
         "deposit_txid": "ID de transacción (txid)",
         "deposit_btn": "Enviar depósito",
-        "deposit_back": "← Volver al Dashboard",
+        "deposit_back": "← Volver",
         "referral_title": "👥 Referidos",
-        "referral_code": "TU CÓDIGO DE REFERIDO",
+        "referral_code": "TU CÓDIGO",
         "referral_link": "ENLACE DE INVITACIÓN",
-        "referral_count": "Personas que invitaste:",
-        "referral_investors": "Inversores calificados:",
-        "referral_needed": "Se necesitan {needed} inversores más para 2%",
-        "referral_bonus": "Bonificación recibida:",
-        "referral_back": "← Volver al Dashboard",
+        "referral_count": "Personas invitadas",
+        "referral_investors": "Inversores calificados",
+        "referral_needed": "Se necesitan {needed} inversores para 2%",
+        "referral_bonus": "Bonificación recibida",
+        "referral_back": "← Volver",
         "logout": "Cerrar sesión",
         "admin_title": "🛡️ Administración",
         "admin_sub": "Panel de administración",
@@ -473,19 +737,13 @@ LANG = {
         "admin_reject": "Rechazar",
         "admin_recent": "Actividades recientes",
         "admin_back": "← Volver",
-        "footer": "© 2026 VestiCore. Todos los derechos reservados."
+        "footer": "© 2026 VestiCore. Todos los derechos reservados.",
+        "insufficient_balance": "❌ Saldo insuficiente. Por favor, haz un depósito.",
+        "plan_bought": "✅ Plan comprado con éxito!",
+        "already_has_plan": "❌ Ya tienes un plan activo.",
+        "plan_not_found": "❌ Plan no encontrado."
     }
 }
-
-# =====================
-# FONKSYON POU JWENN LANG
-# =====================
-
-def get_lang(request: Request):
-    lang = request.cookies.get("lang", "fr")
-    if lang not in LANG:
-        lang = "fr"
-    return lang
 
 # =====================
 # DATABASE MODELS
@@ -501,7 +759,7 @@ class User(Base):
     referral_code = Column(String, unique=True)
     referred_by = Column(String, nullable=True)
     referral_bonus = Column(Float, default=0)
-    referral_qualified = Column(Boolean, default=False)  # True si 10 moun envesti
+    referral_qualified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
 
 class Plan(Base):
@@ -522,7 +780,7 @@ class UserPlan(Base):
     status = Column(String, default="active")
     start_date = Column(DateTime, default=datetime.now)
     last_return_date = Column(DateTime, default=datetime.now)
-    total_returned = Column(Float, default=0)  # Total benefis peye
+    total_returned = Column(Float, default=0)
 
 class Deposit(Base):
     __tablename__ = "deposits"
@@ -586,7 +844,7 @@ def verify_password(password, hashed):
     return pwd_context.verify(password, hashed)
 
 # =====================
-# REFERRAL CODE (AVEC UUID)
+# REFERRAL CODE
 # =====================
 
 def create_referral_code(username):
@@ -651,7 +909,6 @@ def get_user_active_plan(db: Session, user_id: int):
 # =====================
 
 def process_plan_returns(db: Session):
-    """Peye benefis chak jou pou tout plan aktif"""
     user_plans = db.query(UserPlan).filter(UserPlan.status == "active").all()
     
     for up in user_plans:
@@ -659,21 +916,16 @@ def process_plan_returns(db: Session):
         if not plan:
             continue
         
-        # Vérifier si plan ekspire
         expiration_date = up.start_date + timedelta(days=plan.duration)
         if datetime.now() > expiration_date:
             up.status = "expired"
             db.commit()
             continue
         
-        # Konbyen jou pase depi dènye peyeman
         days_passed = (datetime.now() - up.last_return_date).days
         
         if days_passed >= 1:
-            # Benefis chak jou
             daily_profit = up.amount * (plan.daily_return / 100)
-            
-            # Pa peye plis pase total plan an
             max_return = up.amount * (plan.daily_return / 100) * plan.duration
             remaining = max_return - up.total_returned
             
@@ -684,7 +936,6 @@ def process_plan_returns(db: Session):
             
             to_pay = min(daily_profit * days_passed, remaining)
             
-            # Ajoute nan balans itilizatè a
             user = db.query(User).filter(User.id == up.user_id).first()
             if user:
                 user.balance += to_pay
@@ -695,27 +946,14 @@ def process_plan_returns(db: Session):
     db.commit()
 
 # =====================
-# CHECK REFERRAL QUALIFICATION
+# FUNCTIONS
 # =====================
 
-def check_referral_qualification(db: Session, referrer_username: str):
-    """Vérifier si referrer a 10 investisseurs qualifiés"""
-    referrer = db.query(User).filter(User.username == referrer_username).first()
-    if not referrer:
-        return False
-    
-    # Konte moun envite ki te envesti
-    qualified = db.query(Referral).filter(
-        Referral.referrer == referrer_username,
-        Referral.has_invested == True
-    ).count()
-    
-    if qualified >= REFERRAL_MIN_INVESTORS and not referrer.referral_qualified:
-        referrer.referral_qualified = True
-        db.commit()
-        add_log(db, referrer_username, f"Referral qualified! {qualified} investisseurs")
-    
-    return referrer.referral_qualified
+def get_lang(request: Request):
+    lang = request.cookies.get("lang", "fr")
+    if lang not in LANG:
+        lang = "fr"
+    return lang
 
 # =====================
 # SELÈKSYON LANG
@@ -748,6 +986,23 @@ def get_logo_html(lang_key, request):
     """
 
 # =====================
+# MODAL HTML
+# =====================
+
+def get_modal_html():
+    return f"""
+    <div id="customModal" class="modal">
+        <div class="modal-content">
+            <span class="icon-big" id="modalIcon">ℹ️</span>
+            <h3 id="modalTitle">Information</h3>
+            <p id="modalMessage">Message</p>
+            <button onclick="closeModal()" class="btn">Fermer</button>
+        </div>
+    </div>
+    {MODAL_JS}
+    """
+
+# =====================
 # HOME PAGE
 # =====================
 
@@ -775,6 +1030,7 @@ def home(request: Request):
             <a href="/login" class="btn btn-secondary">{LANG[lang].get('home_btn_login', 'Login')}</a>
             <div class="footer-text">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</div>
         </div>
+        {get_modal_html()}
     </body>
     </html>
     """
@@ -818,13 +1074,10 @@ def register_page(request: Request, ref: str = None):
                 {LANG[lang].get('register_link', 'Already have an account?')} <a href="/login">{LANG[lang].get('register_link_btn', 'Login')}</a>
             </div>
         </div>
+        {get_modal_html()}
     </body>
     </html>
     """
-
-# =====================
-# REGISTER ACTION
-# =====================
 
 @app.post("/register")
 def register(
@@ -833,18 +1086,15 @@ def register(
     ref: str = Form(None),
     db: Session = Depends(get_db)
 ):
-    # Verifye si kont deja egziste
     user_exist = db.query(User).filter(User.username == username).first()
     if user_exist:
         raise HTTPException(status_code=400, detail="Kont sa deja egziste")
     
-    # Tcheke si se kle admin (si ADMIN_SECRET_KEY la egziste)
     is_admin = 0
     if ADMIN_SECRET_KEY and ref and ref.strip() == ADMIN_SECRET_KEY.strip():
         is_admin = 1
-        ref = None  # Pa mete kòm referral
+        ref = None
     
-    # Kreye nouvo itilizatè
     new_user = User(
         username=username,
         password=hash_password(password),
@@ -855,9 +1105,7 @@ def register(
     db.add(new_user)
     db.flush()
     
-    # Si se yon referral (pa admin)
     if ref:
-        # Chèche moun ki envite a
         referrer = db.query(User).filter(User.referral_code == ref).first()
         if referrer:
             referral = Referral(
@@ -871,7 +1119,6 @@ def register(
     
     add_log(db, username, "Kreye nouvo kont")
     db.commit()
-    
     return RedirectResponse(url="/login", status_code=303)
 
 # =====================
@@ -908,6 +1155,7 @@ def login_page(request: Request):
                 {LANG[lang].get('login_link', 'No account?')} <a href="/register">{LANG[lang].get('login_link_btn', 'Create account')}</a>
             </div>
         </div>
+        {get_modal_html()}
     </body>
     </html>
     """
@@ -934,7 +1182,6 @@ def login(
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    # Peye benefis plan yo anvan w montre dashboard la
     process_plan_returns(db)
     
     lang = get_lang(request)
@@ -942,7 +1189,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     plans = db.query(Plan).all()
     active_plan_info = get_user_active_plan(db, user.id)
     
-    # Referral enfòmasyon
     referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
     qualified_investors = sum(1 for r in referrals if r.has_invested)
     total_bonus = sum(r.bonus_amount for r in referrals)
@@ -950,16 +1196,17 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     plan_html = ""
     for plan in plans:
         plan_html += f"""
-        <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;margin:8px 0;border:1px solid rgba(255,215,0,0.06);">
-            <h3 style="color:#ffd700;font-size:16px;">{plan.name}</h3>
-            <p style="color:rgba(255,255,255,0.5);font-size:12px;">{plan.description}</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:12px;">⏳ {plan.duration} {LANG[lang].get('days', 'days') if lang == 'en' else 'jou' if lang == 'fr' else 'días'}</p>
-            <p style="color:rgba(255,255,255,0.4);font-size:12px;">📈 {plan.daily_return}% / jou</p>
-            <p style="color:#ffffff;font-size:18px;font-weight:700;margin:6px 0;">{plan.price} USDT</p>
-            <form method="post" action="/buy-plan">
-                <input type="hidden" name="plan_id" value="{plan.id}">
-                <button style="width:100%;padding:10px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:8px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:13px;">{LANG[lang].get('dashboard_buy', 'Buy this plan')}</button>
-            </form>
+        <div class="plan-card">
+            <div class="plan-info">
+                <h4>{plan.name}</h4>
+                <p>{plan.description}</p>
+                <p>⏳ {plan.duration} jours • <span class="return">📈 {plan.daily_return}% / jour</span></p>
+            </div>
+            <div class="plan-price">
+                {plan.price} <small>USDT</small>
+                <br>
+                <button onclick="acheterPlan({plan.id})" class="btn btn-sm" style="margin-top:4px;">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
+            </div>
         </div>
         """
     
@@ -967,28 +1214,21 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     if active_plan_info:
         plan = active_plan_info["plan"]
         exp_date = active_plan_info["expiration_date"]
-        min_withdraw_map = {"Starter": 10, "Standard": 25, "Premium": 50, "VIP": 100}
-        max_withdraw_map = {"Starter": 200, "Standard": 500, "Premium": 1000, "VIP": 5000}
-        plan_name = plan.name.split()[0]
-        min_wd = min_withdraw_map.get(plan_name, 10)
-        max_wd = max_withdraw_map.get(plan_name, 200)
         plan_info_html = f"""
-        <div style="background:rgba(0,255,100,0.06);border:1px solid rgba(0,255,100,0.15);border-radius:10px;padding:14px;margin:12px 0;">
-            <h3 style="color:#4ade80;font-size:15px;">{LANG[lang].get('dashboard_plan_active', '✅ Your plan:')} {plan.name}</h3>
-            <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_start', '📅 Start:')} {active_plan_info['user_plan'].start_date.strftime('%d/%m/%Y')}</p>
-            <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_expire', '⏳ Expires:')} {exp_date.strftime('%d/%m/%Y')}</p>
-            <p style="color:rgba(255,255,255,0.5);font-size:12px;">{LANG[lang].get('dashboard_plan_min', '💰 Min withdraw:')} {min_wd} USDT | {LANG[lang].get('dashboard_plan_max', '📈 Max withdraw:')} {max_wd} USDT</p>
-            <p style="color:rgba(255,255,255,0.5);font-size:12px;">📊 Retourné: {active_plan_info['user_plan'].total_returned:.2f} USDT</p>
+        <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.15);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
+            <span class="badge badge-green">✅ {LANG[lang].get('dashboard_plan_active', 'Active plan')}</span>
+            <p style="color:#ffffff;font-size:14px;margin-top:6px;">{plan.name}</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:11px;">Expire: {exp_date.strftime('%d/%m/%Y')}</p>
         </div>
         """
     else:
         plan_info_html = f"""
-        <div style="background:rgba(255,150,0,0.06);border:1px solid rgba(255,150,0,0.15);border-radius:10px;padding:14px;margin:12px 0;">
-            <p style="color:#fbbf24;font-size:13px;">{LANG[lang].get('dashboard_no_plan', '⚠️ You don\'t have an active plan. Buy a plan to start withdrawing.')}</p>
+        <div style="background:rgba(255,150,0,0.05);border:1px solid rgba(255,150,0,0.12);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;">
+            <p style="color:#fbbf24;font-size:12px;">{LANG[lang].get('dashboard_no_plan', '⚠️ You don\'t have an active plan.')}</p>
         </div>
         """
     
-    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:11px;">Admin</a>' if user.is_admin == 1 else ''
+    admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
     
     return f"""
     <html>
@@ -998,44 +1238,122 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         {STYLE}
     </head>
     <body>
-        <div class="container" style="max-width:560px;">
+        <div class="container" style="max-width:600px;">
             {get_logo_html(lang, request)}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            
+            <div class="dashboard-header">
+                <div class="dashboard-user">
+                    <h2>👋 {user.username}</h2>
+                    <p>{LANG[lang].get('dashboard_balance_label', 'Available balance')}</p>
+                </div>
                 <div>
-                    <h1 style="color:#ffffff;font-size:20px;">👋 {user.username}</h1>
-                    <p style="color:rgba(255,255,255,0.3);font-size:11px;">Dashboard</p>
+                    <a href="/logout" class="btn btn-sm btn-danger">{LANG[lang].get('dashboard_logout', 'Logout')}</a>
                 </div>
-                <a href="/logout" style="color:#ff6b6b;text-decoration:none;font-size:13px;">{LANG[lang].get('logout', 'Logout')}</a>
             </div>
-            <div style="background:rgba(255,215,0,0.04);border-radius:14px;padding:18px;border:1px solid rgba(255,215,0,0.08);">
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('dashboard_balance', 'BALANCE')}</p>
-                <p style="color:#ffffff;font-size:28px;font-weight:700;">{user.balance:.2f} <span style="color:#ffd700;font-size:16px;">USDT</span></p>
+            
+            <div class="balance-card">
+                <div class="label">{LANG[lang].get('dashboard_balance', 'BALANCE')}</div>
+                <div class="amount">{user.balance:.2f} <span>USDT</span></div>
             </div>
+            
             {plan_info_html}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;">
-                <a href="/deposit-page" style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.1);border-radius:10px;padding:12px;text-align:center;color:#ffffff;text-decoration:none;font-weight:600;font-size:13px;">💰 {LANG[lang].get('deposit_title', 'Deposit')}</a>
-                <a href="/referral" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;text-align:center;color:#ffffff;text-decoration:none;font-weight:600;font-size:13px;">👥 {LANG[lang].get('referral_title', 'Referral')}</a>
+            
+            <div class="quick-actions">
+                <a href="/deposit-page">
+                    <span class="icon">💰</span>
+                    {LANG[lang].get('dashboard_deposit', 'Deposit')}
+                </a>
+                <a href="#" onclick="showModal('Fonctionnalité en cours de développement', 'ℹ️ Information', 'info'); return false;">
+                    <span class="icon">📤</span>
+                    {LANG[lang].get('dashboard_withdraw', 'Withdraw')}
+                </a>
+                <a href="/referral">
+                    <span class="icon">🎁</span>
+                    {LANG[lang].get('dashboard_referral', 'Referral')}
+                </a>
             </div>
-            <h3 style="color:#ffffff;font-size:15px;margin-top:15px;">{LANG[lang].get('dashboard_withdraw', 'Make a Withdrawal')}</h3>
-            <form method="post" action="/withdraw">
-                <div class="form-group">
-                    <input type="number" name="amount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="wallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}" required>
-                </div>
-                <button type="submit" class="btn btn-secondary">{LANG[lang].get('dashboard_withdraw_btn', 'Submit request')}</button>
-            </form>
-            <p style="color:rgba(255,255,255,0.2);font-size:11px;text-align:center;margin-top:8px;">{LANG[lang].get('dashboard_withdraw_warning', '⚠️ Withdrawals are subject to admin approval')}</p>
-            <h3 style="color:#ffffff;font-size:15px;margin-top:20px;">{LANG[lang].get('dashboard_plans', 'VestiCore Plans')}</h3>
+            
+            <h4 style="color:#ffffff;font-size:14px;margin:15px 0 10px;">{LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
             {plan_html}
+            
+            {f'<div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">{admin_link}</div>' if user.is_admin == 1 else ''}
+            
             <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
-                {admin_link}
+                <p style="color:rgba(255,255,255,0.15);font-size:9px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</p>
             </div>
         </div>
+        
+        {get_modal_html()}
     </body>
     </html>
     """
+
+# =====================
+# BUY PLAN - AVEC JSON RESPONSE (PA REDIRECT)
+# =====================
+
+@app.post("/buy-plan/{plan_id}")
+def buy_plan(
+    plan_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    username = request.session.get("username")
+    if not username:
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "Ou dwe konekte"}
+        )
+    
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "Itilizatè pa jwenn"}
+        )
+    
+    plan = db.query(Plan).filter(Plan.id == plan_id).first()
+    if not plan:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "message": "Plan pa jwenn"}
+        )
+    
+    # Verifye si itilizatè a deja gen yon plan aktif
+    existing = db.query(UserPlan).filter(
+        UserPlan.user_id == user.id,
+        UserPlan.status == "active"
+    ).first()
+    if existing:
+        return JSONResponse(
+            content={"success": False, "message": "❌ Ou deja gen yon plan aktif"}
+        )
+    
+    if user.balance < plan.price:
+        return JSONResponse(
+            content={"success": False, "message": "❌ Solde insuffisant. Veuillez effectuer un dépôt."}
+        )
+    
+    # Retire lajan an
+    user.balance -= plan.price
+    
+    # Kreye plan itilizatè a
+    user_plan = UserPlan(
+        user_id=user.id,
+        plan_id=plan.id,
+        amount=plan.price,
+        status="active",
+        start_date=datetime.now(),
+        last_return_date=datetime.now(),
+        total_returned=0
+    )
+    db.add(user_plan)
+    add_log(db, user.username, f"Achte plan {plan.name} pou {plan.price} USDT")
+    db.commit()
+    
+    return JSONResponse(
+        content={"success": True, "message": "✅ Plan acheté avec succès!"}
+    )
 
 # =====================
 # DEPOSIT PAGE
@@ -1056,22 +1374,28 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
         <div class="container">
             {get_logo_html(lang, request)}
             <div class="title">{LANG[lang].get('deposit_title', '💰 USDT Deposit')}</div>
-            <div style="background:rgba(255,0,0,0.06);border:1px solid rgba(255,0,0,0.12);border-radius:10px;padding:14px;margin-bottom:16px;">
-                <p style="color:#ff6b6b;font-weight:600;font-size:13px;text-align:center;">{LANG[lang].get('deposit_warning', '⚠️ Send ONLY USDT on TRC20 (Tron)')}</p>
+            
+            <div style="background:rgba(255,0,0,0.06);border:1px solid rgba(255,0,0,0.12);border-radius:10px;padding:12px;margin-bottom:15px;">
+                <p style="color:#ff6b6b;font-weight:600;font-size:12px;text-align:center;">{LANG[lang].get('deposit_warning', '⚠️ Send ONLY USDT on TRC20 (Tron)')}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.04);">
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('deposit_network', '🌐 NETWORK')}</p>
-                <p style="color:#4ade80;font-weight:700;font-size:16px;">TRC20 (Tron)</p>
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:10px;">{LANG[lang].get('deposit_address', '🏦 WALLET ADDRESS')}</p>
-                <p style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;color:#ffd700;font-size:13px;word-break:break-all;font-family:monospace;">{USDT_TRON_ADDRESS}</p>
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:10px;">{LANG[lang].get('deposit_contract', '📄 CONTRACT ADDRESS')}</p>
-                <p style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:12px;word-break:break-all;font-family:monospace;">{USDT_CONTRACT_ADDRESS}</p>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
-                    <div><p style="color:rgba(255,255,255,0.3);font-size:10px;">{LANG[lang].get('deposit_fee', '💸 FEE')}</p><p style="color:#ffffff;font-size:14px;">{DEPOSIT_FEE}%</p></div>
-                    <div><p style="color:rgba(255,255,255,0.3);font-size:10px;">{LANG[lang].get('deposit_time', '⏱️ TIME')}</p><p style="color:#ffffff;font-size:14px;">~1-2 {LANG[lang].get('minutes', 'min') if lang == 'en' else 'min'}</p></div>
+            
+            <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:15px;border:1px solid rgba(255,255,255,0.04);margin-bottom:15px;">
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('deposit_network', '🌐 NETWORK')}</p>
+                <p style="color:#4ade80;font-weight:700;font-size:15px;">TRC20 (Tron)</p>
+                
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;margin-top:8px;">{LANG[lang].get('deposit_address', '🏦 ADDRESS')}</p>
+                <p style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;color:#ffd700;font-size:12px;word-break:break-all;font-family:monospace;">{USDT_TRON_ADDRESS}</p>
+                
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;margin-top:8px;">{LANG[lang].get('deposit_contract', '📄 CONTRACT')}</p>
+                <p style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;color:rgba(255,255,255,0.4);font-size:11px;word-break:break-all;font-family:monospace;">{USDT_CONTRACT_ADDRESS}</p>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+                    <div><p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('deposit_fee', '💸 FEE')}</p><p style="color:#ffffff;font-size:14px;">{DEPOSIT_FEE}%</p></div>
+                    <div><p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('deposit_time', '⏱️ TIME')}</p><p style="color:#ffffff;font-size:14px;">~1-2 min</p></div>
                 </div>
             </div>
-            <h3 style="color:#ffffff;font-size:15px;margin:18px 0 12px;">{LANG[lang].get('deposit_verify', 'Verify your deposit')}</h3>
+            
+            <h3 style="color:#ffffff;font-size:14px;margin-bottom:10px;">{LANG[lang].get('deposit_verify', 'Verify your deposit')}</h3>
             <form method="post" action="/deposit">
                 <div class="form-group">
                     <input type="number" name="amount" placeholder="{LANG[lang].get('deposit_amount', 'USDT Amount')}" step="0.01" required>
@@ -1081,17 +1405,15 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
                 </div>
                 <button type="submit" class="btn">{LANG[lang].get('deposit_btn', 'Submit deposit')}</button>
             </form>
-            <div class="link" style="margin-top:16px;">
-                <a href="/dashboard">{LANG[lang].get('deposit_back', '← Back to Dashboard')}</a>
+            
+            <div class="link" style="margin-top:15px;">
+                <a href="/dashboard">{LANG[lang].get('deposit_back', '← Back')}</a>
             </div>
         </div>
+        {get_modal_html()}
     </body>
     </html>
     """
-
-# =====================
-# DEPOSIT ACTION (AVEK VERIFIKASYON TXID UNIK + FEE)
-# =====================
 
 @app.post("/deposit")
 def deposit(
@@ -1104,12 +1426,10 @@ def deposit(
     if amount <= 0:
         raise HTTPException(status_code=400, detail="Montan pa valab")
     
-    # Verifye si TXID la deja itilize
     existing = db.query(Deposit).filter(Deposit.txid == txid).first()
     if existing:
         raise HTTPException(status_code=400, detail="ID tranzaksyon sa deja itilize")
     
-    # Kalkile frè 3%
     fee = amount * DEPOSIT_FEE / 100
     net_amount = amount - fee
     
@@ -1122,152 +1442,182 @@ def deposit(
         status="pending"
     )
     db.add(deposit)
-    add_log(db, user.username, f"Depo {amount} USDT voye pou verifikasyon (frè: {fee} USDT)")
+    add_log(db, user.username, f"Depo {amount} USDT voye (frè: {fee} USDT)")
     db.commit()
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# BUY PLAN
+# REFERRAL
 # =====================
 
-@app.post("/buy-plan")
-def buy_plan(
-    request: Request,
-    plan_id: int = Form(...),
-    db: Session = Depends(get_db)
-):
+@app.get("/referral", response_class=HTMLResponse)
+def referral_page(request: Request, db: Session = Depends(get_db)):
+    lang = get_lang(request)
     user = current_user(request, db)
-    plan = db.query(Plan).filter(Plan.id == plan_id).first()
-    if not plan:
-        raise HTTPException(status_code=404, detail="Plan pa jwenn")
+    referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
     
-    # Verifye si itilizatè a deja gen yon plan aktif
-    existing = db.query(UserPlan).filter(
-        UserPlan.user_id == user.id,
-        UserPlan.status == "active"
-    ).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Ou deja gen yon plan aktif")
+    qualified_investors = sum(1 for r in referrals if r.has_invested)
+    total_bonus = sum(r.bonus_amount for r in referrals)
+    needed = max(0, REFERRAL_MIN_INVESTORS - qualified_investors)
     
-    if user.balance < plan.price:
-        raise HTTPException(status_code=400, detail="Balans pa ase pou achte plan sa")
+    status_text = LANG[lang].get('referral_needed', '{needed} more investors for 2%').format(needed=needed)
+    if qualified_investors >= REFERRAL_MIN_INVESTORS:
+        status_text = "✅ Bonus 2% débloqué!"
     
-    # Retire lajan an
-    user.balance -= plan.price
-    
-    # Kreye plan itilizatè a
-    user_plan = UserPlan(
-        user_id=user.id,
-        plan_id=plan.id,
-        amount=plan.price,
-        status="active",
-        start_date=datetime.now(),
-        last_return_date=datetime.now(),
-        total_returned=0
-    )
-    db.add(user_plan)
-    add_log(db, user.username, f"Achte plan {plan.name} pou {plan.price} USDT")
-    db.commit()
-    return RedirectResponse(url="/dashboard", status_code=303)
+    return f"""
+    <html>
+    <head>
+        <title>Referral - VestiCore</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {STYLE}
+    </head>
+    <body>
+        <div class="container">
+            {get_logo_html(lang, request)}
+            <div class="title">{LANG[lang].get('referral_title', '👥 Referral')}</div>
+            
+            <div style="background:rgba(255,215,0,0.04);border-radius:10px;padding:15px;border:1px solid rgba(255,215,0,0.06);">
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_code', 'YOUR CODE')}</p>
+                <p style="color:#ffd700;font-size:22px;font-weight:700;font-family:monospace;">{user.referral_code}</p>
+            </div>
+            
+            <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;margin-top:12px;">
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_link', 'INVITATION LINK')}</p>
+                <p style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:11px;word-break:break-all;">
+                    <a href="/register?ref={user.referral_code}" style="color:#ffd700;">/register?ref={user.referral_code}</a>
+                </p>
+            </div>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_count', 'People invited')}</p>
+                    <p style="color:#ffffff;font-size:22px;font-weight:700;">{len(referrals)}</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_investors', 'Qualified investors')}</p>
+                    <p style="color:#4ade80;font-size:22px;font-weight:700;">{qualified_investors}/{REFERRAL_MIN_INVESTORS}</p>
+                </div>
+            </div>
+            
+            <div style="background:rgba(255,215,0,0.04);border-radius:8px;padding:12px;margin-top:12px;text-align:center;border:1px solid rgba(255,215,0,0.1);">
+                <p style="color:rgba(255,255,255,0.6);font-size:12px;">{status_text}</p>
+                <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;">{LANG[lang].get('referral_bonus', 'Bonus received')}: <span style="color:#ffd700;font-weight:700;">{total_bonus:.2f} USDT</span></p>
+            </div>
+            
+            <div class="link" style="margin-top:15px;">
+                <a href="/dashboard">{LANG[lang].get('referral_back', '← Back')}</a>
+            </div>
+        </div>
+        {get_modal_html()}
+    </body>
+    </html>
+    """
 
 # =====================
-# WITHDRAW (BLOKE LAJAN DEPI KOU)
+# ADMIN DASHBOARD
 # =====================
 
-@app.post("/withdraw")
-def withdraw(
-    request: Request,
-    amount: float = Form(...),
-    wallet: str = Form(...),
-    db: Session = Depends(get_db)
-):
-    user = current_user(request, db)
-    active_plan_info = get_user_active_plan(db, user.id)
-    if not active_plan_info:
-        raise HTTPException(status_code=403, detail="Ou dwe achte yon plan anvan ou ka fè retrè")
-    plan = active_plan_info["plan"]
-    min_withdraw_map = {"Starter": 10, "Standard": 25, "Premium": 50, "VIP": 100}
-    max_withdraw_map = {"Starter": 200, "Standard": 500, "Premium": 1000, "VIP": 5000}
-    plan_name = plan.name.split()[0]
-    min_withdraw = min_withdraw_map.get(plan_name, 10)
-    max_withdraw = max_withdraw_map.get(plan_name, 200)
-    if amount < min_withdraw:
-        raise HTTPException(status_code=400, detail=f"Minimum retrè pou plan {plan_name} se {min_withdraw} USDT")
-    if amount > max_withdraw:
-        raise HTTPException(status_code=400, detail=f"Maksimòm retrè pou plan {plan_name} se {max_withdraw} USDT")
-    if user.balance < amount:
-        raise HTTPException(status_code=400, detail="Balans pa ase")
-    
-    # Kalkile frè 5%
-    fee = amount * WITHDRAW_FEE / 100
-    net_amount = amount - fee
-    
-    # BLOKE LAJAN AN DEPI KOU
-    user.balance -= amount
-    
-    withdraw = Withdraw(
-        username=user.username,
-        amount=amount,
-        fee=fee,
-        net_amount=net_amount,
-        wallet=wallet,
-        status="pending"
-    )
-    db.add(withdraw)
-    add_log(db, user.username, f"Demann retrè {amount} USDT voye - Plan {plan_name}")
-    db.commit()
-    return RedirectResponse(url="/dashboard", status_code=303)
-
-# =====================
-# ADMIN APPROVE WITHDRAW (PA RETIRE LAJAN)
-# =====================
-
-@app.post("/admin/approve-withdraw/{withdraw_id}")
-def approve_withdraw(
-    withdraw_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
+@app.get("/admin", response_class=HTMLResponse)
+def admin_dashboard(request: Request, db: Session = Depends(get_db)):
+    lang = get_lang(request)
     admin_user(request, db)
-    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
-    if not withdraw:
-        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
-    if withdraw.status != "pending":
-        raise HTTPException(status_code=400, detail="Demann sa deja trete")
-    withdraw.status = "approved"
-    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT apwouve pa admin (net: {withdraw.net_amount} USDT)")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
-
-# =====================
-# ADMIN REJECT WITHDRAW (RETOUTE KANTITE TOTAL LA)
-# =====================
-
-@app.post("/admin/reject-withdraw/{withdraw_id}")
-def reject_withdraw(
-    withdraw_id: int,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    admin_user(request, db)
-    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
-    if not withdraw:
-        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
-    if withdraw.status != "pending":
-        raise HTTPException(status_code=400, detail="Demann sa deja trete")
-    withdraw.status = "rejected"
+    users = db.query(User).all()
+    deposits = db.query(Deposit).all()
+    withdraws = db.query(Withdraw).all()
+    logs = db.query(ActivityLog).all()
+    pending_deposits = db.query(Deposit).filter(Deposit.status == "pending").all()
+    pending_withdraws = db.query(Withdraw).filter(Withdraw.status == "pending").all()
     
-    # RETOUTE KANTITE TOTAL LA (AMOUNT, PA NET_AMOUNT)
-    user = db.query(User).filter(User.username == withdraw.username).first()
-    if user:
-        user.balance += withdraw.amount
+    deposit_html = ""
+    for d in pending_deposits:
+        deposit_html += f"""
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
+            <p style="color:#ffffff;font-size:13px;"><strong>{d.username}</strong> - {d.amount} USDT</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:10px;">TXID: {d.txid}</p>
+            <p style="color:rgba(255,255,255,0.2);font-size:10px;">Frè: {d.fee} USDT | Net: {d.net_amount} USDT</p>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+                <form method="post" action="/admin/approve-deposit/{d.id}" style="display:inline;">
+                    <button style="background:#4ade80;border:none;padding:6px 14px;border-radius:6px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_approve', 'Approve')}</button>
+                </form>
+                <form method="post" action="/admin/reject-deposit/{d.id}" style="display:inline;">
+                    <button style="background:#ff6b6b;border:none;padding:6px 14px;border-radius:6px;color:#ffffff;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_reject', 'Reject')}</button>
+                </form>
+            </div>
+        </div>
+        """
     
-    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT rejete pa admin")
-    db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
+    withdraw_html = ""
+    for w in pending_withdraws:
+        withdraw_html += f"""
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
+            <p style="color:#ffffff;font-size:13px;"><strong>{w.username}</strong> - {w.amount} USDT</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:10px;">Frè: {w.fee} USDT | Net: {w.net_amount} USDT</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:10px;">Wallet: {w.wallet}</p>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+                <form method="post" action="/admin/approve-withdraw/{w.id}" style="display:inline;">
+                    <button style="background:#4ade80;border:none;padding:6px 14px;border-radius:6px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_approve', 'Approve')}</button>
+                </form>
+                <form method="post" action="/admin/reject-withdraw/{w.id}" style="display:inline;">
+                    <button style="background:#ff6b6b;border:none;padding:6px 14px;border-radius:6px;color:#ffffff;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_reject', 'Reject')}</button>
+                </form>
+            </div>
+        </div>
+        """
+    
+    no_pending = LANG[lang].get('admin_no_pending', 'No pending requests')
+    return f"""
+    <html>
+    <head>
+        <title>Admin - VestiCore</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {STYLE}
+    </head>
+    <body>
+        <div class="container" style="max-width:560px;">
+            {get_logo_html(lang, request)}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div>
+                    <h1 style="color:#ffffff;font-size:20px;">🛡️ {LANG[lang].get('admin_title', 'Admin')}</h1>
+                    <p style="color:rgba(255,255,255,0.3);font-size:11px;">{LANG[lang].get('admin_sub', 'Admin Dashboard')}</p>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;">{LANG[lang].get('admin_back', '← Back')}</a>
+            </div>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:15px;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_users', 'USERS')}</p>
+                    <p style="color:#ffffff;font-size:20px;font-weight:700;">{len(users)}</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_deposits', 'DEPOSITS')}</p>
+                    <p style="color:#4ade80;font-size:20px;font-weight:700;">{len(deposits)}</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_withdraws', 'WITHDRAWALS')}</p>
+                    <p style="color:#fbbf24;font-size:20px;font-weight:700;">{len(withdraws)}</p>
+                </div>
+            </div>
+            
+            <h3 style="color:#ffd700;font-size:14px;">{LANG[lang].get('admin_pending_deposits', '⏳ Pending deposits')}</h3>
+            {deposit_html if deposit_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
+            
+            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">{LANG[lang].get('admin_pending_withdraws', '⏳ Pending withdrawals')}</h3>
+            {withdraw_html if withdraw_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
+            
+            <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
+                <p style="color:rgba(255,255,255,0.15);font-size:10px;">{LANG[lang].get('admin_recent', 'Recent activities')}</p>
+                <ul style="list-style:none;padding:0;max-height:120px;overflow-y:auto;">
+                {''.join([f"<li style='color:rgba(255,255,255,0.2);font-size:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.01);'>{log.date.strftime('%d/%m %H:%M')} - {log.username}: {log.action}</li>" for log in logs[-12:]])}
+                </ul>
+            </div>
+        </div>
+        {get_modal_html()}
+    </body>
+    </html>
+    """
 
 # =====================
-# ADMIN APPROVE DEPOSIT (AVEK FEE + REFERRAL)
+# ADMIN APPROVE DEPOSIT
 # =====================
 
 @app.post("/admin/approve-deposit/{deposit_id}")
@@ -1286,11 +1636,9 @@ def approve_deposit(
     deposit.status = "approved"
     user = db.query(User).filter(User.username == deposit.username).first()
     if user:
-        # Ajoute net_amount (apre frè)
         user.balance += deposit.net_amount
         add_log(db, user.username, f"Depo {deposit.amount} USDT apwouve (net: {deposit.net_amount} USDT)")
         
-        # Si itilizatè a te envite pa yon moun, mete has_invested = True
         if user.referred_by:
             referral = db.query(Referral).filter(
                 Referral.invited_user == user.username
@@ -1298,20 +1646,16 @@ def approve_deposit(
             if referral:
                 referral.has_invested = True
                 
-                # Vérifier si referrer a 10 investisseurs qualifiés
                 referrer = db.query(User).filter(User.username == referral.referrer).first()
                 if referrer:
-                    # Konte moun envite ki te envesti
                     qualified = db.query(Referral).filter(
                         Referral.referrer == referrer.username,
                         Referral.has_invested == True
                     ).count()
                     
-                    # Si 10+ moun envesti, bay bonus 2%
                     if qualified >= REFERRAL_MIN_INVESTORS and not referrer.referral_qualified:
                         referrer.referral_qualified = True
                         
-                        # Kalkile total depo moun envite yo
                         invited_users = db.query(Referral).filter(
                             Referral.referrer == referrer.username,
                             Referral.has_invested == True
@@ -1329,7 +1673,6 @@ def approve_deposit(
                         referrer.balance += bonus
                         referrer.referral_bonus += bonus
                         
-                        # Mete ajou referral
                         for inv in invited_users:
                             ref = db.query(Referral).filter(
                                 Referral.invited_user == inv.invited_user
@@ -1365,164 +1708,49 @@ def reject_deposit(
     return RedirectResponse(url="/admin", status_code=303)
 
 # =====================
-# REFERRAL
+# ADMIN APPROVE WITHDRAW
 # =====================
 
-@app.get("/referral", response_class=HTMLResponse)
-def referral_page(request: Request, db: Session = Depends(get_db)):
-    lang = get_lang(request)
-    user = current_user(request, db)
-    referrals = db.query(Referral).filter(Referral.referrer == user.username).all()
-    
-    qualified_investors = sum(1 for r in referrals if r.has_invested)
-    total_bonus = sum(r.bonus_amount for r in referrals)
-    needed = max(0, REFERRAL_MIN_INVESTORS - qualified_investors)
-    
-    status_text = LANG[lang].get('referral_needed', '{needed} more investors needed for 2% bonus').format(needed=needed)
-    if qualified_investors >= REFERRAL_MIN_INVESTORS:
-        status_text = "✅ " + LANG[lang].get('referral_bonus', '2% bonus unlocked!') if lang != 'fr' else "✅ Bonus 2% debloke!"
-    
-    return f"""
-    <html>
-    <head>
-        <title>Referral - VestiCore</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        {STYLE}
-    </head>
-    <body>
-        <div class="container">
-            {get_logo_html(lang, request)}
-            <div class="title">{LANG[lang].get('referral_title', '👥 Referral')}</div>
-            <div style="background:rgba(255,215,0,0.04);border-radius:10px;padding:16px;border:1px solid rgba(255,215,0,0.06);">
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('referral_code', 'YOUR REFERRAL CODE')}</p>
-                <p style="color:#ffd700;font-size:22px;font-weight:700;font-family:monospace;">{user.referral_code}</p>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;margin-top:12px;">
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{LANG[lang].get('referral_link', 'INVITATION LINK')}</p>
-                <p style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:11px;word-break:break-all;"><a href="/register?ref={user.referral_code}" style="color:#ffd700;">/register?ref={user.referral_code}</a></p>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
-                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_count', 'People you invited:')}</p>
-                    <p style="color:#ffffff;font-size:22px;font-weight:700;">{len(referrals)}</p>
-                </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_investors', 'Qualified investors:')}</p>
-                    <p style="color:#4ade80;font-size:22px;font-weight:700;">{qualified_investors}/{REFERRAL_MIN_INVESTORS}</p>
-                </div>
-            </div>
-            <div style="background:rgba(255,215,0,0.04);border-radius:8px;padding:12px;margin-top:12px;text-align:center;border:1px solid rgba(255,215,0,0.1);">
-                <p style="color:rgba(255,255,255,0.6);font-size:12px;">{status_text}</p>
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;">{LANG[lang].get('referral_bonus', 'Bonus received:')} <span style="color:#ffd700;font-weight:700;">{total_bonus:.2f} USDT</span></p>
-            </div>
-            <div class="link" style="margin-top:16px;">
-                <a href="/dashboard">{LANG[lang].get('referral_back', '← Back to Dashboard')}</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
-# =====================
-# ADMIN DASHBOARD
-# =====================
-
-@app.get("/admin", response_class=HTMLResponse)
-def admin_dashboard(request: Request, db: Session = Depends(get_db)):
-    lang = get_lang(request)
+@app.post("/admin/approve-withdraw/{withdraw_id}")
+def approve_withdraw(
+    withdraw_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     admin_user(request, db)
-    users = db.query(User).all()
-    deposits = db.query(Deposit).all()
-    withdraws = db.query(Withdraw).all()
-    logs = db.query(ActivityLog).all()
-    user_plans = db.query(UserPlan).all()
-    pending_deposits = db.query(Deposit).filter(Deposit.status == "pending").all()
-    pending_withdraws = db.query(Withdraw).filter(Withdraw.status == "pending").all()
-    
-    deposit_html = ""
-    for d in pending_deposits:
-        deposit_html += f"""
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
-            <p style="color:#ffffff;font-size:13px;"><strong>{d.username}</strong> - {d.amount} USDT</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:10px;">TXID: {d.txid}</p>
-            <p style="color:rgba(255,255,255,0.2);font-size:10px;">Frè: {d.fee} USDT | Net: {d.net_amount} USDT</p>
-            <p style="color:rgba(255,255,255,0.2);font-size:10px;">{d.date.strftime('%d/%m/%Y %H:%M')}</p>
-            <div style="display:flex;gap:6px;margin-top:6px;">
-                <form method="post" action="/admin/approve-deposit/{d.id}" style="display:inline;">
-                    <button style="background:#4ade80;border:none;padding:6px 14px;border-radius:6px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_approve', 'Approve')}</button>
-                </form>
-                <form method="post" action="/admin/reject-deposit/{d.id}" style="display:inline;">
-                    <button style="background:#ff6b6b;border:none;padding:6px 14px;border-radius:6px;color:#ffffff;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_reject', 'Reject')}</button>
-                </form>
-            </div>
-        </div>
-        """
-    
-    withdraw_html = ""
-    for w in pending_withdraws:
-        withdraw_html += f"""
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
-            <p style="color:#ffffff;font-size:13px;"><strong>{w.username}</strong> - {w.amount} USDT</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:10px;">Frè: {w.fee} USDT | Net: {w.net_amount} USDT</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:10px;">Wallet: {w.wallet}</p>
-            <p style="color:rgba(255,255,255,0.2);font-size:10px;">{w.date.strftime('%d/%m/%Y %H:%M')}</p>
-            <div style="display:flex;gap:6px;margin-top:6px;">
-                <form method="post" action="/admin/approve-withdraw/{w.id}" style="display:inline;">
-                    <button style="background:#4ade80;border:none;padding:6px 14px;border-radius:6px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_approve', 'Approve')}</button>
-                </form>
-                <form method="post" action="/admin/reject-withdraw/{w.id}" style="display:inline;">
-                    <button style="background:#ff6b6b;border:none;padding:6px 14px;border-radius:6px;color:#ffffff;font-weight:700;cursor:pointer;font-size:12px;">{LANG[lang].get('admin_reject', 'Reject')}</button>
-                </form>
-            </div>
-        </div>
-        """
-    
-    no_pending = LANG[lang].get('admin_no_pending', 'No pending requests')
-    return f"""
-    <html>
-    <head>
-        <title>Admin - VestiCore</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        {STYLE}
-    </head>
-    <body>
-        <div class="container" style="max-width:560px;">
-            {get_logo_html(lang, request)}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <div>
-                    <h1 style="color:#ffffff;font-size:20px;">🛡️ {LANG[lang].get('admin_title', 'Admin')}</h1>
-                    <p style="color:rgba(255,255,255,0.3);font-size:11px;">{LANG[lang].get('admin_sub', 'Admin Dashboard')}</p>
-                </div>
-                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;">{LANG[lang].get('admin_back', '← Back')}</a>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_users', 'USERS')}</p>
-                    <p style="color:#ffffff;font-size:20px;font-weight:700;">{len(users)}</p>
-                </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_deposits', 'DEPOSITS')}</p>
-                    <p style="color:#4ade80;font-size:20px;font-weight:700;">{len(deposits)}</p>
-                </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_withdraws', 'WITHDRAWALS')}</p>
-                    <p style="color:#fbbf24;font-size:20px;font-weight:700;">{len(withdraws)}</p>
-                </div>
-            </div>
-            <h3 style="color:#ffd700;font-size:14px;">{LANG[lang].get('admin_pending_deposits', '⏳ Pending deposits')}</h3>
-            {deposit_html if deposit_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
-            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">{LANG[lang].get('admin_pending_withdraws', '⏳ Pending withdrawals')}</h3>
-            {withdraw_html if withdraw_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
-            <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
-                <p style="color:rgba(255,255,255,0.15);font-size:10px;">{LANG[lang].get('admin_recent', 'Recent activities')}</p>
-                <ul style="list-style:none;padding:0;max-height:120px;overflow-y:auto;">
-                {''.join([f"<li style='color:rgba(255,255,255,0.2);font-size:10px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.01);'>{log.date.strftime('%d/%m %H:%M')} - {log.username}: {log.action}</li>" for log in logs[-12:]])}
-                </ul>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
+    if not withdraw:
+        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
+    if withdraw.status != "pending":
+        raise HTTPException(status_code=400, detail="Demann sa deja trete")
+    withdraw.status = "approved"
+    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT apwouve (net: {withdraw.net_amount} USDT)")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
+# ADMIN REJECT WITHDRAW
+# =====================
+
+@app.post("/admin/reject-withdraw/{withdraw_id}")
+def reject_withdraw(
+    withdraw_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    withdraw = db.query(Withdraw).filter(Withdraw.id == withdraw_id).first()
+    if not withdraw:
+        raise HTTPException(status_code=404, detail="Demann retrè pa jwenn")
+    if withdraw.status != "pending":
+        raise HTTPException(status_code=400, detail="Demann sa deja trete")
+    withdraw.status = "rejected"
+    user = db.query(User).filter(User.username == withdraw.username).first()
+    if user:
+        user.balance += withdraw.amount
+    add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT rejete")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
 
 # =====================
 # LOGOUT
@@ -1547,4 +1775,4 @@ def status():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
