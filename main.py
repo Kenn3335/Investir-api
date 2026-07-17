@@ -1816,10 +1816,15 @@ def kyc_submit(
 ):
     user = current_user(request, db)
     
-    user.full_name = full_name or user.full_name
-    user.email = email or user.email
-    user.phone = phone or user.phone
-    user.country = country or user.country
+    if full_name:
+        user.full_name = full_name
+    if email:
+        user.email = email
+    if phone:
+        user.phone = phone
+    if country:
+        user.country = country
+    
     user.kyc_status = "pending"
     user.kyc_submitted_at = datetime.now()
     
