@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -119,21 +119,6 @@ STYLE = """
         margin-top: 10px;
     }
     
-    /* ===== HEADER ===== */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
     .logo-diamond {
         width: 40px;
         height: 40px;
@@ -157,6 +142,20 @@ STYLE = """
     }
     .logo-text span { color: #ffd700; }
     
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
     .header-right {
         display: flex;
         align-items: center;
@@ -231,7 +230,6 @@ STYLE = """
         font-weight: 700;
     }
     
-    /* ===== NAV ===== */
     .nav {
         display: flex;
         gap: 5px;
@@ -258,7 +256,6 @@ STYLE = """
         background: rgba(255,215,0,0.08);
     }
     
-    /* ===== USER DASHBOARD HEADER ===== */
     .user-dash-header {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -295,7 +292,6 @@ STYLE = """
     .dash-stat.purple { border-color: rgba(168,85,247,0.12); }
     .dash-stat.red { border-color: rgba(255,107,107,0.12); }
     
-    /* ===== ACTIONS ===== */
     .actions {
         display: flex;
         gap: 10px;
@@ -328,8 +324,14 @@ STYLE = """
         background: rgba(255,255,255,0.12);
         box-shadow: 0 10px 30px rgba(255,255,255,0.05);
     }
+    .btn-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee4444);
+        color: #fff;
+    }
+    .btn-danger:hover {
+        box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+    }
     
-    /* ===== CARDS ===== */
     .cards {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -357,7 +359,6 @@ STYLE = """
     .card .value.purple { color: #a855f7; }
     .card .value.red { color: #ff6b6b; }
     
-    /* ===== SECTIONS ===== */
     .sections {
         display: grid;
         grid-template-columns: 2fr 1fr;
@@ -380,6 +381,37 @@ STYLE = """
     }
     .section h4 span { color: rgba(255,255,255,0.2); font-size: 12px; font-weight: 400; }
     
+    .plan-card {
+        background: rgba(255,255,255,0.02);
+        border-radius: 10px;
+        padding: 14px;
+        margin: 8px 0;
+        border: 1px solid rgba(255,255,255,0.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .plan-card h4 { color: #ffd700; font-size: 14px; }
+    .plan-card p { color: rgba(255,255,255,0.4); font-size: 11px; margin: 2px 0; }
+    .plan-card .return { color: #4ade80; font-weight: 600; }
+    .plan-card .plan-price { color: #ffffff; font-size: 16px; font-weight: 700; text-align: right; }
+    .plan-card .plan-price small { color: rgba(255,255,255,0.3); font-size: 10px; font-weight: 400; }
+    .plan-card .btn-sm {
+        padding: 6px 14px;
+        font-size: 11px;
+        background: linear-gradient(135deg, #ffd700, #f0a500);
+        border: none;
+        border-radius: 6px;
+        color: #0a0e27;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 4px;
+    }
+    .plan-card .btn-sm:hover {
+        transform: scale(1.05);
+    }
+    
     .tx-item {
         display: flex;
         justify-content: space-between;
@@ -396,15 +428,8 @@ STYLE = """
         padding: 8px 0;
         border-bottom: 1px solid rgba(255,255,255,0.02);
     }
-    .news-item .title {
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 500;
-    }
-    .news-item .date {
-        color: rgba(255,255,255,0.2);
-        font-size: 10px;
-    }
+    .news-item .title { color: #ffffff; font-size: 12px; font-weight: 500; }
+    .news-item .date { color: rgba(255,255,255,0.2); font-size: 10px; }
     
     .promo-item {
         background: rgba(255,215,0,0.04);
@@ -413,17 +438,9 @@ STYLE = """
         margin: 6px 0;
         border: 1px solid rgba(255,215,0,0.06);
     }
-    .promo-item .title {
-        color: #ffd700;
-        font-size: 12px;
-        font-weight: 600;
-    }
-    .promo-item .desc {
-        color: rgba(255,255,255,0.4);
-        font-size: 11px;
-    }
+    .promo-item .title { color: #ffd700; font-size: 12px; font-weight: 600; }
+    .promo-item .desc { color: rgba(255,255,255,0.4); font-size: 11px; }
     
-    /* ===== DROPDOWN ===== */
     .dropdown {
         display: none;
         position: absolute;
@@ -458,14 +475,9 @@ STYLE = """
         border-top: 1px solid rgba(255,255,255,0.05);
         margin: 6px 12px;
     }
-    .dropdown .logout {
-        color: #ff6b6b;
-    }
-    .dropdown .logout:hover {
-        background: rgba(255,107,107,0.05);
-    }
+    .dropdown .logout { color: #ff6b6b; }
+    .dropdown .logout:hover { background: rgba(255,107,107,0.05); }
     
-    /* ===== MODAL ===== */
     .modal {
         display: none;
         position: fixed;
@@ -493,10 +505,9 @@ STYLE = """
     }
     .modal-content h3 { color: #ffffff; font-size: 20px; margin-bottom: 10px; }
     .modal-content p { color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-    .modal-content .btn { width: auto; display: inline-block; padding: 10px 30px; }
+    .modal-content .btn { width: auto; display: inline-block; padding: 10px 30px; background: linear-gradient(135deg, #ffd700, #f0a500); border: none; border-radius: 8px; color: #0a0e27; font-weight: 700; cursor: pointer; }
     .modal-content .icon-big { font-size: 48px; margin-bottom: 15px; display: block; }
     
-    /* ===== WITHDRAW SECTION ===== */
     .withdraw-section {
         margin-top: 15px;
         padding: 15px;
@@ -505,12 +516,80 @@ STYLE = """
         border: 1px solid rgba(255,255,255,0.05);
     }
     .withdraw-section h4 { color: #ffffff; font-size: 14px; margin-bottom: 10px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group input {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 14px;
+        outline: none;
+    }
+    .form-group input:focus {
+        border-color: #ffd700;
+        background: rgba(255,215,0,0.05);
+    }
+    .form-group input::placeholder { color: rgba(255,255,255,0.2); }
     
-    /* ===== RESPONSIVE ===== */
+    .profile-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 15px 0;
+    }
+    .profile-item {
+        background: rgba(255,255,255,0.02);
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+    .profile-item .label { color: rgba(255,255,255,0.3); font-size: 10px; text-transform: uppercase; }
+    .profile-item .value { color: #ffffff; font-size: 15px; font-weight: 600; margin-top: 4px; }
+    .profile-item .value.gold { color: #ffd700; }
+    
+    .kyc-status {
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 10px 0;
+    }
+    .kyc-status.pending { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.15); color: #fbbf24; }
+    .kyc-status.verified { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); color: #4ade80; }
+    .kyc-status.rejected { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.15); color: #ff6b6b; }
+    .kyc-status.unverified { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+    
+    .ticket-item {
+        background: rgba(255,255,255,0.02);
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin: 6px 0;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+    .ticket-item .ticket-title { color: #ffffff; font-size: 13px; font-weight: 600; }
+    .ticket-item .ticket-status { font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 10px; display: inline-block; }
+    .ticket-item .ticket-status.open { background: rgba(74,222,128,0.12); color: #4ade80; }
+    .ticket-item .ticket-status.closed { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+    .ticket-item .ticket-status.waiting { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .ticket-item .ticket-date { color: rgba(255,255,255,0.2); font-size: 10px; }
+    
+    .error-message {
+        background: rgba(255,107,107,0.08);
+        border: 1px solid rgba(255,107,107,0.12);
+        color: #ff6b6b;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
     @media (max-width: 992px) {
         .user-dash-header { grid-template-columns: 1fr 1fr; }
         .cards { grid-template-columns: repeat(3, 1fr); }
         .sections { grid-template-columns: 1fr; }
+        .profile-info { grid-template-columns: 1fr; }
     }
     @media (max-width: 600px) {
         .container { padding: 15px; }
@@ -610,6 +689,14 @@ function faireRetrait() {
         showModal('Erreur de connexion au serveur', '❌ Erreur', 'error');
     });
 }
+
+function showProfile() {
+    document.getElementById('profileSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showPlans() {
+    document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' });
+}
 </script>
 """
 
@@ -643,7 +730,6 @@ LANG = {
         "dashboard_deposit": "Dépôt",
         "dashboard_withdraw": "Retrait",
         "dashboard_referral": "Parrainage",
-        "dashboard_history": "Historique",
         "dashboard_profile": "Profil",
         "dashboard_logout": "Déconnexion",
         "dashboard_plans": "Plans d'investissement",
@@ -709,7 +795,18 @@ LANG = {
         "recent_transactions": "Transactions récentes",
         "earnings_history": "Historique des gains",
         "news": "Actualités",
-        "promotions": "Promotions"
+        "promotions": "Promotions",
+        "kyc_title": "Vérification KYC",
+        "kyc_pending": "En attente de vérification",
+        "kyc_verified": "✅ Vérifié",
+        "kyc_rejected": "❌ Rejeté",
+        "kyc_unverified": "Non vérifié",
+        "kyc_submit": "Soumettre pour vérification",
+        "tickets_title": "Mes tickets",
+        "ticket_new": "Nouveau ticket",
+        "ticket_open": "Ouvert",
+        "ticket_closed": "Fermé",
+        "ticket_waiting": "En attente"
     },
     "en": {
         "title": "VestiCore - Digital Finance & Rewards",
@@ -736,7 +833,6 @@ LANG = {
         "dashboard_deposit": "Deposit",
         "dashboard_withdraw": "Withdraw",
         "dashboard_referral": "Referral",
-        "dashboard_history": "History",
         "dashboard_profile": "Profile",
         "dashboard_logout": "Logout",
         "dashboard_plans": "Investment Plans",
@@ -802,7 +898,18 @@ LANG = {
         "recent_transactions": "Recent Transactions",
         "earnings_history": "Earnings History",
         "news": "News",
-        "promotions": "Promotions"
+        "promotions": "Promotions",
+        "kyc_title": "KYC Verification",
+        "kyc_pending": "Pending verification",
+        "kyc_verified": "✅ Verified",
+        "kyc_rejected": "❌ Rejected",
+        "kyc_unverified": "Unverified",
+        "kyc_submit": "Submit for verification",
+        "tickets_title": "My Tickets",
+        "ticket_new": "New ticket",
+        "ticket_open": "Open",
+        "ticket_closed": "Closed",
+        "ticket_waiting": "Waiting"
     },
     "es": {
         "title": "VestiCore - Finanzas Digitales & Rewards",
@@ -829,7 +936,6 @@ LANG = {
         "dashboard_deposit": "Depósito",
         "dashboard_withdraw": "Retiro",
         "dashboard_referral": "Referidos",
-        "dashboard_history": "Historial",
         "dashboard_profile": "Perfil",
         "dashboard_logout": "Cerrar sesión",
         "dashboard_plans": "Planes de inversión",
@@ -895,7 +1001,18 @@ LANG = {
         "recent_transactions": "Transacciones Recientes",
         "earnings_history": "Historial de Ganancias",
         "news": "Noticias",
-        "promotions": "Promociones"
+        "promotions": "Promociones",
+        "kyc_title": "Verificación KYC",
+        "kyc_pending": "Pendiente de verificación",
+        "kyc_verified": "✅ Verificado",
+        "kyc_rejected": "❌ Rechazado",
+        "kyc_unverified": "No verificado",
+        "kyc_submit": "Enviar para verificación",
+        "tickets_title": "Mis tickets",
+        "ticket_new": "Nuevo ticket",
+        "ticket_open": "Abierto",
+        "ticket_closed": "Cerrado",
+        "ticket_waiting": "En espera"
     }
 }
 
@@ -916,6 +1033,15 @@ class User(Base):
     referral_qualified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
     user_id_display = Column(String, unique=True, nullable=True)
+    # KYC
+    kyc_status = Column(String, default="unverified")  # unverified, pending, verified, rejected
+    kyc_document = Column(String, nullable=True)
+    kyc_submitted_at = Column(DateTime, nullable=True)
+    # Profile
+    full_name = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    country = Column(String, nullable=True)
 
 class Plan(Base):
     __tablename__ = "plans"
@@ -982,6 +1108,21 @@ class Notification(Base):
     message = Column(String)
     read = Column(Boolean, default=False)
     date = Column(DateTime, default=datetime.now)
+
+# =====================
+# TICKET SYSTEM
+# =====================
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    subject = Column(String)
+    message = Column(Text)
+    status = Column(String, default="open")  # open, waiting, closed
+    admin_response = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now)
 
 Base.metadata.create_all(bind=engine)
 
@@ -1142,7 +1283,7 @@ def get_modal_html():
             <span class="icon-big" id="modalIcon">ℹ️</span>
             <h3 id="modalTitle">Information</h3>
             <p id="modalMessage">Message</p>
-            <button onclick="closeModal()" class="btn" style="width:auto;display:inline-block;padding:10px 30px;">Fermer</button>
+            <button onclick="closeModal()" class="btn">Fermer</button>
         </div>
     </div>
     {MODAL_JS}
@@ -1172,7 +1313,7 @@ def home(request: Request):
                         <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
                     </div>
                 </div>
-                <div class="lang-selector" style="display:flex;gap:6px;">
+                <div style="display:flex;gap:6px;">
                     <a href="/set-lang/fr" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">FR</a>
                     <a href="/set-lang/en" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">EN</a>
                     <a href="/set-lang/es" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">ES</a>
@@ -1224,26 +1365,26 @@ def register_page(request: Request, ref: str = None):
                 </div>
             </div>
             
-            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('register_title', 'Create your account')}</div>
-            <div class="subtitle" style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('register_title', 'Create your account')}</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
             
             <form method="post">
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
-                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
+                <div class="form-group">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
+                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" required>
                 </div>
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
-                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
+                <div class="form-group">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
+                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" required>
                 </div>
-                <div class="form-group" style="margin-bottom:20px;">
-                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_ref', 'Referral code (optional)')}</label>
-                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}" {ref_value} style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;">
+                <div class="form-group">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_ref', 'Referral code (optional)')}</label>
+                    <input type="text" name="ref" placeholder="{LANG[lang].get('register_ref', 'Referral code (optional)')}" {ref_value}>
                 </div>
                 <button type="submit" class="btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:10px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('register_btn', 'Create account')}</button>
             </form>
             
-            <div class="link" style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
+            <div style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
                 {LANG[lang].get('register_link', 'Already have an account?')} <a href="/login" style="color:#ffd700;text-decoration:none;font-weight:600;">{LANG[lang].get('register_link_btn', 'Login')}</a>
             </div>
         </div>
@@ -1296,12 +1437,13 @@ def register(
     return RedirectResponse(url="/login", status_code=303)
 
 # =====================
-# LOGIN
+# LOGIN - AVEC ERÈ RESTE SOU MENM PAJ
 # =====================
 
 @app.get("/login", response_class=HTMLResponse)
-def login_page(request: Request):
+def login_page(request: Request, error: str = None):
     lang = get_lang(request)
+    error_html = f'<div class="error-message">❌ {error}</div>' if error else ''
     return f"""
     <html>
     <head>
@@ -1321,22 +1463,24 @@ def login_page(request: Request):
                 </div>
             </div>
             
-            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('login_title', 'Welcome back')}</div>
-            <div class="subtitle" style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('login_title', 'Welcome back')}</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
             
-            <form method="post">
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
-                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
+            {error_html}
+            
+            <form method="post" action="/login">
+                <div class="form-group">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
+                    <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" required>
                 </div>
-                <div class="form-group" style="margin-bottom:20px;">
-                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
-                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#ffffff;font-size:14px;outline:none;" required>
+                <div class="form-group">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_password', 'Password')}</label>
+                    <input type="password" name="password" placeholder="{LANG[lang].get('register_password', 'Password')}" required>
                 </div>
                 <button type="submit" class="btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:10px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('login_btn', 'Login')}</button>
             </form>
             
-            <div class="link" style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
+            <div style="text-align:center;margin-top:18px;color:rgba(255,255,255,0.35);font-size:13px;">
                 {LANG[lang].get('login_link', 'No account?')} <a href="/register" style="color:#ffd700;text-decoration:none;font-weight:600;">{LANG[lang].get('login_link_btn', 'Create account')}</a>
             </div>
         </div>
@@ -1354,15 +1498,15 @@ def login(
 ):
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Itilizatè pa jwenn")
+        return RedirectResponse(url="/login?error=Nom+d%27utilisateur+incorrect", status_code=303)
     if not verify_password(password, user.password):
-        raise HTTPException(status_code=401, detail="Modpas pa bon")
+        return RedirectResponse(url="/login?error=Mot+de+passe+incorrect", status_code=303)
     request.session["username"] = username
     add_log(db, username, "Koneksyon fèt")
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD - NOUVO VIZYON
+# DASHBOARD - AVEC PLAN AK PROFIL
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -1378,44 +1522,65 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     qualified_investors = sum(1 for r in referrals if r.has_invested)
     total_bonus = sum(r.bonus_amount for r in referrals)
     
-    # Notifications
     notifications = db.query(Notification).filter(Notification.username == user.username, Notification.read == False).all()
     notif_count = len(notifications)
     
-    # History
     logs = db.query(ActivityLog).filter(ActivityLog.username == user.username).order_by(ActivityLog.date.desc()).limit(10).all()
     
-    # Total investment (from user_plans)
     total_investment = db.query(UserPlan).filter(UserPlan.user_id == user.id, UserPlan.status == "active").first()
     total_investment_amount = total_investment.amount if total_investment else 0
     
-    # Pending withdraw
     pending_withdraw = db.query(Withdraw).filter(Withdraw.username == user.username, Withdraw.status == "pending").all()
     pending_withdraw_amount = sum(w.amount for w in pending_withdraw)
     
-    # Active plan name
     active_plan_name = active_plan_info["plan"].name if active_plan_info else "Aucun"
     
-    # Plans for modal
+    # KYC status
+    kyc_status_text = {
+        "unverified": LANG[lang].get('kyc_unverified', 'Unverified'),
+        "pending": LANG[lang].get('kyc_pending', 'Pending verification'),
+        "verified": LANG[lang].get('kyc_verified', '✅ Verified'),
+        "rejected": LANG[lang].get('kyc_rejected', '❌ Rejected')
+    }.get(user.kyc_status, 'Unverified')
+    
+    kyc_class = {
+        "unverified": "unverified",
+        "pending": "pending",
+        "verified": "verified",
+        "rejected": "rejected"
+    }.get(user.kyc_status, "unverified")
+    
+    # Profile info
+    profile_items = f"""
+    <div class="profile-item"><div class="label">Nom d'utilisateur</div><div class="value">{user.username}</div></div>
+    <div class="profile-item"><div class="label">ID</div><div class="value gold">{user.user_id_display or 'VC000001'}</div></div>
+    <div class="profile-item"><div class="label">Plan actif</div><div class="value">{active_plan_name}</div></div>
+    <div class="profile-item"><div class="label">Solde</div><div class="value gold">{user.balance:.2f} USDT</div></div>
+    <div class="profile-item"><div class="label">Bonus de parrainage</div><div class="value">{total_bonus:.2f} USDT</div></div>
+    <div class="profile-item"><div class="label">Membres depuis</div><div class="value">{user.created_at.strftime('%d/%m/%Y')}</div></div>
+    """
+    
+    # Plans
     plan_html = ""
     for plan in plans:
         total_return = plan.price * (plan.daily_return / 100) * plan.duration
         plan_html += f"""
-        <div class="plan-card" style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;margin:8px 0;border:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <div class="plan-card">
             <div>
-                <h4 style="color:#ffd700;font-size:14px;">{plan.name}</h4>
-                <p style="color:rgba(255,255,255,0.4);font-size:11px;">{plan.description}</p>
-                <p style="color:rgba(255,255,255,0.3);font-size:11px;">⏳ {plan.duration} jours • 📈 {plan.daily_return}%/jour</p>
+                <h4>{plan.name}</h4>
+                <p>{plan.description}</p>
+                <p>⏳ {plan.duration} jours • <span class="return">📈 {plan.daily_return}% / jour</span></p>
                 <p style="color:rgba(255,255,255,0.2);font-size:10px;">💎 Total: +{total_return:.2f} USDT</p>
             </div>
-            <div style="text-align:right;">
-                <div style="color:#ffffff;font-size:16px;font-weight:700;">{plan.price} <small style="color:rgba(255,255,255,0.3);font-size:10px;">USDT</small></div>
-                <button onclick="acheterPlan({plan.id})" style="margin-top:4px;padding:6px 14px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:6px;color:#0a0e27;font-weight:700;font-size:11px;cursor:pointer;">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
+            <div class="plan-price">
+                {plan.price} <small>USDT</small>
+                <br>
+                <button onclick="acheterPlan({plan.id})" class="btn-sm">{LANG[lang].get('dashboard_buy', 'Buy')}</button>
             </div>
         </div>
         """
     
-    # History HTML
+    # History
     history_html = ""
     for log in logs[:5]:
         if "Benefis" in log.action:
@@ -1472,9 +1637,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     </div>
                     <!-- Dropdown -->
                     <div id="userDropdown" class="dropdown">
-                        <a href="#"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
+                        <a href="#" onclick="showProfile(); toggleDropdown(); return false;"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
+                        <a href="#" onclick="showPlans(); toggleDropdown(); return false;"><span class="icon">📊</span> {LANG[lang].get('dashboard_plans', 'Plans')}</a>
                         <a href="#"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
-                        <a href="#"><span class="icon">🪪</span> Verification</a>
                         <a href="#"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
                         <div class="divider"></div>
                         <a href="/logout" class="logout"><span class="icon">🚪</span> {LANG[lang].get('logout', 'Logout')}</a>
@@ -1485,13 +1650,12 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <!-- NAV -->
             <div class="nav">
                 <a href="/dashboard" class="active">🏠 {LANG[lang].get('home', 'Home')}</a>
-                <a href="#plans">💼 {LANG[lang].get('investment', 'Investment')}</a>
+                <a href="#" onclick="showPlans(); return false;">💼 {LANG[lang].get('investment', 'Investment')}</a>
                 <a href="/deposit-page">💳 {LANG[lang].get('wallet', 'Wallet')}</a>
                 <a href="/referral">👥 {LANG[lang].get('referral', 'Referral')}</a>
+                <a href="#" onclick="showProfile(); return false;">👤 {LANG[lang].get('my_profile', 'Profile')}</a>
                 <a href="#">📚 {LANG[lang].get('academy', 'Academy')}</a>
                 <a href="#">🛠 {LANG[lang].get('tools', 'Tools')}</a>
-                <a href="#">🛒 {LANG[lang].get('market', 'Market')}</a>
-                <a href="#">📊 {LANG[lang].get('analytics', 'Analytics')}</a>
             </div>
             
             <!-- USER DASHBOARD HEADER -->
@@ -1604,20 +1768,37 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 </div>
             </div>
             
-            <!-- PLANS (pour modal) -->
-            <div id="plans" class="section">
+            <!-- PLANS SECTION -->
+            <div id="plansSection" class="section">
                 <h4>💼 {LANG[lang].get('dashboard_plans', 'Investment Plans')}</h4>
                 {plan_html}
+            </div>
+            
+            <!-- PROFILE SECTION -->
+            <div id="profileSection" class="section" style="margin-top:15px;">
+                <h4>👤 {LANG[lang].get('my_profile', 'My Profile')}</h4>
+                <div class="profile-info">
+                    {profile_items}
+                </div>
+                
+                <!-- KYC -->
+                <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
+                    <h4 style="color:#ffffff;font-size:13px;">🪪 {LANG[lang].get('kyc_title', 'KYC Verification')}</h4>
+                    <div class="kyc-status {kyc_class}">
+                        <strong>Status:</strong> {kyc_status_text}
+                    </div>
+                    {f'<a href="#" onclick="showModal(\'Votre demande KYC a été soumise. Admin va vérifier.\', \'📋 KYC Soumis\', \'info\')" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">{LANG[lang].get("kyc_submit", "Submit for verification")}</a>' if user.kyc_status in ['unverified', 'rejected'] else ''}
+                </div>
             </div>
             
             <!-- WITHDRAW SECTION -->
             <div id="withdrawSection" class="withdraw-section">
                 <h4>💸 {LANG[lang].get('dashboard_withdraw', 'Withdraw')}</h4>
-                <div class="form-group" style="margin-bottom:10px;">
-                    <input type="number" id="withdrawAmount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" min="1" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                <div class="form-group">
+                    <input type="number" id="withdrawAmount" placeholder="{LANG[lang].get('dashboard_withdraw_placeholder', 'USDT Amount')}" step="0.01" min="1">
                 </div>
-                <div class="form-group" style="margin-bottom:10px;">
-                    <input type="text" id="withdrawWallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                <div class="form-group">
+                    <input type="text" id="withdrawWallet" placeholder="{LANG[lang].get('dashboard_withdraw_wallet', 'Your TRC20 address')}">
                 </div>
                 <button onclick="faireRetrait()" class="btn btn-secondary" style="width:100%;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-weight:700;font-size:14px;cursor:pointer;">{LANG[lang].get('dashboard_withdraw_btn', 'Submit request')}</button>
                 <p style="color:rgba(255,255,255,0.2);font-size:10px;text-align:center;margin-top:8px;">⚠️ {LANG[lang].get('dashboard_withdraw_warning', 'Withdrawals are subject to admin approval')}</p>
@@ -1712,7 +1893,7 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
                 <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('deposit_back', 'Back')}</a>
             </div>
             
-            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('deposit_title', '💰 USDT Deposit')}</div>
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('deposit_title', '💰 USDT Deposit')}</div>
             
             <div style="background:rgba(255,0,0,0.06);border:1px solid rgba(255,0,0,0.12);border-radius:10px;padding:12px;margin-bottom:15px;">
                 <p style="color:#ff6b6b;font-weight:600;font-size:12px;text-align:center;">{LANG[lang].get('deposit_warning', '⚠️ Send ONLY USDT on TRC20 (Tron)')}</p>
@@ -1736,11 +1917,11 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
             
             <h3 style="color:#ffffff;font-size:14px;margin-bottom:10px;">{LANG[lang].get('deposit_verify', 'Verify your deposit')}</h3>
             <form method="post" action="/deposit">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <input type="number" name="amount" placeholder="{LANG[lang].get('deposit_amount', 'USDT Amount')}" step="0.01" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
+                <div class="form-group">
+                    <input type="number" name="amount" placeholder="{LANG[lang].get('deposit_amount', 'USDT Amount')}" step="0.01" required>
                 </div>
-                <div class="form-group" style="margin-bottom:16px;">
-                    <input type="text" name="txid" placeholder="{LANG[lang].get('deposit_txid', 'Transaction ID (txid)')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
+                <div class="form-group">
+                    <input type="text" name="txid" placeholder="{LANG[lang].get('deposit_txid', 'Transaction ID (txid)')}" required>
                 </div>
                 <button type="submit" class="btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:8px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">{LANG[lang].get('deposit_btn', 'Submit deposit')}</button>
             </form>
@@ -1867,7 +2048,7 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
                 <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('referral_back', 'Back')}</a>
             </div>
             
-            <div class="title" style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('referral_title', '👥 Referral')}</div>
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('referral_title', '👥 Referral')}</div>
             
             <div style="background:rgba(255,215,0,0.04);border-radius:10px;padding:15px;border:1px solid rgba(255,215,0,0.06);">
                 <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_code', 'YOUR CODE')}</p>
@@ -1914,8 +2095,10 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     deposits = db.query(Deposit).all()
     withdraws = db.query(Withdraw).all()
     logs = db.query(ActivityLog).all()
+    tickets = db.query(Ticket).all()
     pending_deposits = db.query(Deposit).filter(Deposit.status == "pending").all()
     pending_withdraws = db.query(Withdraw).filter(Withdraw.status == "pending").all()
+    pending_kyc = db.query(User).filter(User.kyc_status == "pending").all()
     
     deposit_html = ""
     for d in pending_deposits:
@@ -1953,6 +2136,38 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         </div>
         """
     
+    kyc_html = ""
+    for k in pending_kyc:
+        kyc_html += f"""
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;margin:6px 0;border:1px solid rgba(255,255,255,0.03);">
+            <p style="color:#ffffff;font-size:13px;"><strong>{k.username}</strong> - KYC en attente</p>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+                <form method="post" action="/admin/approve-kyc/{k.id}" style="display:inline;">
+                    <button style="background:#4ade80;border:none;padding:6px 14px;border-radius:6px;color:#0a0e27;font-weight:700;cursor:pointer;font-size:12px;">✅ Approuver</button>
+                </form>
+                <form method="post" action="/admin/reject-kyc/{k.id}" style="display:inline;">
+                    <button style="background:#ff6b6b;border:none;padding:6px 14px;border-radius:6px;color:#ffffff;font-weight:700;cursor:pointer;font-size:12px;">❌ Rejeter</button>
+                </form>
+            </div>
+        </div>
+        """
+    
+    tickets_html = ""
+    for t in tickets[:5]:
+        status_class = "open" if t.status == "open" else "closed" if t.status == "closed" else "waiting"
+        tickets_html += f"""
+        <div class="ticket-item">
+            <div>
+                <span class="ticket-title">{t.subject}</span>
+                <span class="ticket-status {status_class}">{t.status.upper()}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="color:rgba(255,255,255,0.3);font-size:10px;">{t.username}</span>
+                <span class="ticket-date">{t.created_at.strftime('%d/%m %H:%M')}</span>
+            </div>
+        </div>
+        """
+    
     no_pending = LANG[lang].get('admin_no_pending', 'No pending requests')
     return f"""
     <html>
@@ -1962,7 +2177,7 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         {STYLE}
     </head>
     <body>
-        <div class="container" style="max-width:600px;">
+        <div class="container" style="max-width:700px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
                 <div style="display:flex;align-items:center;gap:12px;">
                     <div class="logo-diamond"><span>V</span></div>
@@ -1974,26 +2189,36 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
                 <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">{LANG[lang].get('admin_back', '← Back')}</a>
             </div>
             
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px;">
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_users', 'USERS')}</p>
-                    <p style="color:#ffffff;font-size:22px;font-weight:700;">{len(users)}</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px;">
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">USERS</p>
+                    <p style="color:#ffffff;font-size:20px;font-weight:700;">{len(users)}</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_deposits', 'DEPOSITS')}</p>
-                    <p style="color:#4ade80;font-size:22px;font-weight:700;">{len(deposits)}</p>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">DEPOSITS</p>
+                    <p style="color:#4ade80;font-size:20px;font-weight:700;">{len(deposits)}</p>
                 </div>
-                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center;">
-                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">{LANG[lang].get('admin_withdraws', 'WITHDRAWALS')}</p>
-                    <p style="color:#fbbf24;font-size:22px;font-weight:700;">{len(withdraws)}</p>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">WITHDRAWS</p>
+                    <p style="color:#fbbf24;font-size:20px;font-weight:700;">{len(withdraws)}</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;text-align:center;">
+                    <p style="color:rgba(255,255,255,0.3);font-size:9px;">TICKETS</p>
+                    <p style="color:#a855f7;font-size:20px;font-weight:700;">{len(tickets)}</p>
                 </div>
             </div>
             
-            <h3 style="color:#ffd700;font-size:14px;">{LANG[lang].get('admin_pending_deposits', '⏳ Pending deposits')}</h3>
+            <h3 style="color:#ffd700;font-size:14px;">📋 KYC En attente</h3>
+            {kyc_html if kyc_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>Aucune demande KYC</p>"}
+            
+            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">⏳ Dépôts en attente</h3>
             {deposit_html if deposit_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
             
-            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">{LANG[lang].get('admin_pending_withdraws', '⏳ Pending withdrawals')}</h3>
+            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">⏳ Retraits en attente</h3>
             {withdraw_html if withdraw_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>{no_pending}</p>"}
+            
+            <h3 style="color:#ffd700;font-size:14px;margin-top:12px;">🎫 Tickets récents</h3>
+            {tickets_html if tickets_html else f"<p style='color:rgba(255,255,255,0.2);font-size:12px;'>Aucun ticket</p>"}
             
             <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
                 <p style="color:rgba(255,255,255,0.15);font-size:10px;">{LANG[lang].get('admin_recent', 'Recent activities')}</p>
@@ -2006,6 +2231,40 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     </body>
     </html>
     """
+
+# =====================
+# ADMIN APPROVE KYC
+# =====================
+
+@app.post("/admin/approve-kyc/{user_id}")
+def approve_kyc(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Itilizatè pa jwenn")
+    user.kyc_status = "verified"
+    add_log(db, user.username, f"KYC apwouve pa admin")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+@app.post("/admin/reject-kyc/{user_id}")
+def reject_kyc(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    admin_user(request, db)
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Itilizatè pa jwenn")
+    user.kyc_status = "rejected"
+    add_log(db, user.username, f"KYC rejete pa admin")
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
 
 # =====================
 # ADMIN APPROVE DEPOSIT
