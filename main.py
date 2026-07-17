@@ -449,6 +449,17 @@ STYLE = """
         text-align: center;
     }
     
+    .success-message {
+        background: rgba(74,222,128,0.08);
+        border: 1px solid rgba(74,222,128,0.12);
+        color: #4ade80;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
     .withdraw-section {
         margin-top: 15px;
         padding: 15px;
@@ -1238,13 +1249,14 @@ def home(request: Request):
     """
 
 # =====================
-# REGISTER
+# REGISTER PAGE
 # =====================
 
 @app.get("/register", response_class=HTMLResponse)
-def register_page(request: Request, ref: str = None):
+def register_page(request: Request, ref: str = None, error: str = None):
     lang = get_lang(request)
     ref_value = f'value="{ref}"' if ref else ''
+    error_html = f'<div class="error-message">❌ {error}</div>' if error else ''
     return f"""
     <html>
     <head>
@@ -1267,7 +1279,9 @@ def register_page(request: Request, ref: str = None):
             <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('register_title', 'Create your account')}</div>
             <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
             
-            <form method="post">
+            {error_html}
+            
+            <form method="post" action="/register">
                 <div class="form-group">
                     <label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;display:block;margin-bottom:5px;">{LANG[lang].get('register_username', 'Username')}</label>
                     <input type="text" name="username" placeholder="{LANG[lang].get('register_username', 'Username')}" required>
@@ -1292,6 +1306,10 @@ def register_page(request: Request, ref: str = None):
     </html>
     """
 
+# =====================
+# REGISTER ACTION
+# =====================
+
 @app.post("/register")
 def register(
     username: str = Form(...),
@@ -1301,7 +1319,7 @@ def register(
 ):
     user_exist = db.query(User).filter(User.username == username).first()
     if user_exist:
-        raise HTTPException(status_code=400, detail="Kont sa deja egziste")
+        return RedirectResponse(url="/register?error=Nom+d%27utilisateur+déjà+pris", status_code=303)
     
     is_admin = 0
     if ADMIN_SECRET_KEY and ref and ref.strip() == ADMIN_SECRET_KEY.strip():
@@ -1333,16 +1351,17 @@ def register(
     
     add_log(db, username, "Kreye nouvo kont")
     db.commit()
-    return RedirectResponse(url="/login", status_code=303)
+    return RedirectResponse(url="/login?success=Compte+créé+avec+succès", status_code=303)
 
 # =====================
-# LOGIN - AVEC ERÈ RESTE SOU MENM PAJ
+# LOGIN PAGE
 # =====================
 
 @app.get("/login", response_class=HTMLResponse)
-def login_page(request: Request, error: str = None):
+def login_page(request: Request, error: str = None, success: str = None):
     lang = get_lang(request)
     error_html = f'<div class="error-message">❌ {error}</div>' if error else ''
+    success_html = f'<div class="success-message">✅ {success}</div>' if success else ''
     return f"""
     <html>
     <head>
@@ -1365,6 +1384,7 @@ def login_page(request: Request, error: str = None):
             <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('login_title', 'Welcome back')}</div>
             <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
             
+            {success_html}
             {error_html}
             
             <form method="post" action="/login">
@@ -1388,6 +1408,10 @@ def login_page(request: Request, error: str = None):
     </html>
     """
 
+# =====================
+# LOGIN ACTION
+# =====================
+
 @app.post("/login")
 def login(
     request: Request,
@@ -1405,7 +1429,7 @@ def login(
     return RedirectResponse(url="/dashboard", status_code=303)
 
 # =====================
-# DASHBOARD - SAN PLAN ANBA
+# DASHBOARD
 # =====================
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -1433,7 +1457,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     
     active_plan_name = active_plan_info["plan"].name if active_plan_info else "Aucun"
     
-    # Plans for modal
     plans = db.query(Plan).all()
     plan_modal_html = ""
     for plan in plans:
@@ -1455,7 +1478,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         </div>
         """
     
-    # History
     history_html = ""
     for log in logs[:5]:
         if "Benefis" in log.action:
@@ -1480,7 +1502,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             </div>
             """
     
-    # Profile
     profile_items = f"""
     <div class="profile-item"><div class="label">Nom d'utilisateur</div><div class="value">{user.username}</div></div>
     <div class="profile-item"><div class="label">ID</div><div class="value gold">{user.user_id_display or 'VC000001'}</div></div>
@@ -1496,13 +1517,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "verified": "✅ Vérifié",
         "rejected": "❌ Rejeté"
     }.get(user.kyc_status, "Non vérifié")
-    
-    kyc_class = {
-        "unverified": "unverified",
-        "pending": "pending",
-        "verified": "verified",
-        "rejected": "rejected"
-    }.get(user.kyc_status, "unverified")
     
     admin_link = f'<a href="/admin" style="color:rgba(255,255,255,0.08);text-decoration:none;font-size:10px;">Admin</a>' if user.is_admin == 1 else ''
     
@@ -1674,7 +1688,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 </div>
                 <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;">
                     <h4 style="color:#ffffff;font-size:13px;">🪪 KYC Verification</h4>
-                    <div class="kyc-status {kyc_class}" style="padding:10px;border-radius:8px;text-align:center;margin:8px 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+                    <div style="padding:10px;border-radius:8px;text-align:center;margin:8px 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
                         <strong>Status:</strong> {kyc_status_text}
                     </div>
                     {f'<a href="#" onclick="showModal(\'Votre demande KYC a été soumise. Admin va vérifier.\', \'📋 KYC Soumis\', \'info\')" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">Soumettre pour vérification</a>' if user.kyc_status in ['unverified', 'rejected'] else ''}
