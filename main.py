@@ -8,7 +8,17 @@ from datetime import datetime, timedelta
 from contextlib import asynccontextmanager
 import os
 import uuid
+import json
+import base64
 from starlette.middleware.sessions import SessionMiddleware
+
+# =====================
+# SEKIRITE - SECRET_KEY OBLIGATWA
+# =====================
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY pa defini! Mete l nan Railway Variables.")
 
 # =====================
 # KONFIGIRASYON APP AVEC LIFESPAN
@@ -47,7 +57,6 @@ app = FastAPI(
 # SESSION MIDDLEWARE
 # =====================
 
-SECRET_KEY = os.getenv("SECRET_KEY", "vesticore-secret-key-change-later")
 app.add_middleware(
     SessionMiddleware,
     secret_key=SECRET_KEY
@@ -1551,6 +1560,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     <div id="userDropdown" class="dropdown">
                         <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); toggleDropdown(); return false;"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
                         <a href="#" onclick="openPlansModal(); toggleDropdown(); return false;"><span class="icon">📊</span> {LANG[lang].get('dashboard_plans', 'Plans')}</a>
+                        <a href="/kyc"><span class="icon">🪪</span> KYC</a>
                         <a href="#"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
                         <a href="#"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
                         <div class="divider"></div>
@@ -1566,6 +1576,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 <a href="/deposit-page">💳 {LANG[lang].get('wallet', 'Wallet')}</a>
                 <a href="/referral">👥 {LANG[lang].get('referral', 'Referral')}</a>
                 <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); return false;">👤 {LANG[lang].get('my_profile', 'Profile')}</a>
+                <a href="/kyc">🪪 KYC</a>
                 <a href="#">📚 {LANG[lang].get('academy', 'Academy')}</a>
                 <a href="#">🛠 {LANG[lang].get('tools', 'Tools')}</a>
             </div>
@@ -1691,7 +1702,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     <div style="padding:10px;border-radius:8px;text-align:center;margin:8px 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
                         <strong>Status:</strong> {kyc_status_text}
                     </div>
-                    {f'<a href="#" onclick="showModal(\'Votre demande KYC a été soumise. Admin va vérifier.\', \'📋 KYC Soumis\', \'info\')" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">Soumettre pour vérification</a>' if user.kyc_status in ['unverified', 'rejected'] else ''}
+                    <a href="/kyc" class="btn btn-secondary" style="display:inline-block;padding:8px 20px;font-size:12px;text-decoration:none;color:#fff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;">Gérer KYC</a>
                 </div>
             </div>
             
@@ -1728,6 +1739,93 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     </body>
     </html>
     """
+
+# =====================
+# KYC PAGE
+# =====================
+
+@app.get("/kyc", response_class=HTMLResponse)
+def kyc_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user(request, db)
+    lang = get_lang(request)
+    return f"""
+    <html>
+    <head>
+        <title>KYC - VestiCore</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {STYLE}
+    </head>
+    <body>
+        <div class="container" style="max-width:600px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond"><span>V</span></div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">KYC</div>
+                    </div>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← Retour</a>
+            </div>
+            
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">🪪 Vérification KYC</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">Téléchargez vos documents pour vérifier votre identité</div>
+            
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.04);">
+                <div style="margin-bottom:15px;">
+                    <label style="color:rgba(255,255,255,0.6);font-size:12px;display:block;margin-bottom:5px;">Status actuel</label>
+                    <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+                        <span style="color:#ffffff;">{user.kyc_status.upper()}</span>
+                    </div>
+                </div>
+                
+                <form method="post" action="/kyc/submit">
+                    <div class="form-group">
+                        <label style="color:rgba(255,255,255,0.6);font-size:12px;display:block;margin-bottom:5px;">Nom complet</label>
+                        <input type="text" name="full_name" value="{user.full_name or ''}" placeholder="Votre nom complet" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                    </div>
+                    <div class="form-group">
+                        <label style="color:rgba(255,255,255,0.6);font-size:12px;display:block;margin-bottom:5px;">Email</label>
+                        <input type="email" name="email" value="{user.email or ''}" placeholder="votre@email.com" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                    </div>
+                    <div class="form-group">
+                        <label style="color:rgba(255,255,255,0.6);font-size:12px;display:block;margin-bottom:5px;">Téléphone</label>
+                        <input type="text" name="phone" value="{user.phone or ''}" placeholder="+509 0000 0000" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                    </div>
+                    <div class="form-group">
+                        <label style="color:rgba(255,255,255,0.6);font-size:12px;display:block;margin-bottom:5px;">Pays</label>
+                        <input type="text" name="country" value="{user.country or ''}" placeholder="Haïti" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;">
+                    </div>
+                    <button type="submit" class="btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:8px;color:#0a0e27;font-weight:700;font-size:15px;cursor:pointer;">Soumettre KYC</button>
+                </form>
+            </div>
+        </div>
+        {get_modal_html()}
+    </body>
+    </html>
+    """
+
+@app.post("/kyc/submit")
+def kyc_submit(
+    request: Request,
+    full_name: str = Form(None),
+    email: str = Form(None),
+    phone: str = Form(None),
+    country: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    user = current_user(request, db)
+    
+    user.full_name = full_name or user.full_name
+    user.email = email or user.email
+    user.phone = phone or user.phone
+    user.country = country or user.country
+    user.kyc_status = "pending"
+    user.kyc_submitted_at = datetime.now()
+    
+    db.commit()
+    add_log(db, user.username, "Soumis KYC")
+    return RedirectResponse(url="/dashboard?success=KYC+soumis+avec+succès", status_code=303)
 
 # =====================
 # BUY PLAN
@@ -1918,7 +2016,7 @@ def withdraw(
         status="pending"
     )
     db.add(withdraw)
-    add_log(db, user.username, f"Demann retrè {amount} USDT voye")
+    add_log(db, user.username, f"Demann retrè {amount} USDT voye (frè: {fee} USDT)")
     db.commit()
     
     return JSONResponse(content={"success": True, "message": LANG[get_lang(request)].get('withdraw_success', 'Withdrawal request sent successfully!')})
@@ -2314,6 +2412,37 @@ def reject_withdraw(
     add_log(db, withdraw.username, f"Retrè {withdraw.amount} USDT rejete")
     db.commit()
     return RedirectResponse(url="/admin", status_code=303)
+
+# =====================
+# BACKUP BAZ DONE
+# =====================
+
+@app.get("/admin/backup")
+def admin_backup(request: Request, db: Session = Depends(get_db)):
+    admin_user(request, db)
+    
+    users = db.query(User).all()
+    plans = db.query(Plan).all()
+    user_plans = db.query(UserPlan).all()
+    deposits = db.query(Deposit).all()
+    withdraws = db.query(Withdraw).all()
+    referrals = db.query(Referral).all()
+    logs = db.query(ActivityLog).all()
+    
+    data = {
+        "users": [{"id": u.id, "username": u.username, "balance": u.balance, "is_admin": u.is_admin, "referral_code": u.referral_code, "kyc_status": u.kyc_status, "created_at": u.created_at.isoformat()} for u in users],
+        "plans": [{"id": p.id, "name": p.name, "price": p.price, "duration": p.duration, "daily_return": p.daily_return} for p in plans],
+        "user_plans": [{"id": up.id, "user_id": up.user_id, "plan_id": up.plan_id, "amount": up.amount, "status": up.status, "start_date": up.start_date.isoformat(), "total_returned": up.total_returned} for up in user_plans],
+        "deposits": [{"id": d.id, "username": d.username, "amount": d.amount, "fee": d.fee, "net_amount": d.net_amount, "txid": d.txid, "status": d.status, "date": d.date.isoformat()} for d in deposits],
+        "withdraws": [{"id": w.id, "username": w.username, "amount": w.amount, "fee": w.fee, "net_amount": w.net_amount, "wallet": w.wallet, "status": w.status, "date": w.date.isoformat()} for w in withdraws],
+        "referrals": [{"id": r.id, "referrer": r.referrer, "invited_user": r.invited_user, "has_invested": r.has_invested, "bonus_amount": r.bonus_amount} for r in referrals],
+        "logs": [{"id": l.id, "username": l.username, "action": l.action, "date": l.date.isoformat()} for l in logs]
+    }
+    
+    json_data = json.dumps(data, indent=2)
+    encoded = base64.b64encode(json_data.encode()).decode()
+    
+    return JSONResponse(content={"backup": encoded, "size": len(json_data)})
 
 # =====================
 # LOGOUT
