@@ -127,20 +127,41 @@ STYLE = """
         box-shadow: 0 25px 60px rgba(0,0,0,0.4);
         margin-top: 10px;
     }
-    
+    .logo { text-align: center; margin-bottom: 15px; }
     .logo-diamond {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #ffd700, #f0a500);
-        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 20px rgba(255,215,0,0.2);
+        display: inline-block;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 8px;
+        filter: drop-shadow(0 0 30px rgba(255,215,0,0.3));
+        animation: floatGlow 3s ease-in-out infinite;
     }
-    .logo-diamond span { font-size: 18px; font-weight: 900; color: #0a0e27; }
-    .logo-text { color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
-    .logo-text span { color: #ffd700; }
+    .logo-diamond svg { width: 100%; height: 100%; }
+    @keyframes floatGlow {
+        0%, 100% { transform: translateY(0px); filter: drop-shadow(0 0 30px rgba(255,215,0,0.3)); }
+        50% { transform: translateY(-5px); filter: drop-shadow(0 0 50px rgba(255,215,0,0.5)); }
+    }
+    .logo h1 { color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+    .logo h1 span { color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.2); }
+    .logo p { color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 2px; letter-spacing: 4px; text-transform: uppercase; }
+    
+    .lang-selector {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    .lang-selector a {
+        color: rgba(255,255,255,0.3);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    .lang-selector a:hover { color: #ffd700; background: rgba(255,215,0,0.1); }
+    .lang-selector a.active { color: #ffd700; background: rgba(255,215,0,0.15); }
     
     .header {
         display: flex;
@@ -318,14 +339,7 @@ STYLE = """
         padding: 16px;
         border: 1px solid rgba(255,255,255,0.04);
     }
-    .section h4 {
-        color: #ffffff;
-        font-size: 14px;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+    .section h4 { color: #ffffff; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
     .section h4 span { color: rgba(255,255,255,0.2); font-size: 12px; font-weight: 400; }
     
     .tx-item {
@@ -339,16 +353,6 @@ STYLE = """
     .tx-item .right.positive { color: #4ade80; }
     .tx-item .right.negative { color: #ff6b6b; }
     .tx-item .right.pending { color: #fbbf24; }
-    
-    .promo-item {
-        background: rgba(255,215,0,0.04);
-        border-radius: 8px;
-        padding: 10px 12px;
-        margin: 6px 0;
-        border: 1px solid rgba(255,215,0,0.06);
-    }
-    .promo-item .title { color: #ffd700; font-size: 12px; font-weight: 600; }
-    .promo-item .desc { color: rgba(255,255,255,0.4); font-size: 11px; }
     
     .dropdown {
         display: none;
@@ -457,7 +461,6 @@ STYLE = """
         margin-bottom: 15px;
         text-align: center;
     }
-    
     .success-message {
         background: rgba(74,222,128,0.08);
         border: 1px solid rgba(74,222,128,0.12);
@@ -559,6 +562,8 @@ STYLE = """
         .modal-content { padding: 20px; }
         .modal-plan-card { flex-direction: column; text-align: center; }
         .modal-plan-card .plan-price { text-align: center; margin-top: 8px; }
+        .logo-diamond { width: 50px; height: 50px; }
+        .logo h1 { font-size: 22px; }
     }
 </style>
 """
@@ -753,7 +758,46 @@ LANG = {
         "recent_transactions": "Transactions récentes",
         "earnings_history": "Historique des gains",
         "news": "Actualités",
-        "promotions": "Promotions"
+        "promotions": "Promotions",
+        "info_title": "ℹ️ À propos de VestiCore",
+        "info_subtitle": "Tout ce que vous devez savoir sur notre plateforme",
+        "info_section1_title": "💎 Qu'est-ce que VestiCore ?",
+        "info_section1_text": "VestiCore est une plateforme de finance digitale qui permet à ses utilisateurs d'investir dans des plans rémunérateurs et de gagner des bénéfices quotidiens en USDT.",
+        "info_section2_title": "⚙️ Comment ça fonctionne ?",
+        "info_section2_text": "1. Créez votre compte gratuitement\n2. Déposez des USDT sur votre portefeuille\n3. Choisissez un plan d'investissement\n4. Recevez des bénéfices chaque jour\n5. Retirez vos gains à tout moment",
+        "info_section3_title": "🔒 Sécurité",
+        "info_section3_text": "VestiCore utilise des technologies de pointe pour sécuriser vos données et vos transactions : cryptage SSL, authentification sécurisée, KYC, et approbation manuelle des retraits par l'administrateur.",
+        "info_section4_title": "🎁 Programme de parrainage",
+        "info_section4_text": "Invitez vos amis et gagnez 2% de bonus sur les dépôts de vos 10 premiers investisseurs qualifiés.",
+        "info_section5_title": "📊 Plans d'investissement",
+        "info_section5_text": "10 plans disponibles de 10 USDT à 2000 USDT, avec des rendements journaliers de 0.90% à 1.90%.",
+        "info_back": "← Retour au Dashboard",
+        "settings": "⚙️ Paramètres",
+        "change_password": "🔐 Changer mot de passe",
+        "current_password": "Mot de passe actuel",
+        "new_password": "Nouveau mot de passe",
+        "confirm_password": "Confirmer le mot de passe",
+        "password_changed": "✅ Mot de passe changé avec succès!",
+        "password_mismatch": "❌ Les mots de passe ne correspondent pas",
+        "wrong_password": "❌ Mot de passe actuel incorrect",
+        "transactions_history": "📊 Historique des transactions",
+        "earnings_history": "📈 Historique des gains",
+        "no_transactions": "Aucune transaction pour le moment",
+        "no_earnings": "Aucun gain pour le moment",
+        "amount": "Montant",
+        "date": "Date",
+        "status": "Statut",
+        "type": "Type",
+        "two_factor": "🔑 Authentification à deux facteurs (2FA)",
+        "enable_2fa": "Activer 2FA",
+        "disable_2fa": "Désactiver 2FA",
+        "session_management": "🖥️ Gestion des sessions",
+        "active_sessions": "Sessions actives",
+        "logout_all": "Se déconnecter de tous les appareils",
+        "current_session": "Session actuelle",
+        "last_login": "Dernière connexion",
+        "ip_address": "Adresse IP",
+        "device": "Appareil"
     },
     "en": {
         "title": "VestiCore - Digital Finance & Rewards",
@@ -845,7 +889,46 @@ LANG = {
         "recent_transactions": "Recent Transactions",
         "earnings_history": "Earnings History",
         "news": "News",
-        "promotions": "Promotions"
+        "promotions": "Promotions",
+        "info_title": "ℹ️ About VestiCore",
+        "info_subtitle": "Everything you need to know about our platform",
+        "info_section1_title": "💎 What is VestiCore?",
+        "info_section1_text": "VestiCore is a digital finance platform that allows users to invest in rewarding plans and earn daily profits in USDT.",
+        "info_section2_title": "⚙️ How does it work?",
+        "info_section2_text": "1. Create your account for free\n2. Deposit USDT into your wallet\n3. Choose an investment plan\n4. Receive daily benefits\n5. Withdraw your earnings anytime",
+        "info_section3_title": "🔒 Security",
+        "info_section3_text": "VestiCore uses advanced technologies to secure your data and transactions: SSL encryption, secure authentication, KYC, and manual approval of withdrawals by the administrator.",
+        "info_section4_title": "🎁 Referral Program",
+        "info_section4_text": "Invite your friends and earn 2% bonus on the deposits of your first 10 qualified investors.",
+        "info_section5_title": "📊 Investment Plans",
+        "info_section5_text": "10 plans available from 10 USDT to 2000 USDT, with daily returns from 0.90% to 1.90%.",
+        "info_back": "← Back to Dashboard",
+        "settings": "⚙️ Settings",
+        "change_password": "🔐 Change password",
+        "current_password": "Current password",
+        "new_password": "New password",
+        "confirm_password": "Confirm password",
+        "password_changed": "✅ Password changed successfully!",
+        "password_mismatch": "❌ Passwords do not match",
+        "wrong_password": "❌ Current password is incorrect",
+        "transactions_history": "📊 Transaction History",
+        "earnings_history": "📈 Earnings History",
+        "no_transactions": "No transactions yet",
+        "no_earnings": "No earnings yet",
+        "amount": "Amount",
+        "date": "Date",
+        "status": "Status",
+        "type": "Type",
+        "two_factor": "🔑 Two-Factor Authentication (2FA)",
+        "enable_2fa": "Enable 2FA",
+        "disable_2fa": "Disable 2FA",
+        "session_management": "🖥️ Session Management",
+        "active_sessions": "Active sessions",
+        "logout_all": "Logout all devices",
+        "current_session": "Current session",
+        "last_login": "Last login",
+        "ip_address": "IP Address",
+        "device": "Device"
     },
     "es": {
         "title": "VestiCore - Finanzas Digitales & Rewards",
@@ -937,7 +1020,46 @@ LANG = {
         "recent_transactions": "Transacciones Recientes",
         "earnings_history": "Historial de Ganancias",
         "news": "Noticias",
-        "promotions": "Promociones"
+        "promotions": "Promociones",
+        "info_title": "ℹ️ Acerca de VestiCore",
+        "info_subtitle": "Todo lo que necesitas saber sobre nuestra plataforma",
+        "info_section1_title": "💎 ¿Qué es VestiCore?",
+        "info_section1_text": "VestiCore es una plataforma de finanzas digitales que permite a los usuarios invertir en planes rentables y ganar beneficios diarios en USDT.",
+        "info_section2_title": "⚙️ ¿Cómo funciona?",
+        "info_section2_text": "1. Crea tu cuenta gratis\n2. Deposita USDT en tu billetera\n3. Elige un plan de inversión\n4. Recibe beneficios diarios\n5. Retira tus ganancias en cualquier momento",
+        "info_section3_title": "🔒 Seguridad",
+        "info_section3_text": "VestiCore utiliza tecnologías avanzadas para proteger tus datos y transacciones: cifrado SSL, autenticación segura, KYC y aprobación manual de retiros por el administrador.",
+        "info_section4_title": "🎁 Programa de referidos",
+        "info_section4_text": "Invita a tus amigos y gana 2% de bonificación sobre los depósitos de tus primeros 10 inversores calificados.",
+        "info_section5_title": "📊 Planes de inversión",
+        "info_section5_text": "10 planes disponibles desde 10 USDT hasta 2000 USDT, con rendimientos diarios del 0.90% al 1.90%.",
+        "info_back": "← Volver al Dashboard",
+        "settings": "⚙️ Configuración",
+        "change_password": "🔐 Cambiar contraseña",
+        "current_password": "Contraseña actual",
+        "new_password": "Nueva contraseña",
+        "confirm_password": "Confirmar contraseña",
+        "password_changed": "✅ Contraseña cambiada con éxito!",
+        "password_mismatch": "❌ Las contraseñas no coinciden",
+        "wrong_password": "❌ Contraseña actual incorrecta",
+        "transactions_history": "📊 Historial de transacciones",
+        "earnings_history": "📈 Historial de ganancias",
+        "no_transactions": "Sin transacciones por ahora",
+        "no_earnings": "Sin ganancias por ahora",
+        "amount": "Monto",
+        "date": "Fecha",
+        "status": "Estado",
+        "type": "Tipo",
+        "two_factor": "🔑 Autenticación de dos factores (2FA)",
+        "enable_2fa": "Activar 2FA",
+        "disable_2fa": "Desactivar 2FA",
+        "session_management": "🖥️ Gestión de sesiones",
+        "active_sessions": "Sesiones activas",
+        "logout_all": "Cerrar sesión en todos los dispositivos",
+        "current_session": "Sesión actual",
+        "last_login": "Último inicio de sesión",
+        "ip_address": "Dirección IP",
+        "device": "Dispositivo"
     }
 }
 
@@ -1182,6 +1304,69 @@ def get_lang(request: Request):
     return lang
 
 # =====================
+# SVG LOGO DIAMANT
+# =====================
+
+LOGO_SVG = """
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="diamondGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffd700"/>
+            <stop offset="40%" stop-color="#f5c800"/>
+            <stop offset="70%" stop-color="#f0a500"/>
+            <stop offset="100%" stop-color="#d48900"/>
+        </linearGradient>
+        <linearGradient id="shineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="innerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff8cc" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#f0a500" stop-opacity="0.3"/>
+        </linearGradient>
+    </defs>
+    <polygon points="50,5 90,45 50,85 10,45" fill="rgba(0,0,0,0.2)" transform="translate(2,2)"/>
+    <polygon points="50,5 90,45 50,85 10,45" fill="url(#goldGrad)" filter="url(#diamondGlow)"/>
+    <polygon points="50,5 10,45 50,50" fill="url(#shineGrad)" opacity="0.6"/>
+    <polygon points="50,5 90,45 50,50" fill="url(#shineGrad)" opacity="0.3"/>
+    <polygon points="10,45 50,85 50,50" fill="url(#innerGlow)" opacity="0.4"/>
+    <polygon points="90,45 50,85 50,50" fill="url(#innerGlow)" opacity="0.2"/>
+    <circle cx="45" cy="30" r="4" fill="white" opacity="0.8"/>
+    <circle cx="42" cy="27" r="2" fill="white" opacity="0.9"/>
+    <circle cx="55" cy="65" r="2" fill="#f0a500" opacity="0.4"/>
+    <text x="50" y="58" text-anchor="middle" font-size="36" font-weight="900" fill="#0a0e27" font-family="Arial, sans-serif" letter-spacing="-2">V</text>
+</svg>
+"""
+
+# =====================
+# LOGO AVEC LANG
+# =====================
+
+def get_logo_html(lang_key, request):
+    return f"""
+    <div class="lang-selector">
+        <a href="/set-lang/fr" class="{'active' if lang_key == 'fr' else ''}">FR</a>
+        <a href="/set-lang/en" class="{'active' if lang_key == 'en' else ''}">EN</a>
+        <a href="/set-lang/es" class="{'active' if lang_key == 'es' else ''}">ES</a>
+    </div>
+    <div class="logo">
+        <div class="logo-diamond">
+            {LOGO_SVG}
+        </div>
+        <h1>Vesti<span>Core</span></h1>
+        <p>{LANG[lang_key].get('logo_sub', 'INVEST • GROW • PROSPER')}</p>
+    </div>
+    """
+
+# =====================
 # SELÈKSYON LANG
 # =====================
 
@@ -1224,22 +1409,9 @@ def home(request: Request):
     </head>
     <body>
         <div class="container" style="max-width:600px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
-                    <div>
-                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
-                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
-                    </div>
-                </div>
-                <div style="display:flex;gap:6px;">
-                    <a href="/set-lang/fr" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">FR</a>
-                    <a href="/set-lang/en" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">EN</a>
-                    <a href="/set-lang/es" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;">ES</a>
-                </div>
-            </div>
+            {get_logo_html(lang, request)}
             
-            <div style="text-align:center;margin:20px 0 30px;">
+            <div style="text-align:center;margin:10px 0 25px;">
                 <p style="color:rgba(255,255,255,0.6);font-size:16px;line-height:1.8;">
                     {LANG[lang].get('home_title', 'Digital Finance Platform')}<br>
                     <span style="color:#ffd700;font-size:20px;font-weight:600;">{LANG[lang].get('home_desc', 'Make your money grow')}</span>
@@ -1275,15 +1447,7 @@ def register_page(request: Request, ref: str = None, error: str = None):
     </head>
     <body>
         <div class="container" style="max-width:500px;">
-            <div style="display:flex;justify-content:center;margin-bottom:20px;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
-                    <div>
-                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
-                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
-                    </div>
-                </div>
-            </div>
+            {get_logo_html(lang, request)}
             
             <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('register_title', 'Create your account')}</div>
             <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('register_sub', 'Start your investment journey')}</div>
@@ -1330,10 +1494,13 @@ def register(
     if user_exist:
         return RedirectResponse(url="/register?error=Nom+d%27utilisateur+déjà+pris", status_code=303)
     
-    is_admin = 0
-    if ADMIN_SECRET_KEY and ref and ref.strip() == ADMIN_SECRET_KEY.strip():
+    admin_key = os.getenv("ADMIN_SECRET_KEY", "vesticore-admin-2026")
+    
+    if ref and ref.strip() == admin_key.strip():
         is_admin = 1
         ref = None
+    else:
+        is_admin = 0
     
     new_user = User(
         username=username,
@@ -1380,15 +1547,7 @@ def login_page(request: Request, error: str = None, success: str = None):
     </head>
     <body>
         <div class="container" style="max-width:500px;">
-            <div style="display:flex;justify-content:center;margin-bottom:20px;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
-                    <div>
-                        <div style="color:#ffffff;font-size:22px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
-                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
-                    </div>
-                </div>
-            </div>
+            {get_logo_html(lang, request)}
             
             <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('login_title', 'Welcome back')}</div>
             <div style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:22px;">{LANG[lang].get('login_sub', 'Login to access your space')}</div>
@@ -1541,8 +1700,12 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             <!-- HEADER -->
             <div class="header">
                 <div class="header-left">
-                    <div class="logo-diamond"><span>V</span></div>
-                    <div class="logo-text">Vesti<span>Core</span></div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="logo-diamond" style="width:45px;height:45px;margin:0;">
+                            {LOGO_SVG}
+                        </div>
+                        <div class="logo-text" style="font-size:20px;">Vesti<span style="color:#ffd700;">Core</span></div>
+                    </div>
                 </div>
                 <div class="header-right">
                     <div class="notif-bell">
@@ -1559,10 +1722,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                     </div>
                     <div id="userDropdown" class="dropdown">
                         <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); toggleDropdown(); return false;"><span class="icon">👤</span> {LANG[lang].get('my_profile', 'My Profile')}</a>
-                        <a href="#" onclick="openPlansModal(); toggleDropdown(); return false;"><span class="icon">📊</span> {LANG[lang].get('dashboard_plans', 'Plans')}</a>
-                        <a href="/kyc"><span class="icon">🪪</span> KYC</a>
-                        <a href="#"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
-                        <a href="#"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
+                        <a href="/info"><span class="icon">ℹ️</span> À propos</a>
+                        <a href="/settings"><span class="icon">⚙️</span> {LANG[lang].get('settings', 'Settings')}</a>
+                        <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); toggleDropdown(); return false;"><span class="icon">🔐</span> {LANG[lang].get('security', 'Security')}</a>
                         <div class="divider"></div>
                         <a href="/logout" class="logout"><span class="icon">🚪</span> {LANG[lang].get('logout', 'Logout')}</a>
                     </div>
@@ -1577,8 +1739,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 <a href="/referral">👥 {LANG[lang].get('referral', 'Referral')}</a>
                 <a href="#" onclick="document.getElementById('profileSection').scrollIntoView(); return false;">👤 {LANG[lang].get('my_profile', 'Profile')}</a>
                 <a href="/kyc">🪪 KYC</a>
-                <a href="#">📚 {LANG[lang].get('academy', 'Academy')}</a>
-                <a href="#">🛠 {LANG[lang].get('tools', 'Tools')}</a>
+                <a href="/info">ℹ️ À propos</a>
+                <a href="/settings">⚙️ {LANG[lang].get('settings', 'Settings')}</a>
             </div>
             
             <!-- USER DASHBOARD HEADER -->
@@ -1759,7 +1921,9 @@ def kyc_page(request: Request, db: Session = Depends(get_db)):
         <div class="container" style="max-width:600px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
                     <div>
                         <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
                         <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">KYC</div>
@@ -1900,7 +2064,9 @@ def deposit_page(request: Request, db: Session = Depends(get_db)):
         <div class="container" style="max-width:550px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
                     <div>
                         <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
                         <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
@@ -2027,6 +2193,333 @@ def withdraw(
     return JSONResponse(content={"success": True, "message": LANG[get_lang(request)].get('withdraw_success', 'Withdrawal request sent successfully!')})
 
 # =====================
+# INFO PAGE
+# =====================
+
+@app.get("/info", response_class=HTMLResponse)
+def info_page(request: Request, db: Session = Depends(get_db)):
+    user = current_user(request, db)
+    lang = get_lang(request)
+    
+    plans = db.query(Plan).all()
+    plan_html = ""
+    for plan in plans:
+        total_return = plan.price * (plan.daily_return / 100) * plan.duration
+        plan_html += f"""
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px 14px;margin:6px 0;border:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+            <div>
+                <span style="color:#ffd700;font-size:13px;font-weight:600;">{plan.name}</span>
+                <span style="color:rgba(255,255,255,0.3);font-size:11px;margin-left:8px;">{plan.duration} jours</span>
+            </div>
+            <div>
+                <span style="color:rgba(255,255,255,0.4);font-size:12px;">{plan.daily_return}%/jour</span>
+                <span style="color:#ffffff;font-size:14px;font-weight:700;margin-left:12px;">{plan.price} USDT</span>
+                <span style="color:#4ade80;font-size:11px;margin-left:8px;">+{total_return:.2f}</span>
+            </div>
+        </div>
+        """
+    
+    return f"""
+    <html>
+    <head>
+        <title>Info - VestiCore</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {STYLE}
+    </head>
+    <body>
+        <div class="container" style="max-width:750px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
+                    </div>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('info_back', 'Back to Dashboard')}</a>
+            </div>
+            
+            <div style="text-align:center;margin-bottom:25px;">
+                <div style="font-size:40px;margin-bottom:8px;">ℹ️</div>
+                <h1 style="color:#ffffff;font-size:26px;font-weight:700;">{LANG[lang].get('info_title', 'About VestiCore')}</h1>
+                <p style="color:rgba(255,255,255,0.4);font-size:14px;">{LANG[lang].get('info_subtitle', 'Everything you need to know')}</p>
+            </div>
+            
+            <!-- SECTION 1 -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,215,0,0.05);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:8px;">💎 {LANG[lang].get('info_section1_title', 'What is VestiCore?')}</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">{LANG[lang].get('info_section1_text', 'VestiCore is a digital finance platform that allows users to invest in rewarding plans and earn daily profits in USDT.')}</p>
+            </div>
+            
+            <!-- SECTION 2 -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,215,0,0.05);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:8px;">⚙️ {LANG[lang].get('info_section2_title', 'How does it work?')}</h3>
+                <div style="color:rgba(255,255,255,0.7);font-size:14px;line-height:2.2;">
+                    <div>1️⃣ Créez votre compte gratuitement</div>
+                    <div>2️⃣ Déposez des USDT sur votre portefeuille</div>
+                    <div>3️⃣ Choisissez un plan d'investissement</div>
+                    <div>4️⃣ Recevez des bénéfices chaque jour</div>
+                    <div>5️⃣ Retirez vos gains à tout moment</div>
+                </div>
+            </div>
+            
+            <!-- SECTION 3: PLAN -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,215,0,0.05);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:8px;">📊 {LANG[lang].get('info_section5_title', 'Investment Plans')}</h3>
+                {plan_html}
+            </div>
+            
+            <!-- SECTION 4: SECURITE -->
+            <div style="background:rgba(74,222,128,0.03);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(74,222,128,0.08);">
+                <h3 style="color:#4ade80;font-size:16px;margin-bottom:8px;">🔒 {LANG[lang].get('info_section3_title', 'Security')}</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">{LANG[lang].get('info_section3_text', 'VestiCore uses advanced technologies to secure your data and transactions: SSL encryption, secure authentication, KYC, and manual approval of withdrawals by the administrator.')}</p>
+            </div>
+            
+            <!-- SECTION 5: REFERRAL -->
+            <div style="background:rgba(255,215,0,0.03);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,215,0,0.08);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:8px;">🎁 {LANG[lang].get('info_section4_title', 'Referral Program')}</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">{LANG[lang].get('info_section4_text', 'Invite your friends and earn 2% bonus on the deposits of your first 10 qualified investors.')}</p>
+            </div>
+            
+            <!-- SECTION 6: FAQ -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.04);">
+                <h3 style="color:#ffffff;font-size:16px;margin-bottom:8px;">❓ FAQ - Questions fréquentes</h3>
+                <div style="color:rgba(255,255,255,0.6);font-size:13px;line-height:2;">
+                    <div><strong style="color:#ffffff;">Quel est le minimum de dépôt ?</strong> 10 USDT</div>
+                    <div><strong style="color:#ffffff;">Quand puis-je retirer ?</strong> À tout moment, après approbation admin</div>
+                    <div><strong style="color:#ffffff;">Y a-t-il des frais ?</strong> 3% sur les dépôts, 5% sur les retraits</div>
+                    <div><strong style="color:#ffffff;">Comment gagner plus ?</strong> Parrainez des amis et choisissez des plans supérieurs</div>
+                </div>
+            </div>
+            
+            <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:15px;">
+                <p style="color:rgba(255,255,255,0.08);font-size:10px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</p>
+            </div>
+        </div>
+        {get_modal_html()}
+    </body>
+    </html>
+    """
+
+# =====================
+# SETTINGS PAGE
+# =====================
+
+@app.get("/settings", response_class=HTMLResponse)
+def settings_page(request: Request, db: Session = Depends(get_db), error: str = None, success: str = None):
+    user = current_user(request, db)
+    lang = get_lang(request)
+    
+    error_html = f'<div class="error-message">❌ {error}</div>' if error else ''
+    success_html = f'<div class="success-message">✅ {success}</div>' if success else ''
+    
+    # Transactions
+    deposits = db.query(Deposit).filter(Deposit.username == user.username).order_by(Deposit.date.desc()).limit(20).all()
+    withdraws = db.query(Withdraw).filter(Withdraw.username == user.username).order_by(Withdraw.date.desc()).limit(20).all()
+    
+    tx_html = ""
+    for d in deposits[:10]:
+        tx_html += f"""
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+            <div>
+                <span style="color:#4ade80;">💰 Dépôt</span>
+                <span style="color:rgba(255,255,255,0.3);font-size:11px;margin-left:10px;">{d.date.strftime('%d/%m/%Y %H:%M')}</span>
+            </div>
+            <div>
+                <span style="color:#ffffff;">+{d.net_amount:.2f} USDT</span>
+                <span style="color:rgba(255,255,255,0.2);font-size:10px;margin-left:8px;">{d.status}</span>
+            </div>
+        </div>
+        """
+    
+    for w in withdraws[:10]:
+        tx_html += f"""
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+            <div>
+                <span style="color:#fbbf24;">💸 Retrait</span>
+                <span style="color:rgba(255,255,255,0.3);font-size:11px;margin-left:10px;">{w.date.strftime('%d/%m/%Y %H:%M')}</span>
+            </div>
+            <div>
+                <span style="color:#ffffff;">-{w.amount:.2f} USDT</span>
+                <span style="color:rgba(255,255,255,0.2);font-size:10px;margin-left:8px;">{w.status}</span>
+            </div>
+        </div>
+        """
+    
+    if not tx_html:
+        tx_html = f'<div style="color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">{LANG[lang].get("no_transactions", "No transactions")}</div>'
+    
+    # Earnings
+    earnings = db.query(ActivityLog).filter(
+        ActivityLog.username == user.username,
+        ActivityLog.action.like("Benefis%")
+    ).order_by(ActivityLog.date.desc()).limit(20).all()
+    
+    earnings_html = ""
+    for e in earnings[:10]:
+        amount = e.action.split(":")[-1].strip() if ":" in e.action else "0.00"
+        earnings_html += f"""
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+            <div>
+                <span style="color:#4ade80;">📈 {e.action[:30]}...</span>
+                <span style="color:rgba(255,255,255,0.3);font-size:11px;margin-left:10px;">{e.date.strftime('%d/%m/%Y %H:%M')}</span>
+            </div>
+            <div>
+                <span style="color:#4ade80;">+{amount} USDT</span>
+            </div>
+        </div>
+        """
+    
+    if not earnings_html:
+        earnings_html = f'<div style="color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">{LANG[lang].get("no_earnings", "No earnings")}</div>'
+    
+    # Sessions
+    sessions_html = f"""
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+        <div>
+            <span style="color:rgba(255,255,255,0.7);font-size:13px;">{LANG[lang].get('current_session', 'Current session')}</span>
+            <span style="color:rgba(255,255,255,0.2);font-size:11px;margin-left:10px;">{request.client.host if request.client else '127.0.0.1'}</span>
+        </div>
+        <div>
+            <span style="color:#4ade80;font-size:11px;">✅ {LANG[lang].get('active', 'Active')}</span>
+        </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+        <div>
+            <span style="color:rgba(255,255,255,0.4);font-size:13px;">{LANG[lang].get('last_login', 'Last login')}</span>
+        </div>
+        <div>
+            <span style="color:rgba(255,255,255,0.2);font-size:11px;">{datetime.now().strftime('%d/%m/%Y %H:%M')}</span>
+        </div>
+    </div>
+    """
+    
+    return f"""
+    <html>
+    <head>
+        <title>{LANG[lang].get('settings', 'Settings')} - VestiCore</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {STYLE}
+    </head>
+    <body>
+        <div class="container" style="max-width:750px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
+                    <div>
+                        <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
+                        <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">{LANG[lang].get('settings', 'Settings')}</div>
+                    </div>
+                </div>
+                <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← Retour</a>
+            </div>
+            
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;margin-bottom:20px;">⚙️ {LANG[lang].get('settings', 'Settings')}</div>
+            
+            {success_html}
+            {error_html}
+            
+            <!-- CHANGER MODPAS -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.04);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:12px;">🔐 {LANG[lang].get('change_password', 'Change Password')}</h3>
+                <form method="post" action="/settings/change-password">
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <input type="password" name="current_password" placeholder="{LANG[lang].get('current_password', 'Current password')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <input type="password" name="new_password" placeholder="{LANG[lang].get('new_password', 'New password')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <input type="password" name="confirm_password" placeholder="{LANG[lang].get('confirm_password', 'Confirm password')}" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#ffffff;font-size:14px;outline:none;" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="width:100%;padding:12px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.12);border-radius:8px;color:#ffd700;font-weight:700;font-size:14px;cursor:pointer;">{LANG[lang].get('change_password', 'Change password')}</button>
+                </form>
+            </div>
+            
+            <!-- SECURITE -->
+            <div style="background:rgba(59,130,246,0.03);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid rgba(59,130,246,0.08);">
+                <h3 style="color:#3b82f6;font-size:16px;margin-bottom:12px;">🔐 {LANG[lang].get('security', 'Security')}</h3>
+                
+                <!-- 2FA -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+                    <div>
+                        <span style="color:#ffffff;font-size:14px;">{LANG[lang].get('two_factor', 'Two-Factor Authentication (2FA)')}</span>
+                        <span style="color:rgba(255,255,255,0.3);font-size:11px;display:block;">{LANG[lang].get('enable_2fa', 'Activate 2FA for more security')}</span>
+                    </div>
+                    <button onclick="showModal('Fonctionnalité 2FA en cours de développement', '🔑 2FA', 'info')" style="padding:8px 20px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.1);border-radius:8px;color:#ffd700;font-weight:600;font-size:12px;cursor:pointer;">{LANG[lang].get('enable_2fa', 'Enable')}</button>
+                </div>
+                
+                <!-- Sessions -->
+                <div style="margin-top:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="color:#ffffff;font-size:14px;">{LANG[lang].get('session_management', 'Session Management')}</span>
+                        <button onclick="showModal('Vous êtes déconnecté de tous les appareils', '🚪 Déconnexion', 'info')" style="padding:6px 16px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.1);border-radius:6px;color:#ff6b6b;font-weight:600;font-size:11px;cursor:pointer;">{LANG[lang].get('logout_all', 'Logout All')}</button>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 12px;">
+                        {sessions_html}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TRANSACTIONS -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.04);">
+                <h3 style="color:#4ade80;font-size:16px;margin-bottom:12px;">📊 {LANG[lang].get('transactions_history', 'Transactions History')}</h3>
+                <div style="max-height:250px;overflow-y:auto;">
+                    {tx_html}
+                </div>
+            </div>
+            
+            <!-- EARNINGS -->
+            <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid rgba(255,255,255,0.04);">
+                <h3 style="color:#ffd700;font-size:16px;margin-bottom:12px;">📈 {LANG[lang].get('earnings_history', 'Earnings History')}</h3>
+                <div style="max-height:250px;overflow-y:auto;">
+                    {earnings_html}
+                </div>
+            </div>
+            
+            <div style="text-align:center;margin-top:15px;border-top:1px solid rgba(255,255,255,0.03);padding-top:15px;">
+                <p style="color:rgba(255,255,255,0.08);font-size:10px;">{LANG[lang].get('footer', '© 2026 VestiCore. All rights reserved.')}</p>
+            </div>
+        </div>
+        {get_modal_html()}
+    </body>
+    </html>
+    """
+
+# =====================
+# CHANGE PASSWORD
+# =====================
+
+@app.post("/settings/change-password")
+def change_password(
+    request: Request,
+    current_password: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user = current_user(request, db)
+    
+    if not verify_password(current_password, user.password):
+        return RedirectResponse(url="/settings?error=Mot+de+passe+actuel+incorrect", status_code=303)
+    
+    if new_password != confirm_password:
+        return RedirectResponse(url="/settings?error=Les+mots+de+passe+ne+correspondent+pas", status_code=303)
+    
+    if new_password == current_password:
+        return RedirectResponse(url="/settings?error=Le+nouveau+mot+de+passe+doit+être+différent", status_code=303)
+    
+    user.password = hash_password(new_password)
+    db.commit()
+    add_log(db, user.username, "Modpas chanje")
+    
+    return RedirectResponse(url="/settings?success=Mot+de+passe+changé+avec+succès", status_code=303)
+
+# =====================
 # REFERRAL
 # =====================
 
@@ -2055,7 +2548,9 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
         <div class="container" style="max-width:550px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
                     <div>
                         <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
                         <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">FINANCE & REWARDS</div>
@@ -2064,7 +2559,7 @@ def referral_page(request: Request, db: Session = Depends(get_db)):
                 <a href="/dashboard" style="color:rgba(255,255,255,0.3);text-decoration:none;font-size:13px;">← {LANG[lang].get('referral_back', 'Back')}</a>
             </div>
             
-            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">{LANG[lang].get('referral_title', '👥 Referral')}</div>
+            <div style="color:#ffffff;font-size:22px;font-weight:600;text-align:center;">👥 {LANG[lang].get('referral_title', 'Referral')}</div>
             
             <div style="background:rgba(255,215,0,0.04);border-radius:10px;padding:15px;border:1px solid rgba(255,215,0,0.06);">
                 <p style="color:rgba(255,255,255,0.4);font-size:10px;">{LANG[lang].get('referral_code', 'YOUR CODE')}</p>
@@ -2196,7 +2691,9 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         <div class="container" style="max-width:700px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="logo-diamond"><span>V</span></div>
+                    <div class="logo-diamond" style="width:40px;height:40px;">
+                        {LOGO_SVG}
+                    </div>
                     <div>
                         <div style="color:#ffffff;font-size:20px;font-weight:700;">Vesti<span style="color:#ffd700;">Core</span></div>
                         <div style="color:rgba(255,255,255,0.2);font-size:9px;letter-spacing:3px;">ADMIN</div>
